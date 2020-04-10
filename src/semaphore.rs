@@ -1,0 +1,69 @@
+use crate::base::*;
+use crate::units::*;
+use crate::shim::*;
+
+/// A counting or binary semaphore
+pub struct Semaphore {
+    semaphore: FreeRtosSemaphoreHandle,
+}
+
+unsafe impl Send for Semaphore {}
+unsafe impl Sync for Semaphore {}
+
+impl Semaphore {
+    /// Create a new binary semaphore
+    pub fn new_binary() -> Result<Semaphore, FreeRtosError> {
+        unsafe {
+            let s = freertos_rs_create_binary_semaphore();
+            if s == 0 as *const _ {
+                return Err(FreeRtosError::OutOfMemory);
+            }
+            Ok(Semaphore { semaphore: s })
+        }
+    }
+
+    /// Create a new counting semaphore
+    pub fn new_counting(max: u32, initial: u32) -> Result<Semaphore, FreeRtosError> {
+        unsafe {
+            let s = freertos_rs_create_counting_semaphore(max, initial);
+            if s == 0 as *const _ {
+                return Err(FreeRtosError::OutOfMemory);
+            }
+            Ok(Semaphore { semaphore: s })
+        }
+    }
+    
+    /// Lock this semaphore in a RAII fashion
+    pub fn lock<D: DurationTicks>(&self, max_wait: D) -> Result<SemaphoreGuard, FreeRtosError> {
+        unsafe {
+            let res = freertos_rs_take_mutex(self.semaphore, max_wait.to_ticks());
+
+            if res != 0 {
+                return Err(FreeRtosError::Timeout);
+            }
+
+            Ok(SemaphoreGuard { __semaphore: self.semaphore })
+        }
+    }
+}
+
+impl Drop for Semaphore {
+    fn drop(&mut self) {
+        unsafe {
+            freertos_rs_delete_semaphore(self.semaphore);
+        }
+    }
+}
+
+/// Holds the lock to the semaphore until we are dropped
+pub struct SemaphoreGuard {
+    __semaphore: FreeRtosSemaphoreHandle,
+}
+
+impl Drop for SemaphoreGuard {
+    fn drop(&mut self) {
+        unsafe {
+            freertos_rs_give_mutex(self.__semaphore);
+        }
+    }
+}

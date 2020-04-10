@@ -1,4 +1,9 @@
 use freertos_rust::*;
+use core::mem;
+
+fn task1() {
+
+}
 
 fn main() {
     unsafe {
@@ -7,7 +12,16 @@ fn main() {
         initialiseHeap();
 
         println!("Delay 1000...");
-        freertos_rs_vTaskDelay(1000);
+
+        Task::new().name("hello").stack_size(128).start(|| {
+            loop {
+                println!("Hello world!");
+                CurrentTask::delay(Duration::infinite());
+            }
+        }).unwrap();
+
+        //freertos_rs_spawn_task(task1, null);
+        //freertos_rs_vTaskDelay(1000);
         println!("1 Second later");
 
 
@@ -16,7 +30,9 @@ fn main() {
         println!("Free Memory: {}!", free);
 
 
-
         xPortStartScheduler();
+        loop {
+            println!("Loop forever!");
+        }
     }
 }

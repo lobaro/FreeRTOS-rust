@@ -3,9 +3,6 @@
 #include <stdlib.h>
 #include <conio.h>
 
-/* Visual studio intrinsics used so the __debugbreak() function is available
-should an assert get hit. */
-#include <intrin.h>
 
 /* FreeRTOS kernel includes. */
 #include "FreeRTOS.h"
