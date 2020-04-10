@@ -404,6 +404,15 @@ pub const configENABLE_MPU: u32 = 0;
 pub const configENABLE_FPU: u32 = 1;
 pub const configENABLE_TRUSTZONE: u32 = 1;
 pub const configRUN_FREERTOS_SECURE_ONLY: u32 = 0;
+pub const tskKERNEL_VERSION_NUMBER: &'static [u8; 8usize] = b"V10.3.0\0";
+pub const tskKERNEL_VERSION_MAJOR: u32 = 10;
+pub const tskKERNEL_VERSION_MINOR: u32 = 3;
+pub const tskKERNEL_VERSION_BUILD: u32 = 0;
+pub const tskMPU_REGION_READ_ONLY: u32 = 1;
+pub const tskMPU_REGION_READ_WRITE: u32 = 2;
+pub const tskMPU_REGION_EXECUTE_NEVER: u32 = 4;
+pub const tskMPU_REGION_NORMAL_MEMORY: u32 = 8;
+pub const tskMPU_REGION_DEVICE_MEMORY: u32 = 16;
 extern "C" {
     pub fn add(a: ::std::os::raw::c_int, b: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
@@ -1436,3 +1445,2849 @@ pub struct xSTATIC_STREAM_BUFFER {
 }
 pub type StaticStreamBuffer_t = xSTATIC_STREAM_BUFFER;
 pub type StaticMessageBuffer_t = StaticStreamBuffer_t;
+extern "C" {
+    pub fn initialiseHeap();
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct xLIST_ITEM {
+    pub xItemValue: TickType_t,
+    pub pxNext: *mut xLIST_ITEM,
+    pub pxPrevious: *mut xLIST_ITEM,
+    pub pvOwner: *mut ::core::ffi::c_void,
+    pub pvContainer: *mut xLIST,
+}
+pub type ListItem_t = xLIST_ITEM;
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct xMINI_LIST_ITEM {
+    pub xItemValue: TickType_t,
+    pub pxNext: *mut xLIST_ITEM,
+    pub pxPrevious: *mut xLIST_ITEM,
+}
+pub type MiniListItem_t = xMINI_LIST_ITEM;
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct xLIST {
+    pub uxNumberOfItems: UBaseType_t,
+    pub pxIndex: *mut ListItem_t,
+    pub xListEnd: MiniListItem_t,
+}
+pub type List_t = xLIST;
+extern "C" {
+    pub fn vListInitialise(pxList: *mut List_t);
+}
+extern "C" {
+    pub fn vListInitialiseItem(pxItem: *mut ListItem_t);
+}
+extern "C" {
+    pub fn vListInsert(pxList: *mut List_t, pxNewListItem: *mut ListItem_t);
+}
+extern "C" {
+    pub fn vListInsertEnd(pxList: *mut List_t, pxNewListItem: *mut ListItem_t);
+}
+extern "C" {
+    pub fn uxListRemove(pxItemToRemove: *mut ListItem_t) -> UBaseType_t;
+}
+#[doc = " task. h"]
+#[doc = ""]
+#[doc = " Type by which tasks are referenced.  For example, a call to xTaskCreate"]
+#[doc = " returns (via a pointer parameter) an TaskHandle_t variable that can then"]
+#[doc = " be used as a parameter to vTaskDelete to delete the task."]
+#[doc = ""]
+#[doc = " \\defgroup TaskHandle_t TaskHandle_t"]
+#[doc = " \\ingroup Tasks"]
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct tskTaskControlBlock {
+    _unused: [u8; 0],
+}
+pub type TaskHandle_t = *mut tskTaskControlBlock;
+pub type TaskHookFunction_t =
+    ::core::option::Option<unsafe extern "C" fn(arg1: *mut ::core::ffi::c_void) -> BaseType_t>;
+pub const eTaskState_eRunning: eTaskState = 0;
+pub const eTaskState_eReady: eTaskState = 1;
+pub const eTaskState_eBlocked: eTaskState = 2;
+pub const eTaskState_eSuspended: eTaskState = 3;
+pub const eTaskState_eDeleted: eTaskState = 4;
+pub const eTaskState_eInvalid: eTaskState = 5;
+pub type eTaskState = i32;
+pub const eNotifyAction_eNoAction: eNotifyAction = 0;
+pub const eNotifyAction_eSetBits: eNotifyAction = 1;
+pub const eNotifyAction_eIncrement: eNotifyAction = 2;
+pub const eNotifyAction_eSetValueWithOverwrite: eNotifyAction = 3;
+pub const eNotifyAction_eSetValueWithoutOverwrite: eNotifyAction = 4;
+pub type eNotifyAction = i32;
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct xTIME_OUT {
+    pub xOverflowCount: BaseType_t,
+    pub xTimeOnEntering: TickType_t,
+}
+pub type TimeOut_t = xTIME_OUT;
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct xMEMORY_REGION {
+    pub pvBaseAddress: *mut ::core::ffi::c_void,
+    pub ulLengthInBytes: u32,
+    pub ulParameters: u32,
+}
+pub type MemoryRegion_t = xMEMORY_REGION;
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct xTASK_PARAMETERS {
+    pub pvTaskCode: TaskFunction_t,
+    pub pcName: *const ::std::os::raw::c_char,
+    pub usStackDepth: u16,
+    pub pvParameters: *mut ::core::ffi::c_void,
+    pub uxPriority: UBaseType_t,
+    pub puxStackBuffer: *mut StackType_t,
+    pub xRegions: [MemoryRegion_t; 1usize],
+}
+pub type TaskParameters_t = xTASK_PARAMETERS;
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct xTASK_STATUS {
+    pub xHandle: TaskHandle_t,
+    pub pcTaskName: *const ::std::os::raw::c_char,
+    pub xTaskNumber: UBaseType_t,
+    pub eCurrentState: eTaskState,
+    pub uxCurrentPriority: UBaseType_t,
+    pub uxBasePriority: UBaseType_t,
+    pub ulRunTimeCounter: u32,
+    pub pxStackBase: *mut StackType_t,
+    pub usStackHighWaterMark: u16,
+}
+pub type TaskStatus_t = xTASK_STATUS;
+pub const eSleepModeStatus_eAbortSleep: eSleepModeStatus = 0;
+pub const eSleepModeStatus_eStandardSleep: eSleepModeStatus = 1;
+pub const eSleepModeStatus_eNoTasksWaitingTimeout: eSleepModeStatus = 2;
+pub type eSleepModeStatus = i32;
+extern "C" {
+    pub fn xTaskCreate(
+        pxTaskCode: TaskFunction_t,
+        pcName: *const ::std::os::raw::c_char,
+        usStackDepth: u16,
+        pvParameters: *mut ::core::ffi::c_void,
+        uxPriority: UBaseType_t,
+        pxCreatedTask: *mut TaskHandle_t,
+    ) -> BaseType_t;
+}
+extern "C" {
+    pub fn xTaskCreateStatic(
+        pxTaskCode: TaskFunction_t,
+        pcName: *const ::std::os::raw::c_char,
+        ulStackDepth: u32,
+        pvParameters: *mut ::core::ffi::c_void,
+        uxPriority: UBaseType_t,
+        puxStackBuffer: *mut StackType_t,
+        pxTaskBuffer: *mut StaticTask_t,
+    ) -> TaskHandle_t;
+}
+extern "C" {
+    #[doc = " task. h"]
+    #[doc = "<pre>"]
+    #[doc = "void vTaskAllocateMPURegions( TaskHandle_t xTask, const MemoryRegion_t * const pxRegions );</pre>"]
+    #[doc = ""]
+    #[doc = " Memory regions are assigned to a restricted task when the task is created by"]
+    #[doc = " a call to xTaskCreateRestricted().  These regions can be redefined using"]
+    #[doc = " vTaskAllocateMPURegions()."]
+    #[doc = ""]
+    #[doc = " @param xTask The handle of the task being updated."]
+    #[doc = ""]
+    #[doc = " @param xRegions A pointer to an MemoryRegion_t structure that contains the"]
+    #[doc = " new memory region definitions."]
+    #[doc = ""]
+    #[doc = " Example usage:"]
+    #[doc = "<pre>"]
+    #[doc = "static const MemoryRegion_t xAltRegions[ portNUM_CONFIGURABLE_REGIONS ] ="]
+    #[doc = "{"]
+    #[doc = "{ ucOneKByte,\t\t1024,\t\tportMPU_REGION_READ_WRITE },"]
+    #[doc = "{ 0,\t\t\t\t0,\t\t\t0 },"]
+    #[doc = "{ 0,\t\t\t\t0,\t\t\t0 }"]
+    #[doc = "};"]
+    #[doc = ""]
+    #[doc = "void vATask( void *pvParameters )"]
+    #[doc = "{"]
+    #[doc = "vTaskAllocateMPURegions( NULL, xAltRegions );"]
+    #[doc = ""]
+    #[doc = "}"]
+    #[doc = "</pre>"]
+    #[doc = " \\defgroup xTaskCreateRestricted xTaskCreateRestricted"]
+    #[doc = " \\ingroup Tasks"]
+    pub fn vTaskAllocateMPURegions(xTask: TaskHandle_t, pxRegions: *const MemoryRegion_t);
+}
+extern "C" {
+    #[doc = " task. h"]
+    #[doc = " <pre>void vTaskDelete( TaskHandle_t xTask );</pre>"]
+    #[doc = ""]
+    #[doc = " INCLUDE_vTaskDelete must be defined as 1 for this function to be available."]
+    #[doc = " See the configuration section for more information."]
+    #[doc = ""]
+    #[doc = " Remove a task from the RTOS real time kernel's management.  The task being"]
+    #[doc = " deleted will be removed from all ready, blocked, suspended and event lists."]
+    #[doc = ""]
+    #[doc = " NOTE:  The idle task is responsible for freeing the kernel allocated"]
+    #[doc = " memory from tasks that have been deleted.  It is therefore important that"]
+    #[doc = " the idle task is not starved of microcontroller processing time if your"]
+    #[doc = " application makes any calls to vTaskDelete ().  Memory allocated by the"]
+    #[doc = " task code is not automatically freed, and should be freed before the task"]
+    #[doc = " is deleted."]
+    #[doc = ""]
+    #[doc = " See the demo application file death.c for sample code that utilises"]
+    #[doc = " vTaskDelete ()."]
+    #[doc = ""]
+    #[doc = " @param xTask The handle of the task to be deleted.  Passing NULL will"]
+    #[doc = " cause the calling task to be deleted."]
+    #[doc = ""]
+    #[doc = " Example usage:"]
+    #[doc = "<pre>"]
+    #[doc = "void vOtherFunction( void )"]
+    #[doc = "{"]
+    #[doc = "TaskHandle_t xHandle;"]
+    #[doc = ""]
+    #[doc = "xTaskCreate( vTaskCode, \"NAME\", STACK_SIZE, NULL, tskIDLE_PRIORITY, &xHandle );"]
+    #[doc = ""]
+    #[doc = "vTaskDelete( xHandle );"]
+    #[doc = "}"]
+    #[doc = "</pre>"]
+    #[doc = " \\defgroup vTaskDelete vTaskDelete"]
+    #[doc = " \\ingroup Tasks"]
+    pub fn vTaskDelete(xTaskToDelete: TaskHandle_t);
+}
+extern "C" {
+    #[doc = " task. h"]
+    #[doc = " <pre>void vTaskDelay( const TickType_t xTicksToDelay );</pre>"]
+    #[doc = ""]
+    #[doc = " Delay a task for a given number of ticks.  The actual time that the"]
+    #[doc = " task remains blocked depends on the tick rate.  The constant"]
+    #[doc = " portTICK_PERIOD_MS can be used to calculate real time from the tick"]
+    #[doc = " rate - with the resolution of one tick period."]
+    #[doc = ""]
+    #[doc = " INCLUDE_vTaskDelay must be defined as 1 for this function to be available."]
+    #[doc = " See the configuration section for more information."]
+    #[doc = ""]
+    #[doc = ""]
+    #[doc = " vTaskDelay() specifies a time at which the task wishes to unblock relative to"]
+    #[doc = " the time at which vTaskDelay() is called.  For example, specifying a block"]
+    #[doc = " period of 100 ticks will cause the task to unblock 100 ticks after"]
+    #[doc = " vTaskDelay() is called.  vTaskDelay() does not therefore provide a good method"]
+    #[doc = " of controlling the frequency of a periodic task as the path taken through the"]
+    #[doc = " code, as well as other task and interrupt activity, will effect the frequency"]
+    #[doc = " at which vTaskDelay() gets called and therefore the time at which the task"]
+    #[doc = " next executes.  See vTaskDelayUntil() for an alternative API function designed"]
+    #[doc = " to facilitate fixed frequency execution.  It does this by specifying an"]
+    #[doc = " absolute time (rather than a relative time) at which the calling task should"]
+    #[doc = " unblock."]
+    #[doc = ""]
+    #[doc = " @param xTicksToDelay The amount of time, in tick periods, that"]
+    #[doc = " the calling task should block."]
+    #[doc = ""]
+    #[doc = " Example usage:"]
+    #[doc = ""]
+    #[doc = "void vTaskFunction( void * pvParameters )"]
+    #[doc = "{"]
+    #[doc = "const TickType_t xDelay = 500 / portTICK_PERIOD_MS;"]
+    #[doc = ""]
+    #[doc = "for( ;; )"]
+    #[doc = "{"]
+    #[doc = "vToggleLED();"]
+    #[doc = "vTaskDelay( xDelay );"]
+    #[doc = "}"]
+    #[doc = "}"]
+    #[doc = ""]
+    #[doc = " \\defgroup vTaskDelay vTaskDelay"]
+    #[doc = " \\ingroup TaskCtrl"]
+    pub fn vTaskDelay(xTicksToDelay: TickType_t);
+}
+extern "C" {
+    #[doc = " task. h"]
+    #[doc = " <pre>void vTaskDelayUntil( TickType_t *pxPreviousWakeTime, const TickType_t xTimeIncrement );</pre>"]
+    #[doc = ""]
+    #[doc = " INCLUDE_vTaskDelayUntil must be defined as 1 for this function to be available."]
+    #[doc = " See the configuration section for more information."]
+    #[doc = ""]
+    #[doc = " Delay a task until a specified time.  This function can be used by periodic"]
+    #[doc = " tasks to ensure a constant execution frequency."]
+    #[doc = ""]
+    #[doc = " This function differs from vTaskDelay () in one important aspect:  vTaskDelay () will"]
+    #[doc = " cause a task to block for the specified number of ticks from the time vTaskDelay () is"]
+    #[doc = " called.  It is therefore difficult to use vTaskDelay () by itself to generate a fixed"]
+    #[doc = " execution frequency as the time between a task starting to execute and that task"]
+    #[doc = " calling vTaskDelay () may not be fixed [the task may take a different path though the"]
+    #[doc = " code between calls, or may get interrupted or preempted a different number of times"]
+    #[doc = " each time it executes]."]
+    #[doc = ""]
+    #[doc = " Whereas vTaskDelay () specifies a wake time relative to the time at which the function"]
+    #[doc = " is called, vTaskDelayUntil () specifies the absolute (exact) time at which it wishes to"]
+    #[doc = " unblock."]
+    #[doc = ""]
+    #[doc = " The constant portTICK_PERIOD_MS can be used to calculate real time from the tick"]
+    #[doc = " rate - with the resolution of one tick period."]
+    #[doc = ""]
+    #[doc = " @param pxPreviousWakeTime Pointer to a variable that holds the time at which the"]
+    #[doc = " task was last unblocked.  The variable must be initialised with the current time"]
+    #[doc = " prior to its first use (see the example below).  Following this the variable is"]
+    #[doc = " automatically updated within vTaskDelayUntil ()."]
+    #[doc = ""]
+    #[doc = " @param xTimeIncrement The cycle time period.  The task will be unblocked at"]
+    #[doc = " time *pxPreviousWakeTime + xTimeIncrement.  Calling vTaskDelayUntil with the"]
+    #[doc = " same xTimeIncrement parameter value will cause the task to execute with"]
+    #[doc = " a fixed interface period."]
+    #[doc = ""]
+    #[doc = " Example usage:"]
+    #[doc = "<pre>"]
+    #[doc = "void vTaskFunction( void * pvParameters )"]
+    #[doc = "{"]
+    #[doc = "TickType_t xLastWakeTime;"]
+    #[doc = "const TickType_t xFrequency = 10;"]
+    #[doc = ""]
+    #[doc = "xLastWakeTime = xTaskGetTickCount ();"]
+    #[doc = "for( ;; )"]
+    #[doc = "{"]
+    #[doc = "vTaskDelayUntil( &xLastWakeTime, xFrequency );"]
+    #[doc = ""]
+    #[doc = "}"]
+    #[doc = "}"]
+    #[doc = "</pre>"]
+    #[doc = " \\defgroup vTaskDelayUntil vTaskDelayUntil"]
+    #[doc = " \\ingroup TaskCtrl"]
+    pub fn vTaskDelayUntil(pxPreviousWakeTime: *mut TickType_t, xTimeIncrement: TickType_t);
+}
+extern "C" {
+    #[doc = " task. h"]
+    #[doc = " <pre>BaseType_t xTaskAbortDelay( TaskHandle_t xTask );</pre>"]
+    #[doc = ""]
+    #[doc = " INCLUDE_xTaskAbortDelay must be defined as 1 in FreeRTOSConfig.h for this"]
+    #[doc = " function to be available."]
+    #[doc = ""]
+    #[doc = " A task will enter the Blocked state when it is waiting for an event.  The"]
+    #[doc = " event it is waiting for can be a temporal event (waiting for a time), such"]
+    #[doc = " as when vTaskDelay() is called, or an event on an object, such as when"]
+    #[doc = " xQueueReceive() or ulTaskNotifyTake() is called.  If the handle of a task"]
+    #[doc = " that is in the Blocked state is used in a call to xTaskAbortDelay() then the"]
+    #[doc = " task will leave the Blocked state, and return from whichever function call"]
+    #[doc = " placed the task into the Blocked state."]
+    #[doc = ""]
+    #[doc = " There is no 'FromISR' version of this function as an interrupt would need to"]
+    #[doc = " know which object a task was blocked on in order to know which actions to"]
+    #[doc = " take.  For example, if the task was blocked on a queue the interrupt handler"]
+    #[doc = " would then need to know if the queue was locked."]
+    #[doc = ""]
+    #[doc = " @param xTask The handle of the task to remove from the Blocked state."]
+    #[doc = ""]
+    #[doc = " @return If the task referenced by xTask was not in the Blocked state then"]
+    #[doc = " pdFAIL is returned.  Otherwise pdPASS is returned."]
+    #[doc = ""]
+    #[doc = " \\defgroup xTaskAbortDelay xTaskAbortDelay"]
+    #[doc = " \\ingroup TaskCtrl"]
+    pub fn xTaskAbortDelay(xTask: TaskHandle_t) -> BaseType_t;
+}
+extern "C" {
+    #[doc = " task. h"]
+    #[doc = " <pre>UBaseType_t uxTaskPriorityGet( const TaskHandle_t xTask );</pre>"]
+    #[doc = ""]
+    #[doc = " INCLUDE_uxTaskPriorityGet must be defined as 1 for this function to be available."]
+    #[doc = " See the configuration section for more information."]
+    #[doc = ""]
+    #[doc = " Obtain the priority of any task."]
+    #[doc = ""]
+    #[doc = " @param xTask Handle of the task to be queried.  Passing a NULL"]
+    #[doc = " handle results in the priority of the calling task being returned."]
+    #[doc = ""]
+    #[doc = " @return The priority of xTask."]
+    #[doc = ""]
+    #[doc = " Example usage:"]
+    #[doc = "<pre>"]
+    #[doc = "void vAFunction( void )"]
+    #[doc = "{"]
+    #[doc = "TaskHandle_t xHandle;"]
+    #[doc = ""]
+    #[doc = "xTaskCreate( vTaskCode, \"NAME\", STACK_SIZE, NULL, tskIDLE_PRIORITY, &xHandle );"]
+    #[doc = ""]
+    #[doc = ""]
+    #[doc = "if( uxTaskPriorityGet( xHandle ) != tskIDLE_PRIORITY )"]
+    #[doc = "{"]
+    #[doc = "}"]
+    #[doc = ""]
+    #[doc = ""]
+    #[doc = "if( uxTaskPriorityGet( xHandle ) < uxTaskPriorityGet( NULL ) )"]
+    #[doc = "{"]
+    #[doc = "}"]
+    #[doc = "}"]
+    #[doc = "</pre>"]
+    #[doc = " \\defgroup uxTaskPriorityGet uxTaskPriorityGet"]
+    #[doc = " \\ingroup TaskCtrl"]
+    pub fn uxTaskPriorityGet(xTask: TaskHandle_t) -> UBaseType_t;
+}
+extern "C" {
+    #[doc = " task. h"]
+    #[doc = " <pre>UBaseType_t uxTaskPriorityGetFromISR( const TaskHandle_t xTask );</pre>"]
+    #[doc = ""]
+    #[doc = " A version of uxTaskPriorityGet() that can be used from an ISR."]
+    pub fn uxTaskPriorityGetFromISR(xTask: TaskHandle_t) -> UBaseType_t;
+}
+extern "C" {
+    #[doc = " task. h"]
+    #[doc = " <pre>eTaskState eTaskGetState( TaskHandle_t xTask );</pre>"]
+    #[doc = ""]
+    #[doc = " INCLUDE_eTaskGetState must be defined as 1 for this function to be available."]
+    #[doc = " See the configuration section for more information."]
+    #[doc = ""]
+    #[doc = " Obtain the state of any task.  States are encoded by the eTaskState"]
+    #[doc = " enumerated type."]
+    #[doc = ""]
+    #[doc = " @param xTask Handle of the task to be queried."]
+    #[doc = ""]
+    #[doc = " @return The state of xTask at the time the function was called.  Note the"]
+    #[doc = " state of the task might change between the function being called, and the"]
+    #[doc = " functions return value being tested by the calling task."]
+    pub fn eTaskGetState(xTask: TaskHandle_t) -> eTaskState;
+}
+extern "C" {
+    #[doc = " task. h"]
+    #[doc = " <pre>void vTaskGetInfo( TaskHandle_t xTask, TaskStatus_t *pxTaskStatus, BaseType_t xGetFreeStackSpace, eTaskState eState );</pre>"]
+    #[doc = ""]
+    #[doc = " configUSE_TRACE_FACILITY must be defined as 1 for this function to be"]
+    #[doc = " available.  See the configuration section for more information."]
+    #[doc = ""]
+    #[doc = " Populates a TaskStatus_t structure with information about a task."]
+    #[doc = ""]
+    #[doc = " @param xTask Handle of the task being queried.  If xTask is NULL then"]
+    #[doc = " information will be returned about the calling task."]
+    #[doc = ""]
+    #[doc = " @param pxTaskStatus A pointer to the TaskStatus_t structure that will be"]
+    #[doc = " filled with information about the task referenced by the handle passed using"]
+    #[doc = " the xTask parameter."]
+    #[doc = ""]
+    #[doc = " @xGetFreeStackSpace The TaskStatus_t structure contains a member to report"]
+    #[doc = " the stack high water mark of the task being queried.  Calculating the stack"]
+    #[doc = " high water mark takes a relatively long time, and can make the system"]
+    #[doc = " temporarily unresponsive - so the xGetFreeStackSpace parameter is provided to"]
+    #[doc = " allow the high water mark checking to be skipped.  The high watermark value"]
+    #[doc = " will only be written to the TaskStatus_t structure if xGetFreeStackSpace is"]
+    #[doc = " not set to pdFALSE;"]
+    #[doc = ""]
+    #[doc = " @param eState The TaskStatus_t structure contains a member to report the"]
+    #[doc = " state of the task being queried.  Obtaining the task state is not as fast as"]
+    #[doc = " a simple assignment - so the eState parameter is provided to allow the state"]
+    #[doc = " information to be omitted from the TaskStatus_t structure.  To obtain state"]
+    #[doc = " information then set eState to eInvalid - otherwise the value passed in"]
+    #[doc = " eState will be reported as the task state in the TaskStatus_t structure."]
+    #[doc = ""]
+    #[doc = " Example usage:"]
+    #[doc = "<pre>"]
+    #[doc = "void vAFunction( void )"]
+    #[doc = "{"]
+    #[doc = "TaskHandle_t xHandle;"]
+    #[doc = "TaskStatus_t xTaskDetails;"]
+    #[doc = ""]
+    #[doc = "xHandle = xTaskGetHandle( \"Task_Name\" );"]
+    #[doc = ""]
+    #[doc = "configASSERT( xHandle );"]
+    #[doc = ""]
+    #[doc = "vTaskGetInfo( xHandle,"]
+    #[doc = "&xTaskDetails,"]
+    #[doc = "pdTRUE, // Include the high water mark in xTaskDetails."]
+    #[doc = "eInvalid ); // Include the task state in xTaskDetails."]
+    #[doc = "}"]
+    #[doc = "</pre>"]
+    #[doc = " \\defgroup vTaskGetInfo vTaskGetInfo"]
+    #[doc = " \\ingroup TaskCtrl"]
+    pub fn vTaskGetInfo(
+        xTask: TaskHandle_t,
+        pxTaskStatus: *mut TaskStatus_t,
+        xGetFreeStackSpace: BaseType_t,
+        eState: eTaskState,
+    );
+}
+extern "C" {
+    #[doc = " task. h"]
+    #[doc = " <pre>void vTaskPrioritySet( TaskHandle_t xTask, UBaseType_t uxNewPriority );</pre>"]
+    #[doc = ""]
+    #[doc = " INCLUDE_vTaskPrioritySet must be defined as 1 for this function to be available."]
+    #[doc = " See the configuration section for more information."]
+    #[doc = ""]
+    #[doc = " Set the priority of any task."]
+    #[doc = ""]
+    #[doc = " A context switch will occur before the function returns if the priority"]
+    #[doc = " being set is higher than the currently executing task."]
+    #[doc = ""]
+    #[doc = " @param xTask Handle to the task for which the priority is being set."]
+    #[doc = " Passing a NULL handle results in the priority of the calling task being set."]
+    #[doc = ""]
+    #[doc = " @param uxNewPriority The priority to which the task will be set."]
+    #[doc = ""]
+    #[doc = " Example usage:"]
+    #[doc = "<pre>"]
+    #[doc = "void vAFunction( void )"]
+    #[doc = "{"]
+    #[doc = "TaskHandle_t xHandle;"]
+    #[doc = ""]
+    #[doc = "xTaskCreate( vTaskCode, \"NAME\", STACK_SIZE, NULL, tskIDLE_PRIORITY, &xHandle );"]
+    #[doc = ""]
+    #[doc = ""]
+    #[doc = "vTaskPrioritySet( xHandle, tskIDLE_PRIORITY + 1 );"]
+    #[doc = ""]
+    #[doc = ""]
+    #[doc = "vTaskPrioritySet( NULL, tskIDLE_PRIORITY + 1 );"]
+    #[doc = "}"]
+    #[doc = "</pre>"]
+    #[doc = " \\defgroup vTaskPrioritySet vTaskPrioritySet"]
+    #[doc = " \\ingroup TaskCtrl"]
+    pub fn vTaskPrioritySet(xTask: TaskHandle_t, uxNewPriority: UBaseType_t);
+}
+extern "C" {
+    #[doc = " task. h"]
+    #[doc = " <pre>void vTaskSuspend( TaskHandle_t xTaskToSuspend );</pre>"]
+    #[doc = ""]
+    #[doc = " INCLUDE_vTaskSuspend must be defined as 1 for this function to be available."]
+    #[doc = " See the configuration section for more information."]
+    #[doc = ""]
+    #[doc = " Suspend any task.  When suspended a task will never get any microcontroller"]
+    #[doc = " processing time, no matter what its priority."]
+    #[doc = ""]
+    #[doc = " Calls to vTaskSuspend are not accumulative -"]
+    #[doc = " i.e. calling vTaskSuspend () twice on the same task still only requires one"]
+    #[doc = " call to vTaskResume () to ready the suspended task."]
+    #[doc = ""]
+    #[doc = " @param xTaskToSuspend Handle to the task being suspended.  Passing a NULL"]
+    #[doc = " handle will cause the calling task to be suspended."]
+    #[doc = ""]
+    #[doc = " Example usage:"]
+    #[doc = "<pre>"]
+    #[doc = "void vAFunction( void )"]
+    #[doc = "{"]
+    #[doc = "TaskHandle_t xHandle;"]
+    #[doc = ""]
+    #[doc = "xTaskCreate( vTaskCode, \"NAME\", STACK_SIZE, NULL, tskIDLE_PRIORITY, &xHandle );"]
+    #[doc = ""]
+    #[doc = ""]
+    #[doc = "vTaskSuspend( xHandle );"]
+    #[doc = ""]
+    #[doc = ""]
+    #[doc = ""]
+    #[doc = ""]
+    #[doc = ""]
+    #[doc = "vTaskSuspend( NULL );"]
+    #[doc = ""]
+    #[doc = "}"]
+    #[doc = "</pre>"]
+    #[doc = " \\defgroup vTaskSuspend vTaskSuspend"]
+    #[doc = " \\ingroup TaskCtrl"]
+    pub fn vTaskSuspend(xTaskToSuspend: TaskHandle_t);
+}
+extern "C" {
+    #[doc = " task. h"]
+    #[doc = " <pre>void vTaskResume( TaskHandle_t xTaskToResume );</pre>"]
+    #[doc = ""]
+    #[doc = " INCLUDE_vTaskSuspend must be defined as 1 for this function to be available."]
+    #[doc = " See the configuration section for more information."]
+    #[doc = ""]
+    #[doc = " Resumes a suspended task."]
+    #[doc = ""]
+    #[doc = " A task that has been suspended by one or more calls to vTaskSuspend ()"]
+    #[doc = " will be made available for running again by a single call to"]
+    #[doc = " vTaskResume ()."]
+    #[doc = ""]
+    #[doc = " @param xTaskToResume Handle to the task being readied."]
+    #[doc = ""]
+    #[doc = " Example usage:"]
+    #[doc = "<pre>"]
+    #[doc = "void vAFunction( void )"]
+    #[doc = "{"]
+    #[doc = "TaskHandle_t xHandle;"]
+    #[doc = ""]
+    #[doc = "xTaskCreate( vTaskCode, \"NAME\", STACK_SIZE, NULL, tskIDLE_PRIORITY, &xHandle );"]
+    #[doc = ""]
+    #[doc = ""]
+    #[doc = "vTaskSuspend( xHandle );"]
+    #[doc = ""]
+    #[doc = ""]
+    #[doc = ""]
+    #[doc = ""]
+    #[doc = ""]
+    #[doc = "vTaskResume( xHandle );"]
+    #[doc = ""]
+    #[doc = "}"]
+    #[doc = "</pre>"]
+    #[doc = " \\defgroup vTaskResume vTaskResume"]
+    #[doc = " \\ingroup TaskCtrl"]
+    pub fn vTaskResume(xTaskToResume: TaskHandle_t);
+}
+extern "C" {
+    #[doc = " task. h"]
+    #[doc = " <pre>void xTaskResumeFromISR( TaskHandle_t xTaskToResume );</pre>"]
+    #[doc = ""]
+    #[doc = " INCLUDE_xTaskResumeFromISR must be defined as 1 for this function to be"]
+    #[doc = " available.  See the configuration section for more information."]
+    #[doc = ""]
+    #[doc = " An implementation of vTaskResume() that can be called from within an ISR."]
+    #[doc = ""]
+    #[doc = " A task that has been suspended by one or more calls to vTaskSuspend ()"]
+    #[doc = " will be made available for running again by a single call to"]
+    #[doc = " xTaskResumeFromISR ()."]
+    #[doc = ""]
+    #[doc = " xTaskResumeFromISR() should not be used to synchronise a task with an"]
+    #[doc = " interrupt if there is a chance that the interrupt could arrive prior to the"]
+    #[doc = " task being suspended - as this can lead to interrupts being missed. Use of a"]
+    #[doc = " semaphore as a synchronisation mechanism would avoid this eventuality."]
+    #[doc = ""]
+    #[doc = " @param xTaskToResume Handle to the task being readied."]
+    #[doc = ""]
+    #[doc = " @return pdTRUE if resuming the task should result in a context switch,"]
+    #[doc = " otherwise pdFALSE. This is used by the ISR to determine if a context switch"]
+    #[doc = " may be required following the ISR."]
+    #[doc = ""]
+    #[doc = " \\defgroup vTaskResumeFromISR vTaskResumeFromISR"]
+    #[doc = " \\ingroup TaskCtrl"]
+    pub fn xTaskResumeFromISR(xTaskToResume: TaskHandle_t) -> BaseType_t;
+}
+extern "C" {
+    #[doc = " task. h"]
+    #[doc = " <pre>void vTaskStartScheduler( void );</pre>"]
+    #[doc = ""]
+    #[doc = " Starts the real time kernel tick processing.  After calling the kernel"]
+    #[doc = " has control over which tasks are executed and when."]
+    #[doc = ""]
+    #[doc = " See the demo application file main.c for an example of creating"]
+    #[doc = " tasks and starting the kernel."]
+    #[doc = ""]
+    #[doc = " Example usage:"]
+    #[doc = "<pre>"]
+    #[doc = "void vAFunction( void )"]
+    #[doc = "{"]
+    #[doc = "xTaskCreate( vTaskCode, \"NAME\", STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );"]
+    #[doc = ""]
+    #[doc = "vTaskStartScheduler ();"]
+    #[doc = ""]
+    #[doc = "}"]
+    #[doc = "</pre>"]
+    #[doc = ""]
+    #[doc = " \\defgroup vTaskStartScheduler vTaskStartScheduler"]
+    #[doc = " \\ingroup SchedulerControl"]
+    pub fn vTaskStartScheduler();
+}
+extern "C" {
+    #[doc = " task. h"]
+    #[doc = " <pre>void vTaskEndScheduler( void );</pre>"]
+    #[doc = ""]
+    #[doc = " NOTE:  At the time of writing only the x86 real mode port, which runs on a PC"]
+    #[doc = " in place of DOS, implements this function."]
+    #[doc = ""]
+    #[doc = " Stops the real time kernel tick.  All created tasks will be automatically"]
+    #[doc = " deleted and multitasking (either preemptive or cooperative) will"]
+    #[doc = " stop.  Execution then resumes from the point where vTaskStartScheduler ()"]
+    #[doc = " was called, as if vTaskStartScheduler () had just returned."]
+    #[doc = ""]
+    #[doc = " See the demo application file main. c in the demo/PC directory for an"]
+    #[doc = " example that uses vTaskEndScheduler ()."]
+    #[doc = ""]
+    #[doc = " vTaskEndScheduler () requires an exit function to be defined within the"]
+    #[doc = " portable layer (see vPortEndScheduler () in port. c for the PC port).  This"]
+    #[doc = " performs hardware specific operations such as stopping the kernel tick."]
+    #[doc = ""]
+    #[doc = " vTaskEndScheduler () will cause all of the resources allocated by the"]
+    #[doc = " kernel to be freed - but will not free resources allocated by application"]
+    #[doc = " tasks."]
+    #[doc = ""]
+    #[doc = " Example usage:"]
+    #[doc = "<pre>"]
+    #[doc = "void vTaskCode( void * pvParameters )"]
+    #[doc = "{"]
+    #[doc = "for( ;; )"]
+    #[doc = "{"]
+    #[doc = ""]
+    #[doc = "vTaskEndScheduler ();"]
+    #[doc = "}"]
+    #[doc = "}"]
+    #[doc = ""]
+    #[doc = "void vAFunction( void )"]
+    #[doc = "{"]
+    #[doc = "xTaskCreate( vTaskCode, \"NAME\", STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL );"]
+    #[doc = ""]
+    #[doc = "vTaskStartScheduler ();"]
+    #[doc = ""]
+    #[doc = "}"]
+    #[doc = "</pre>"]
+    #[doc = ""]
+    #[doc = " \\defgroup vTaskEndScheduler vTaskEndScheduler"]
+    #[doc = " \\ingroup SchedulerControl"]
+    pub fn vTaskEndScheduler();
+}
+extern "C" {
+    #[doc = " task. h"]
+    #[doc = " <pre>void vTaskSuspendAll( void );</pre>"]
+    #[doc = ""]
+    #[doc = " Suspends the scheduler without disabling interrupts.  Context switches will"]
+    #[doc = " not occur while the scheduler is suspended."]
+    #[doc = ""]
+    #[doc = " After calling vTaskSuspendAll () the calling task will continue to execute"]
+    #[doc = " without risk of being swapped out until a call to xTaskResumeAll () has been"]
+    #[doc = " made."]
+    #[doc = ""]
+    #[doc = " API functions that have the potential to cause a context switch (for example,"]
+    #[doc = " vTaskDelayUntil(), xQueueSend(), etc.) must not be called while the scheduler"]
+    #[doc = " is suspended."]
+    #[doc = ""]
+    #[doc = " Example usage:"]
+    #[doc = "<pre>"]
+    #[doc = "void vTask1( void * pvParameters )"]
+    #[doc = "{"]
+    #[doc = "for( ;; )"]
+    #[doc = "{"]
+    #[doc = ""]
+    #[doc = ""]
+    #[doc = ""]
+    #[doc = "vTaskSuspendAll ();"]
+    #[doc = ""]
+    #[doc = ""]
+    #[doc = ""]
+    #[doc = "xTaskResumeAll ();"]
+    #[doc = "}"]
+    #[doc = "}"]
+    #[doc = "</pre>"]
+    #[doc = " \\defgroup vTaskSuspendAll vTaskSuspendAll"]
+    #[doc = " \\ingroup SchedulerControl"]
+    pub fn vTaskSuspendAll();
+}
+extern "C" {
+    #[doc = " task. h"]
+    #[doc = " <pre>BaseType_t xTaskResumeAll( void );</pre>"]
+    #[doc = ""]
+    #[doc = " Resumes scheduler activity after it was suspended by a call to"]
+    #[doc = " vTaskSuspendAll()."]
+    #[doc = ""]
+    #[doc = " xTaskResumeAll() only resumes the scheduler.  It does not unsuspend tasks"]
+    #[doc = " that were previously suspended by a call to vTaskSuspend()."]
+    #[doc = ""]
+    #[doc = " @return If resuming the scheduler caused a context switch then pdTRUE is"]
+    #[doc = "\t\t  returned, otherwise pdFALSE is returned."]
+    #[doc = ""]
+    #[doc = " Example usage:"]
+    #[doc = "<pre>"]
+    #[doc = "void vTask1( void * pvParameters )"]
+    #[doc = "{"]
+    #[doc = "for( ;; )"]
+    #[doc = "{"]
+    #[doc = ""]
+    #[doc = ""]
+    #[doc = ""]
+    #[doc = "vTaskSuspendAll ();"]
+    #[doc = ""]
+    #[doc = ""]
+    #[doc = ""]
+    #[doc = "if( !xTaskResumeAll () )"]
+    #[doc = "{"]
+    #[doc = "taskYIELD ();"]
+    #[doc = "}"]
+    #[doc = "}"]
+    #[doc = "}"]
+    #[doc = "</pre>"]
+    #[doc = " \\defgroup xTaskResumeAll xTaskResumeAll"]
+    #[doc = " \\ingroup SchedulerControl"]
+    pub fn xTaskResumeAll() -> BaseType_t;
+}
+extern "C" {
+    #[doc = " task. h"]
+    #[doc = " <PRE>TickType_t xTaskGetTickCount( void );</PRE>"]
+    #[doc = ""]
+    #[doc = " @return The count of ticks since vTaskStartScheduler was called."]
+    #[doc = ""]
+    #[doc = " \\defgroup xTaskGetTickCount xTaskGetTickCount"]
+    #[doc = " \\ingroup TaskUtils"]
+    pub fn xTaskGetTickCount() -> TickType_t;
+}
+extern "C" {
+    #[doc = " task. h"]
+    #[doc = " <PRE>TickType_t xTaskGetTickCountFromISR( void );</PRE>"]
+    #[doc = ""]
+    #[doc = " @return The count of ticks since vTaskStartScheduler was called."]
+    #[doc = ""]
+    #[doc = " This is a version of xTaskGetTickCount() that is safe to be called from an"]
+    #[doc = " ISR - provided that TickType_t is the natural word size of the"]
+    #[doc = " microcontroller being used or interrupt nesting is either not supported or"]
+    #[doc = " not being used."]
+    #[doc = ""]
+    #[doc = " \\defgroup xTaskGetTickCountFromISR xTaskGetTickCountFromISR"]
+    #[doc = " \\ingroup TaskUtils"]
+    pub fn xTaskGetTickCountFromISR() -> TickType_t;
+}
+extern "C" {
+    #[doc = " task. h"]
+    #[doc = " <PRE>uint16_t uxTaskGetNumberOfTasks( void );</PRE>"]
+    #[doc = ""]
+    #[doc = " @return The number of tasks that the real time kernel is currently managing."]
+    #[doc = " This includes all ready, blocked and suspended tasks.  A task that"]
+    #[doc = " has been deleted but not yet freed by the idle task will also be"]
+    #[doc = " included in the count."]
+    #[doc = ""]
+    #[doc = " \\defgroup uxTaskGetNumberOfTasks uxTaskGetNumberOfTasks"]
+    #[doc = " \\ingroup TaskUtils"]
+    pub fn uxTaskGetNumberOfTasks() -> UBaseType_t;
+}
+extern "C" {
+    #[doc = " task. h"]
+    #[doc = " <PRE>char *pcTaskGetName( TaskHandle_t xTaskToQuery );</PRE>"]
+    #[doc = ""]
+    #[doc = " @return The text (human readable) name of the task referenced by the handle"]
+    #[doc = " xTaskToQuery.  A task can query its own name by either passing in its own"]
+    #[doc = " handle, or by setting xTaskToQuery to NULL."]
+    #[doc = ""]
+    #[doc = " \\defgroup pcTaskGetName pcTaskGetName"]
+    #[doc = " \\ingroup TaskUtils"]
+    pub fn pcTaskGetName(xTaskToQuery: TaskHandle_t) -> *mut ::std::os::raw::c_char;
+}
+extern "C" {
+    #[doc = " task. h"]
+    #[doc = " <PRE>TaskHandle_t xTaskGetHandle( const char *pcNameToQuery );</PRE>"]
+    #[doc = ""]
+    #[doc = " NOTE:  This function takes a relatively long time to complete and should be"]
+    #[doc = " used sparingly."]
+    #[doc = ""]
+    #[doc = " @return The handle of the task that has the human readable name pcNameToQuery."]
+    #[doc = " NULL is returned if no matching name is found.  INCLUDE_xTaskGetHandle"]
+    #[doc = " must be set to 1 in FreeRTOSConfig.h for pcTaskGetHandle() to be available."]
+    #[doc = ""]
+    #[doc = " \\defgroup pcTaskGetHandle pcTaskGetHandle"]
+    #[doc = " \\ingroup TaskUtils"]
+    pub fn xTaskGetHandle(pcNameToQuery: *const ::std::os::raw::c_char) -> TaskHandle_t;
+}
+extern "C" {
+    #[doc = " task.h"]
+    #[doc = " <PRE>UBaseType_t uxTaskGetStackHighWaterMark( TaskHandle_t xTask );</PRE>"]
+    #[doc = ""]
+    #[doc = " INCLUDE_uxTaskGetStackHighWaterMark must be set to 1 in FreeRTOSConfig.h for"]
+    #[doc = " this function to be available."]
+    #[doc = ""]
+    #[doc = " Returns the high water mark of the stack associated with xTask.  That is,"]
+    #[doc = " the minimum free stack space there has been (in words, so on a 32 bit machine"]
+    #[doc = " a value of 1 means 4 bytes) since the task started.  The smaller the returned"]
+    #[doc = " number the closer the task has come to overflowing its stack."]
+    #[doc = ""]
+    #[doc = " uxTaskGetStackHighWaterMark() and uxTaskGetStackHighWaterMark2() are the"]
+    #[doc = " same except for their return type.  Using configSTACK_DEPTH_TYPE allows the"]
+    #[doc = " user to determine the return type.  It gets around the problem of the value"]
+    #[doc = " overflowing on 8-bit types without breaking backward compatibility for"]
+    #[doc = " applications that expect an 8-bit return type."]
+    #[doc = ""]
+    #[doc = " @param xTask Handle of the task associated with the stack to be checked."]
+    #[doc = " Set xTask to NULL to check the stack of the calling task."]
+    #[doc = ""]
+    #[doc = " @return The smallest amount of free stack space there has been (in words, so"]
+    #[doc = " actual spaces on the stack rather than bytes) since the task referenced by"]
+    #[doc = " xTask was created."]
+    pub fn uxTaskGetStackHighWaterMark(xTask: TaskHandle_t) -> UBaseType_t;
+}
+extern "C" {
+    #[doc = " task.h"]
+    #[doc = " <PRE>configSTACK_DEPTH_TYPE uxTaskGetStackHighWaterMark2( TaskHandle_t xTask );</PRE>"]
+    #[doc = ""]
+    #[doc = " INCLUDE_uxTaskGetStackHighWaterMark2 must be set to 1 in FreeRTOSConfig.h for"]
+    #[doc = " this function to be available."]
+    #[doc = ""]
+    #[doc = " Returns the high water mark of the stack associated with xTask.  That is,"]
+    #[doc = " the minimum free stack space there has been (in words, so on a 32 bit machine"]
+    #[doc = " a value of 1 means 4 bytes) since the task started.  The smaller the returned"]
+    #[doc = " number the closer the task has come to overflowing its stack."]
+    #[doc = ""]
+    #[doc = " uxTaskGetStackHighWaterMark() and uxTaskGetStackHighWaterMark2() are the"]
+    #[doc = " same except for their return type.  Using configSTACK_DEPTH_TYPE allows the"]
+    #[doc = " user to determine the return type.  It gets around the problem of the value"]
+    #[doc = " overflowing on 8-bit types without breaking backward compatibility for"]
+    #[doc = " applications that expect an 8-bit return type."]
+    #[doc = ""]
+    #[doc = " @param xTask Handle of the task associated with the stack to be checked."]
+    #[doc = " Set xTask to NULL to check the stack of the calling task."]
+    #[doc = ""]
+    #[doc = " @return The smallest amount of free stack space there has been (in words, so"]
+    #[doc = " actual spaces on the stack rather than bytes) since the task referenced by"]
+    #[doc = " xTask was created."]
+    pub fn uxTaskGetStackHighWaterMark2(xTask: TaskHandle_t) -> u16;
+}
+extern "C" {
+    #[doc = " task.h"]
+    #[doc = " <pre>void vTaskSetApplicationTaskTag( TaskHandle_t xTask, TaskHookFunction_t pxHookFunction );</pre>"]
+    #[doc = ""]
+    #[doc = " Sets pxHookFunction to be the task hook function used by the task xTask."]
+    #[doc = " Passing xTask as NULL has the effect of setting the calling tasks hook"]
+    #[doc = " function."]
+    pub fn vTaskSetApplicationTaskTag(xTask: TaskHandle_t, pxHookFunction: TaskHookFunction_t);
+}
+extern "C" {
+    #[doc = " task.h"]
+    #[doc = " <pre>void xTaskGetApplicationTaskTag( TaskHandle_t xTask );</pre>"]
+    #[doc = ""]
+    #[doc = " Returns the pxHookFunction value assigned to the task xTask.  Do not"]
+    #[doc = " call from an interrupt service routine - call"]
+    #[doc = " xTaskGetApplicationTaskTagFromISR() instead."]
+    pub fn xTaskGetApplicationTaskTag(xTask: TaskHandle_t) -> TaskHookFunction_t;
+}
+extern "C" {
+    #[doc = " task.h"]
+    #[doc = " <pre>void xTaskGetApplicationTaskTagFromISR( TaskHandle_t xTask );</pre>"]
+    #[doc = ""]
+    #[doc = " Returns the pxHookFunction value assigned to the task xTask.  Can"]
+    #[doc = " be called from an interrupt service routine."]
+    pub fn xTaskGetApplicationTaskTagFromISR(xTask: TaskHandle_t) -> TaskHookFunction_t;
+}
+extern "C" {
+    #[doc = " task.h"]
+    #[doc = " <pre>BaseType_t xTaskCallApplicationTaskHook( TaskHandle_t xTask, void *pvParameter );</pre>"]
+    #[doc = ""]
+    #[doc = " Calls the hook function associated with xTask.  Passing xTask as NULL has"]
+    #[doc = " the effect of calling the Running tasks (the calling task) hook function."]
+    #[doc = ""]
+    #[doc = " pvParameter is passed to the hook function for the task to interpret as it"]
+    #[doc = " wants.  The return value is the value returned by the task hook function"]
+    #[doc = " registered by the user."]
+    pub fn xTaskCallApplicationTaskHook(
+        xTask: TaskHandle_t,
+        pvParameter: *mut ::core::ffi::c_void,
+    ) -> BaseType_t;
+}
+extern "C" {
+    #[doc = " xTaskGetIdleTaskHandle() is only available if"]
+    #[doc = " INCLUDE_xTaskGetIdleTaskHandle is set to 1 in FreeRTOSConfig.h."]
+    #[doc = ""]
+    #[doc = " Simply returns the handle of the idle task.  It is not valid to call"]
+    #[doc = " xTaskGetIdleTaskHandle() before the scheduler has been started."]
+    pub fn xTaskGetIdleTaskHandle() -> TaskHandle_t;
+}
+extern "C" {
+    #[doc = " configUSE_TRACE_FACILITY must be defined as 1 in FreeRTOSConfig.h for"]
+    #[doc = " uxTaskGetSystemState() to be available."]
+    #[doc = ""]
+    #[doc = " uxTaskGetSystemState() populates an TaskStatus_t structure for each task in"]
+    #[doc = " the system.  TaskStatus_t structures contain, among other things, members"]
+    #[doc = " for the task handle, task name, task priority, task state, and total amount"]
+    #[doc = " of run time consumed by the task.  See the TaskStatus_t structure"]
+    #[doc = " definition in this file for the full member list."]
+    #[doc = ""]
+    #[doc = " NOTE:  This function is intended for debugging use only as its use results in"]
+    #[doc = " the scheduler remaining suspended for an extended period."]
+    #[doc = ""]
+    #[doc = " @param pxTaskStatusArray A pointer to an array of TaskStatus_t structures."]
+    #[doc = " The array must contain at least one TaskStatus_t structure for each task"]
+    #[doc = " that is under the control of the RTOS.  The number of tasks under the control"]
+    #[doc = " of the RTOS can be determined using the uxTaskGetNumberOfTasks() API function."]
+    #[doc = ""]
+    #[doc = " @param uxArraySize The size of the array pointed to by the pxTaskStatusArray"]
+    #[doc = " parameter.  The size is specified as the number of indexes in the array, or"]
+    #[doc = " the number of TaskStatus_t structures contained in the array, not by the"]
+    #[doc = " number of bytes in the array."]
+    #[doc = ""]
+    #[doc = " @param pulTotalRunTime If configGENERATE_RUN_TIME_STATS is set to 1 in"]
+    #[doc = " FreeRTOSConfig.h then *pulTotalRunTime is set by uxTaskGetSystemState() to the"]
+    #[doc = " total run time (as defined by the run time stats clock, see"]
+    #[doc = " http://www.freertos.org/rtos-run-time-stats.html) since the target booted."]
+    #[doc = " pulTotalRunTime can be set to NULL to omit the total run time information."]
+    #[doc = ""]
+    #[doc = " @return The number of TaskStatus_t structures that were populated by"]
+    #[doc = " uxTaskGetSystemState().  This should equal the number returned by the"]
+    #[doc = " uxTaskGetNumberOfTasks() API function, but will be zero if the value passed"]
+    #[doc = " in the uxArraySize parameter was too small."]
+    #[doc = ""]
+    #[doc = " Example usage:"]
+    #[doc = "<pre>"]
+    #[doc = "void vTaskGetRunTimeStats( char *pcWriteBuffer )"]
+    #[doc = "{"]
+    #[doc = "TaskStatus_t *pxTaskStatusArray;"]
+    #[doc = "volatile UBaseType_t uxArraySize, x;"]
+    #[doc = "uint32_t ulTotalRunTime, ulStatsAsPercentage;"]
+    #[doc = ""]
+    #[doc = "pcWriteBuffer = 0x00;"]
+    #[doc = ""]
+    #[doc = "uxArraySize = uxTaskGetNumberOfTasks();"]
+    #[doc = ""]
+    #[doc = "pxTaskStatusArray = pvPortMalloc( uxArraySize * sizeof( TaskStatus_t ) );"]
+    #[doc = ""]
+    #[doc = "if( pxTaskStatusArray != NULL )"]
+    #[doc = "{"]
+    #[doc = "uxArraySize = uxTaskGetSystemState( pxTaskStatusArray, uxArraySize, &ulTotalRunTime );"]
+    #[doc = ""]
+    #[doc = "ulTotalRunTime /= 100UL;"]
+    #[doc = ""]
+    #[doc = "if( ulTotalRunTime > 0 )"]
+    #[doc = "{"]
+    #[doc = "for( x = 0; x < uxArraySize; x++ )"]
+    #[doc = "{"]
+    #[doc = "ulStatsAsPercentage = pxTaskStatusArray[ x ].ulRunTimeCounter / ulTotalRunTime;"]
+    #[doc = ""]
+    #[doc = "if( ulStatsAsPercentage > 0UL )"]
+    #[doc = "{"]
+    #[doc = "sprintf( pcWriteBuffer, \"%s\\t\\t%lu\\t\\t%lu%%\\r\\n\", pxTaskStatusArray[ x ].pcTaskName, pxTaskStatusArray[ x ].ulRunTimeCounter, ulStatsAsPercentage );"]
+    #[doc = "}"]
+    #[doc = "else"]
+    #[doc = "{"]
+    #[doc = "sprintf( pcWriteBuffer, \"%s\\t\\t%lu\\t\\t<1%%\\r\\n\", pxTaskStatusArray[ x ].pcTaskName, pxTaskStatusArray[ x ].ulRunTimeCounter );"]
+    #[doc = "}"]
+    #[doc = ""]
+    #[doc = "pcWriteBuffer += strlen( ( char * ) pcWriteBuffer );"]
+    #[doc = "}"]
+    #[doc = "}"]
+    #[doc = ""]
+    #[doc = "vPortFree( pxTaskStatusArray );"]
+    #[doc = "}"]
+    #[doc = "}"]
+    #[doc = "</pre>"]
+    pub fn uxTaskGetSystemState(
+        pxTaskStatusArray: *mut TaskStatus_t,
+        uxArraySize: UBaseType_t,
+        pulTotalRunTime: *mut u32,
+    ) -> UBaseType_t;
+}
+extern "C" {
+    #[doc = " task. h"]
+    #[doc = " <PRE>void vTaskList( char *pcWriteBuffer );</PRE>"]
+    #[doc = ""]
+    #[doc = " configUSE_TRACE_FACILITY and configUSE_STATS_FORMATTING_FUNCTIONS must"]
+    #[doc = " both be defined as 1 for this function to be available.  See the"]
+    #[doc = " configuration section of the FreeRTOS.org website for more information."]
+    #[doc = ""]
+    #[doc = " NOTE 1: This function will disable interrupts for its duration.  It is"]
+    #[doc = " not intended for normal application runtime use but as a debug aid."]
+    #[doc = ""]
+    #[doc = " Lists all the current tasks, along with their current state and stack"]
+    #[doc = " usage high water mark."]
+    #[doc = ""]
+    #[doc = " Tasks are reported as blocked ('B'), ready ('R'), deleted ('D') or"]
+    #[doc = " suspended ('S')."]
+    #[doc = ""]
+    #[doc = " PLEASE NOTE:"]
+    #[doc = ""]
+    #[doc = " This function is provided for convenience only, and is used by many of the"]
+    #[doc = " demo applications.  Do not consider it to be part of the scheduler."]
+    #[doc = ""]
+    #[doc = " vTaskList() calls uxTaskGetSystemState(), then formats part of the"]
+    #[doc = " uxTaskGetSystemState() output into a human readable table that displays task"]
+    #[doc = " names, states and stack usage."]
+    #[doc = ""]
+    #[doc = " vTaskList() has a dependency on the sprintf() C library function that might"]
+    #[doc = " bloat the code size, use a lot of stack, and provide different results on"]
+    #[doc = " different platforms.  An alternative, tiny, third party, and limited"]
+    #[doc = " functionality implementation of sprintf() is provided in many of the"]
+    #[doc = " FreeRTOS/Demo sub-directories in a file called printf-stdarg.c (note"]
+    #[doc = " printf-stdarg.c does not provide a full snprintf() implementation!)."]
+    #[doc = ""]
+    #[doc = " It is recommended that production systems call uxTaskGetSystemState()"]
+    #[doc = " directly to get access to raw stats data, rather than indirectly through a"]
+    #[doc = " call to vTaskList()."]
+    #[doc = ""]
+    #[doc = " @param pcWriteBuffer A buffer into which the above mentioned details"]
+    #[doc = " will be written, in ASCII form.  This buffer is assumed to be large"]
+    #[doc = " enough to contain the generated report.  Approximately 40 bytes per"]
+    #[doc = " task should be sufficient."]
+    #[doc = ""]
+    #[doc = " \\defgroup vTaskList vTaskList"]
+    #[doc = " \\ingroup TaskUtils"]
+    pub fn vTaskList(pcWriteBuffer: *mut ::std::os::raw::c_char);
+}
+extern "C" {
+    #[doc = " task. h"]
+    #[doc = " <PRE>void vTaskGetRunTimeStats( char *pcWriteBuffer );</PRE>"]
+    #[doc = ""]
+    #[doc = " configGENERATE_RUN_TIME_STATS and configUSE_STATS_FORMATTING_FUNCTIONS"]
+    #[doc = " must both be defined as 1 for this function to be available.  The application"]
+    #[doc = " must also then provide definitions for"]
+    #[doc = " portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() and portGET_RUN_TIME_COUNTER_VALUE()"]
+    #[doc = " to configure a peripheral timer/counter and return the timers current count"]
+    #[doc = " value respectively.  The counter should be at least 10 times the frequency of"]
+    #[doc = " the tick count."]
+    #[doc = ""]
+    #[doc = " NOTE 1: This function will disable interrupts for its duration.  It is"]
+    #[doc = " not intended for normal application runtime use but as a debug aid."]
+    #[doc = ""]
+    #[doc = " Setting configGENERATE_RUN_TIME_STATS to 1 will result in a total"]
+    #[doc = " accumulated execution time being stored for each task.  The resolution"]
+    #[doc = " of the accumulated time value depends on the frequency of the timer"]
+    #[doc = " configured by the portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() macro."]
+    #[doc = " Calling vTaskGetRunTimeStats() writes the total execution time of each"]
+    #[doc = " task into a buffer, both as an absolute count value and as a percentage"]
+    #[doc = " of the total system execution time."]
+    #[doc = ""]
+    #[doc = " NOTE 2:"]
+    #[doc = ""]
+    #[doc = " This function is provided for convenience only, and is used by many of the"]
+    #[doc = " demo applications.  Do not consider it to be part of the scheduler."]
+    #[doc = ""]
+    #[doc = " vTaskGetRunTimeStats() calls uxTaskGetSystemState(), then formats part of the"]
+    #[doc = " uxTaskGetSystemState() output into a human readable table that displays the"]
+    #[doc = " amount of time each task has spent in the Running state in both absolute and"]
+    #[doc = " percentage terms."]
+    #[doc = ""]
+    #[doc = " vTaskGetRunTimeStats() has a dependency on the sprintf() C library function"]
+    #[doc = " that might bloat the code size, use a lot of stack, and provide different"]
+    #[doc = " results on different platforms.  An alternative, tiny, third party, and"]
+    #[doc = " limited functionality implementation of sprintf() is provided in many of the"]
+    #[doc = " FreeRTOS/Demo sub-directories in a file called printf-stdarg.c (note"]
+    #[doc = " printf-stdarg.c does not provide a full snprintf() implementation!)."]
+    #[doc = ""]
+    #[doc = " It is recommended that production systems call uxTaskGetSystemState() directly"]
+    #[doc = " to get access to raw stats data, rather than indirectly through a call to"]
+    #[doc = " vTaskGetRunTimeStats()."]
+    #[doc = ""]
+    #[doc = " @param pcWriteBuffer A buffer into which the execution times will be"]
+    #[doc = " written, in ASCII form.  This buffer is assumed to be large enough to"]
+    #[doc = " contain the generated report.  Approximately 40 bytes per task should"]
+    #[doc = " be sufficient."]
+    #[doc = ""]
+    #[doc = " \\defgroup vTaskGetRunTimeStats vTaskGetRunTimeStats"]
+    #[doc = " \\ingroup TaskUtils"]
+    pub fn vTaskGetRunTimeStats(pcWriteBuffer: *mut ::std::os::raw::c_char);
+}
+extern "C" {
+    #[doc = " task. h"]
+    #[doc = " <PRE>uint32_t ulTaskGetIdleRunTimeCounter( void );</PRE>"]
+    #[doc = ""]
+    #[doc = " configGENERATE_RUN_TIME_STATS and configUSE_STATS_FORMATTING_FUNCTIONS"]
+    #[doc = " must both be defined as 1 for this function to be available.  The application"]
+    #[doc = " must also then provide definitions for"]
+    #[doc = " portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() and portGET_RUN_TIME_COUNTER_VALUE()"]
+    #[doc = " to configure a peripheral timer/counter and return the timers current count"]
+    #[doc = " value respectively.  The counter should be at least 10 times the frequency of"]
+    #[doc = " the tick count."]
+    #[doc = ""]
+    #[doc = " Setting configGENERATE_RUN_TIME_STATS to 1 will result in a total"]
+    #[doc = " accumulated execution time being stored for each task.  The resolution"]
+    #[doc = " of the accumulated time value depends on the frequency of the timer"]
+    #[doc = " configured by the portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() macro."]
+    #[doc = " While uxTaskGetSystemState() and vTaskGetRunTimeStats() writes the total"]
+    #[doc = " execution time of each task into a buffer, ulTaskGetIdleRunTimeCounter()"]
+    #[doc = " returns the total execution time of just the idle task."]
+    #[doc = ""]
+    #[doc = " @return The total run time of the idle task.  This is the amount of time the"]
+    #[doc = " idle task has actually been executing.  The unit of time is dependent on the"]
+    #[doc = " frequency configured using the portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() and"]
+    #[doc = " portGET_RUN_TIME_COUNTER_VALUE() macros."]
+    #[doc = ""]
+    #[doc = " \\defgroup ulTaskGetIdleRunTimeCounter ulTaskGetIdleRunTimeCounter"]
+    #[doc = " \\ingroup TaskUtils"]
+    pub fn ulTaskGetIdleRunTimeCounter() -> u32;
+}
+extern "C" {
+    #[doc = " task. h"]
+    #[doc = " <PRE>BaseType_t xTaskNotify( TaskHandle_t xTaskToNotify, uint32_t ulValue, eNotifyAction eAction );</PRE>"]
+    #[doc = ""]
+    #[doc = " configUSE_TASK_NOTIFICATIONS must be undefined or defined as 1 for this"]
+    #[doc = " function to be available."]
+    #[doc = ""]
+    #[doc = " When configUSE_TASK_NOTIFICATIONS is set to one each task has its own private"]
+    #[doc = " \"notification value\", which is a 32-bit unsigned integer (uint32_t)."]
+    #[doc = ""]
+    #[doc = " Events can be sent to a task using an intermediary object.  Examples of such"]
+    #[doc = " objects are queues, semaphores, mutexes and event groups.  Task notifications"]
+    #[doc = " are a method of sending an event directly to a task without the need for such"]
+    #[doc = " an intermediary object."]
+    #[doc = ""]
+    #[doc = " A notification sent to a task can optionally perform an action, such as"]
+    #[doc = " update, overwrite or increment the task's notification value.  In that way"]
+    #[doc = " task notifications can be used to send data to a task, or be used as light"]
+    #[doc = " weight and fast binary or counting semaphores."]
+    #[doc = ""]
+    #[doc = " A notification sent to a task will remain pending until it is cleared by the"]
+    #[doc = " task calling xTaskNotifyWait() or ulTaskNotifyTake().  If the task was"]
+    #[doc = " already in the Blocked state to wait for a notification when the notification"]
+    #[doc = " arrives then the task will automatically be removed from the Blocked state"]
+    #[doc = " (unblocked) and the notification cleared."]
+    #[doc = ""]
+    #[doc = " A task can use xTaskNotifyWait() to [optionally] block to wait for a"]
+    #[doc = " notification to be pending, or ulTaskNotifyTake() to [optionally] block"]
+    #[doc = " to wait for its notification value to have a non-zero value.  The task does"]
+    #[doc = " not consume any CPU time while it is in the Blocked state."]
+    #[doc = ""]
+    #[doc = " See http://www.FreeRTOS.org/RTOS-task-notifications.html for details."]
+    #[doc = ""]
+    #[doc = " @param xTaskToNotify The handle of the task being notified.  The handle to a"]
+    #[doc = " task can be returned from the xTaskCreate() API function used to create the"]
+    #[doc = " task, and the handle of the currently running task can be obtained by calling"]
+    #[doc = " xTaskGetCurrentTaskHandle()."]
+    #[doc = ""]
+    #[doc = " @param ulValue Data that can be sent with the notification.  How the data is"]
+    #[doc = " used depends on the value of the eAction parameter."]
+    #[doc = ""]
+    #[doc = " @param eAction Specifies how the notification updates the task's notification"]
+    #[doc = " value, if at all.  Valid values for eAction are as follows:"]
+    #[doc = ""]
+    #[doc = " eSetBits -"]
+    #[doc = " The task's notification value is bitwise ORed with ulValue.  xTaskNofify()"]
+    #[doc = " always returns pdPASS in this case."]
+    #[doc = ""]
+    #[doc = " eIncrement -"]
+    #[doc = " The task's notification value is incremented.  ulValue is not used and"]
+    #[doc = " xTaskNotify() always returns pdPASS in this case."]
+    #[doc = ""]
+    #[doc = " eSetValueWithOverwrite -"]
+    #[doc = " The task's notification value is set to the value of ulValue, even if the"]
+    #[doc = " task being notified had not yet processed the previous notification (the"]
+    #[doc = " task already had a notification pending).  xTaskNotify() always returns"]
+    #[doc = " pdPASS in this case."]
+    #[doc = ""]
+    #[doc = " eSetValueWithoutOverwrite -"]
+    #[doc = " If the task being notified did not already have a notification pending then"]
+    #[doc = " the task's notification value is set to ulValue and xTaskNotify() will"]
+    #[doc = " return pdPASS.  If the task being notified already had a notification"]
+    #[doc = " pending then no action is performed and pdFAIL is returned."]
+    #[doc = ""]
+    #[doc = " eNoAction -"]
+    #[doc = " The task receives a notification without its notification value being"]
+    #[doc = " updated.  ulValue is not used and xTaskNotify() always returns pdPASS in"]
+    #[doc = " this case."]
+    #[doc = ""]
+    #[doc = "  pulPreviousNotificationValue -"]
+    #[doc = "  Can be used to pass out the subject task's notification value before any"]
+    #[doc = "  bits are modified by the notify function."]
+    #[doc = ""]
+    #[doc = " @return Dependent on the value of eAction.  See the description of the"]
+    #[doc = " eAction parameter."]
+    #[doc = ""]
+    #[doc = " \\defgroup xTaskNotify xTaskNotify"]
+    #[doc = " \\ingroup TaskNotifications"]
+    pub fn xTaskGenericNotify(
+        xTaskToNotify: TaskHandle_t,
+        ulValue: u32,
+        eAction: eNotifyAction,
+        pulPreviousNotificationValue: *mut u32,
+    ) -> BaseType_t;
+}
+extern "C" {
+    #[doc = " task. h"]
+    #[doc = " <PRE>BaseType_t xTaskNotifyFromISR( TaskHandle_t xTaskToNotify, uint32_t ulValue, eNotifyAction eAction, BaseType_t *pxHigherPriorityTaskWoken );</PRE>"]
+    #[doc = ""]
+    #[doc = " configUSE_TASK_NOTIFICATIONS must be undefined or defined as 1 for this"]
+    #[doc = " function to be available."]
+    #[doc = ""]
+    #[doc = " When configUSE_TASK_NOTIFICATIONS is set to one each task has its own private"]
+    #[doc = " \"notification value\", which is a 32-bit unsigned integer (uint32_t)."]
+    #[doc = ""]
+    #[doc = " A version of xTaskNotify() that can be used from an interrupt service routine"]
+    #[doc = " (ISR)."]
+    #[doc = ""]
+    #[doc = " Events can be sent to a task using an intermediary object.  Examples of such"]
+    #[doc = " objects are queues, semaphores, mutexes and event groups.  Task notifications"]
+    #[doc = " are a method of sending an event directly to a task without the need for such"]
+    #[doc = " an intermediary object."]
+    #[doc = ""]
+    #[doc = " A notification sent to a task can optionally perform an action, such as"]
+    #[doc = " update, overwrite or increment the task's notification value.  In that way"]
+    #[doc = " task notifications can be used to send data to a task, or be used as light"]
+    #[doc = " weight and fast binary or counting semaphores."]
+    #[doc = ""]
+    #[doc = " A notification sent to a task will remain pending until it is cleared by the"]
+    #[doc = " task calling xTaskNotifyWait() or ulTaskNotifyTake().  If the task was"]
+    #[doc = " already in the Blocked state to wait for a notification when the notification"]
+    #[doc = " arrives then the task will automatically be removed from the Blocked state"]
+    #[doc = " (unblocked) and the notification cleared."]
+    #[doc = ""]
+    #[doc = " A task can use xTaskNotifyWait() to [optionally] block to wait for a"]
+    #[doc = " notification to be pending, or ulTaskNotifyTake() to [optionally] block"]
+    #[doc = " to wait for its notification value to have a non-zero value.  The task does"]
+    #[doc = " not consume any CPU time while it is in the Blocked state."]
+    #[doc = ""]
+    #[doc = " See http://www.FreeRTOS.org/RTOS-task-notifications.html for details."]
+    #[doc = ""]
+    #[doc = " @param xTaskToNotify The handle of the task being notified.  The handle to a"]
+    #[doc = " task can be returned from the xTaskCreate() API function used to create the"]
+    #[doc = " task, and the handle of the currently running task can be obtained by calling"]
+    #[doc = " xTaskGetCurrentTaskHandle()."]
+    #[doc = ""]
+    #[doc = " @param ulValue Data that can be sent with the notification.  How the data is"]
+    #[doc = " used depends on the value of the eAction parameter."]
+    #[doc = ""]
+    #[doc = " @param eAction Specifies how the notification updates the task's notification"]
+    #[doc = " value, if at all.  Valid values for eAction are as follows:"]
+    #[doc = ""]
+    #[doc = " eSetBits -"]
+    #[doc = " The task's notification value is bitwise ORed with ulValue.  xTaskNofify()"]
+    #[doc = " always returns pdPASS in this case."]
+    #[doc = ""]
+    #[doc = " eIncrement -"]
+    #[doc = " The task's notification value is incremented.  ulValue is not used and"]
+    #[doc = " xTaskNotify() always returns pdPASS in this case."]
+    #[doc = ""]
+    #[doc = " eSetValueWithOverwrite -"]
+    #[doc = " The task's notification value is set to the value of ulValue, even if the"]
+    #[doc = " task being notified had not yet processed the previous notification (the"]
+    #[doc = " task already had a notification pending).  xTaskNotify() always returns"]
+    #[doc = " pdPASS in this case."]
+    #[doc = ""]
+    #[doc = " eSetValueWithoutOverwrite -"]
+    #[doc = " If the task being notified did not already have a notification pending then"]
+    #[doc = " the task's notification value is set to ulValue and xTaskNotify() will"]
+    #[doc = " return pdPASS.  If the task being notified already had a notification"]
+    #[doc = " pending then no action is performed and pdFAIL is returned."]
+    #[doc = ""]
+    #[doc = " eNoAction -"]
+    #[doc = " The task receives a notification without its notification value being"]
+    #[doc = " updated.  ulValue is not used and xTaskNotify() always returns pdPASS in"]
+    #[doc = " this case."]
+    #[doc = ""]
+    #[doc = " @param pxHigherPriorityTaskWoken  xTaskNotifyFromISR() will set"]
+    #[doc = " *pxHigherPriorityTaskWoken to pdTRUE if sending the notification caused the"]
+    #[doc = " task to which the notification was sent to leave the Blocked state, and the"]
+    #[doc = " unblocked task has a priority higher than the currently running task.  If"]
+    #[doc = " xTaskNotifyFromISR() sets this value to pdTRUE then a context switch should"]
+    #[doc = " be requested before the interrupt is exited.  How a context switch is"]
+    #[doc = " requested from an ISR is dependent on the port - see the documentation page"]
+    #[doc = " for the port in use."]
+    #[doc = ""]
+    #[doc = " @return Dependent on the value of eAction.  See the description of the"]
+    #[doc = " eAction parameter."]
+    #[doc = ""]
+    #[doc = " \\defgroup xTaskNotify xTaskNotify"]
+    #[doc = " \\ingroup TaskNotifications"]
+    pub fn xTaskGenericNotifyFromISR(
+        xTaskToNotify: TaskHandle_t,
+        ulValue: u32,
+        eAction: eNotifyAction,
+        pulPreviousNotificationValue: *mut u32,
+        pxHigherPriorityTaskWoken: *mut BaseType_t,
+    ) -> BaseType_t;
+}
+extern "C" {
+    #[doc = " task. h"]
+    #[doc = " <PRE>BaseType_t xTaskNotifyWait( uint32_t ulBitsToClearOnEntry, uint32_t ulBitsToClearOnExit, uint32_t *pulNotificationValue, TickType_t xTicksToWait );</pre>"]
+    #[doc = ""]
+    #[doc = " configUSE_TASK_NOTIFICATIONS must be undefined or defined as 1 for this"]
+    #[doc = " function to be available."]
+    #[doc = ""]
+    #[doc = " When configUSE_TASK_NOTIFICATIONS is set to one each task has its own private"]
+    #[doc = " \"notification value\", which is a 32-bit unsigned integer (uint32_t)."]
+    #[doc = ""]
+    #[doc = " Events can be sent to a task using an intermediary object.  Examples of such"]
+    #[doc = " objects are queues, semaphores, mutexes and event groups.  Task notifications"]
+    #[doc = " are a method of sending an event directly to a task without the need for such"]
+    #[doc = " an intermediary object."]
+    #[doc = ""]
+    #[doc = " A notification sent to a task can optionally perform an action, such as"]
+    #[doc = " update, overwrite or increment the task's notification value.  In that way"]
+    #[doc = " task notifications can be used to send data to a task, or be used as light"]
+    #[doc = " weight and fast binary or counting semaphores."]
+    #[doc = ""]
+    #[doc = " A notification sent to a task will remain pending until it is cleared by the"]
+    #[doc = " task calling xTaskNotifyWait() or ulTaskNotifyTake().  If the task was"]
+    #[doc = " already in the Blocked state to wait for a notification when the notification"]
+    #[doc = " arrives then the task will automatically be removed from the Blocked state"]
+    #[doc = " (unblocked) and the notification cleared."]
+    #[doc = ""]
+    #[doc = " A task can use xTaskNotifyWait() to [optionally] block to wait for a"]
+    #[doc = " notification to be pending, or ulTaskNotifyTake() to [optionally] block"]
+    #[doc = " to wait for its notification value to have a non-zero value.  The task does"]
+    #[doc = " not consume any CPU time while it is in the Blocked state."]
+    #[doc = ""]
+    #[doc = " See http://www.FreeRTOS.org/RTOS-task-notifications.html for details."]
+    #[doc = ""]
+    #[doc = " @param ulBitsToClearOnEntry Bits that are set in ulBitsToClearOnEntry value"]
+    #[doc = " will be cleared in the calling task's notification value before the task"]
+    #[doc = " checks to see if any notifications are pending, and optionally blocks if no"]
+    #[doc = " notifications are pending.  Setting ulBitsToClearOnEntry to ULONG_MAX (if"]
+    #[doc = " limits.h is included) or 0xffffffffUL (if limits.h is not included) will have"]
+    #[doc = " the effect of resetting the task's notification value to 0.  Setting"]
+    #[doc = " ulBitsToClearOnEntry to 0 will leave the task's notification value unchanged."]
+    #[doc = ""]
+    #[doc = " @param ulBitsToClearOnExit If a notification is pending or received before"]
+    #[doc = " the calling task exits the xTaskNotifyWait() function then the task's"]
+    #[doc = " notification value (see the xTaskNotify() API function) is passed out using"]
+    #[doc = " the pulNotificationValue parameter.  Then any bits that are set in"]
+    #[doc = " ulBitsToClearOnExit will be cleared in the task's notification value (note"]
+    #[doc = " *pulNotificationValue is set before any bits are cleared).  Setting"]
+    #[doc = " ulBitsToClearOnExit to ULONG_MAX (if limits.h is included) or 0xffffffffUL"]
+    #[doc = " (if limits.h is not included) will have the effect of resetting the task's"]
+    #[doc = " notification value to 0 before the function exits.  Setting"]
+    #[doc = " ulBitsToClearOnExit to 0 will leave the task's notification value unchanged"]
+    #[doc = " when the function exits (in which case the value passed out in"]
+    #[doc = " pulNotificationValue will match the task's notification value)."]
+    #[doc = ""]
+    #[doc = " @param pulNotificationValue Used to pass the task's notification value out"]
+    #[doc = " of the function.  Note the value passed out will not be effected by the"]
+    #[doc = " clearing of any bits caused by ulBitsToClearOnExit being non-zero."]
+    #[doc = ""]
+    #[doc = " @param xTicksToWait The maximum amount of time that the task should wait in"]
+    #[doc = " the Blocked state for a notification to be received, should a notification"]
+    #[doc = " not already be pending when xTaskNotifyWait() was called.  The task"]
+    #[doc = " will not consume any processing time while it is in the Blocked state.  This"]
+    #[doc = " is specified in kernel ticks, the macro pdMS_TO_TICSK( value_in_ms ) can be"]
+    #[doc = " used to convert a time specified in milliseconds to a time specified in"]
+    #[doc = " ticks."]
+    #[doc = ""]
+    #[doc = " @return If a notification was received (including notifications that were"]
+    #[doc = " already pending when xTaskNotifyWait was called) then pdPASS is"]
+    #[doc = " returned.  Otherwise pdFAIL is returned."]
+    #[doc = ""]
+    #[doc = " \\defgroup xTaskNotifyWait xTaskNotifyWait"]
+    #[doc = " \\ingroup TaskNotifications"]
+    pub fn xTaskNotifyWait(
+        ulBitsToClearOnEntry: u32,
+        ulBitsToClearOnExit: u32,
+        pulNotificationValue: *mut u32,
+        xTicksToWait: TickType_t,
+    ) -> BaseType_t;
+}
+extern "C" {
+    #[doc = " task. h"]
+    #[doc = " <PRE>void vTaskNotifyGiveFromISR( TaskHandle_t xTaskHandle, BaseType_t *pxHigherPriorityTaskWoken );"]
+    #[doc = ""]
+    #[doc = " configUSE_TASK_NOTIFICATIONS must be undefined or defined as 1 for this macro"]
+    #[doc = " to be available."]
+    #[doc = ""]
+    #[doc = " When configUSE_TASK_NOTIFICATIONS is set to one each task has its own private"]
+    #[doc = " \"notification value\", which is a 32-bit unsigned integer (uint32_t)."]
+    #[doc = ""]
+    #[doc = " A version of xTaskNotifyGive() that can be called from an interrupt service"]
+    #[doc = " routine (ISR)."]
+    #[doc = ""]
+    #[doc = " Events can be sent to a task using an intermediary object.  Examples of such"]
+    #[doc = " objects are queues, semaphores, mutexes and event groups.  Task notifications"]
+    #[doc = " are a method of sending an event directly to a task without the need for such"]
+    #[doc = " an intermediary object."]
+    #[doc = ""]
+    #[doc = " A notification sent to a task can optionally perform an action, such as"]
+    #[doc = " update, overwrite or increment the task's notification value.  In that way"]
+    #[doc = " task notifications can be used to send data to a task, or be used as light"]
+    #[doc = " weight and fast binary or counting semaphores."]
+    #[doc = ""]
+    #[doc = " vTaskNotifyGiveFromISR() is intended for use when task notifications are"]
+    #[doc = " used as light weight and faster binary or counting semaphore equivalents."]
+    #[doc = " Actual FreeRTOS semaphores are given from an ISR using the"]
+    #[doc = " xSemaphoreGiveFromISR() API function, the equivalent action that instead uses"]
+    #[doc = " a task notification is vTaskNotifyGiveFromISR()."]
+    #[doc = ""]
+    #[doc = " When task notifications are being used as a binary or counting semaphore"]
+    #[doc = " equivalent then the task being notified should wait for the notification"]
+    #[doc = " using the ulTaskNotificationTake() API function rather than the"]
+    #[doc = " xTaskNotifyWait() API function."]
+    #[doc = ""]
+    #[doc = " See http://www.FreeRTOS.org/RTOS-task-notifications.html for more details."]
+    #[doc = ""]
+    #[doc = " @param xTaskToNotify The handle of the task being notified.  The handle to a"]
+    #[doc = " task can be returned from the xTaskCreate() API function used to create the"]
+    #[doc = " task, and the handle of the currently running task can be obtained by calling"]
+    #[doc = " xTaskGetCurrentTaskHandle()."]
+    #[doc = ""]
+    #[doc = " @param pxHigherPriorityTaskWoken  vTaskNotifyGiveFromISR() will set"]
+    #[doc = " *pxHigherPriorityTaskWoken to pdTRUE if sending the notification caused the"]
+    #[doc = " task to which the notification was sent to leave the Blocked state, and the"]
+    #[doc = " unblocked task has a priority higher than the currently running task.  If"]
+    #[doc = " vTaskNotifyGiveFromISR() sets this value to pdTRUE then a context switch"]
+    #[doc = " should be requested before the interrupt is exited.  How a context switch is"]
+    #[doc = " requested from an ISR is dependent on the port - see the documentation page"]
+    #[doc = " for the port in use."]
+    #[doc = ""]
+    #[doc = " \\defgroup xTaskNotifyWait xTaskNotifyWait"]
+    #[doc = " \\ingroup TaskNotifications"]
+    pub fn vTaskNotifyGiveFromISR(
+        xTaskToNotify: TaskHandle_t,
+        pxHigherPriorityTaskWoken: *mut BaseType_t,
+    );
+}
+extern "C" {
+    #[doc = " task. h"]
+    #[doc = " <PRE>uint32_t ulTaskNotifyTake( BaseType_t xClearCountOnExit, TickType_t xTicksToWait );</pre>"]
+    #[doc = ""]
+    #[doc = " configUSE_TASK_NOTIFICATIONS must be undefined or defined as 1 for this"]
+    #[doc = " function to be available."]
+    #[doc = ""]
+    #[doc = " When configUSE_TASK_NOTIFICATIONS is set to one each task has its own private"]
+    #[doc = " \"notification value\", which is a 32-bit unsigned integer (uint32_t)."]
+    #[doc = ""]
+    #[doc = " Events can be sent to a task using an intermediary object.  Examples of such"]
+    #[doc = " objects are queues, semaphores, mutexes and event groups.  Task notifications"]
+    #[doc = " are a method of sending an event directly to a task without the need for such"]
+    #[doc = " an intermediary object."]
+    #[doc = ""]
+    #[doc = " A notification sent to a task can optionally perform an action, such as"]
+    #[doc = " update, overwrite or increment the task's notification value.  In that way"]
+    #[doc = " task notifications can be used to send data to a task, or be used as light"]
+    #[doc = " weight and fast binary or counting semaphores."]
+    #[doc = ""]
+    #[doc = " ulTaskNotifyTake() is intended for use when a task notification is used as a"]
+    #[doc = " faster and lighter weight binary or counting semaphore alternative.  Actual"]
+    #[doc = " FreeRTOS semaphores are taken using the xSemaphoreTake() API function, the"]
+    #[doc = " equivalent action that instead uses a task notification is"]
+    #[doc = " ulTaskNotifyTake()."]
+    #[doc = ""]
+    #[doc = " When a task is using its notification value as a binary or counting semaphore"]
+    #[doc = " other tasks should send notifications to it using the xTaskNotifyGive()"]
+    #[doc = " macro, or xTaskNotify() function with the eAction parameter set to"]
+    #[doc = " eIncrement."]
+    #[doc = ""]
+    #[doc = " ulTaskNotifyTake() can either clear the task's notification value to"]
+    #[doc = " zero on exit, in which case the notification value acts like a binary"]
+    #[doc = " semaphore, or decrement the task's notification value on exit, in which case"]
+    #[doc = " the notification value acts like a counting semaphore."]
+    #[doc = ""]
+    #[doc = " A task can use ulTaskNotifyTake() to [optionally] block to wait for a"]
+    #[doc = " the task's notification value to be non-zero.  The task does not consume any"]
+    #[doc = " CPU time while it is in the Blocked state."]
+    #[doc = ""]
+    #[doc = " Where as xTaskNotifyWait() will return when a notification is pending,"]
+    #[doc = " ulTaskNotifyTake() will return when the task's notification value is"]
+    #[doc = " not zero."]
+    #[doc = ""]
+    #[doc = " See http://www.FreeRTOS.org/RTOS-task-notifications.html for details."]
+    #[doc = ""]
+    #[doc = " @param xClearCountOnExit if xClearCountOnExit is pdFALSE then the task's"]
+    #[doc = " notification value is decremented when the function exits.  In this way the"]
+    #[doc = " notification value acts like a counting semaphore.  If xClearCountOnExit is"]
+    #[doc = " not pdFALSE then the task's notification value is cleared to zero when the"]
+    #[doc = " function exits.  In this way the notification value acts like a binary"]
+    #[doc = " semaphore."]
+    #[doc = ""]
+    #[doc = " @param xTicksToWait The maximum amount of time that the task should wait in"]
+    #[doc = " the Blocked state for the task's notification value to be greater than zero,"]
+    #[doc = " should the count not already be greater than zero when"]
+    #[doc = " ulTaskNotifyTake() was called.  The task will not consume any processing"]
+    #[doc = " time while it is in the Blocked state.  This is specified in kernel ticks,"]
+    #[doc = " the macro pdMS_TO_TICSK( value_in_ms ) can be used to convert a time"]
+    #[doc = " specified in milliseconds to a time specified in ticks."]
+    #[doc = ""]
+    #[doc = " @return The task's notification count before it is either cleared to zero or"]
+    #[doc = " decremented (see the xClearCountOnExit parameter)."]
+    #[doc = ""]
+    #[doc = " \\defgroup ulTaskNotifyTake ulTaskNotifyTake"]
+    #[doc = " \\ingroup TaskNotifications"]
+    pub fn ulTaskNotifyTake(xClearCountOnExit: BaseType_t, xTicksToWait: TickType_t) -> u32;
+}
+extern "C" {
+    #[doc = " task. h"]
+    #[doc = " <PRE>BaseType_t xTaskNotifyStateClear( TaskHandle_t xTask );</pre>"]
+    #[doc = ""]
+    #[doc = " If the notification state of the task referenced by the handle xTask is"]
+    #[doc = " eNotified, then set the task's notification state to eNotWaitingNotification."]
+    #[doc = " The task's notification value is not altered.  Set xTask to NULL to clear the"]
+    #[doc = " notification state of the calling task."]
+    #[doc = ""]
+    #[doc = " @return pdTRUE if the task's notification state was set to"]
+    #[doc = " eNotWaitingNotification, otherwise pdFALSE."]
+    #[doc = " \\defgroup xTaskNotifyStateClear xTaskNotifyStateClear"]
+    #[doc = " \\ingroup TaskNotifications"]
+    pub fn xTaskNotifyStateClear(xTask: TaskHandle_t) -> BaseType_t;
+}
+extern "C" {
+    #[doc = " task. h"]
+    #[doc = " <PRE>uint32_t ulTaskNotifyValueClear( TaskHandle_t xTask, uint32_t ulBitsToClear );</pre>"]
+    #[doc = ""]
+    #[doc = " Clears the bits specified by the ulBitsToClear bit mask in the notification"]
+    #[doc = " value of the task referenced by xTask."]
+    #[doc = ""]
+    #[doc = " Set ulBitsToClear to 0xffffffff (UINT_MAX on 32-bit architectures) to clear"]
+    #[doc = " the notification value to 0.  Set ulBitsToClear to 0 to query the task's"]
+    #[doc = " notification value without clearing any bits."]
+    #[doc = ""]
+    #[doc = " @return The value of the target task's notification value before the bits"]
+    #[doc = " specified by ulBitsToClear were cleared."]
+    #[doc = " \\defgroup ulTaskNotifyValueClear ulTaskNotifyValueClear"]
+    #[doc = " \\ingroup TaskNotifications"]
+    pub fn ulTaskNotifyValueClear(xTask: TaskHandle_t, ulBitsToClear: u32) -> u32;
+}
+extern "C" {
+    #[doc = " task.h"]
+    #[doc = " <pre>void vTaskSetTimeOutState( TimeOut_t * const pxTimeOut )</pre>"]
+    #[doc = ""]
+    #[doc = " Capture the current time for future use with xTaskCheckForTimeOut()."]
+    #[doc = ""]
+    #[doc = " @param pxTimeOut Pointer to a timeout object into which the current time"]
+    #[doc = " is to be captured.  The captured time includes the tick count and the number"]
+    #[doc = " of times the tick count has overflowed since the system first booted."]
+    #[doc = " \\defgroup vTaskSetTimeOutState vTaskSetTimeOutState"]
+    #[doc = " \\ingroup TaskCtrl"]
+    pub fn vTaskSetTimeOutState(pxTimeOut: *mut TimeOut_t);
+}
+extern "C" {
+    #[doc = " task.h"]
+    #[doc = " <pre>BaseType_t xTaskCheckForTimeOut( TimeOut_t * const pxTimeOut, TickType_t * const pxTicksToWait );</pre>"]
+    #[doc = ""]
+    #[doc = " Determines if pxTicksToWait ticks has passed since a time was captured"]
+    #[doc = " using a call to vTaskSetTimeOutState().  The captured time includes the tick"]
+    #[doc = " count and the number of times the tick count has overflowed."]
+    #[doc = ""]
+    #[doc = " @param pxTimeOut The time status as captured previously using"]
+    #[doc = " vTaskSetTimeOutState. If the timeout has not yet occurred, it is updated"]
+    #[doc = " to reflect the current time status."]
+    #[doc = " @param pxTicksToWait The number of ticks to check for timeout i.e. if"]
+    #[doc = " pxTicksToWait ticks have passed since pxTimeOut was last updated (either by"]
+    #[doc = " vTaskSetTimeOutState() or xTaskCheckForTimeOut()), the timeout has occurred."]
+    #[doc = " If the timeout has not occurred, pxTIcksToWait is updated to reflect the"]
+    #[doc = " number of remaining ticks."]
+    #[doc = ""]
+    #[doc = " @return If timeout has occurred, pdTRUE is returned. Otherwise pdFALSE is"]
+    #[doc = " returned and pxTicksToWait is updated to reflect the number of remaining"]
+    #[doc = " ticks."]
+    #[doc = ""]
+    #[doc = " @see https://www.freertos.org/xTaskCheckForTimeOut.html"]
+    #[doc = ""]
+    #[doc = " Example Usage:"]
+    #[doc = " <pre>"]
+    #[doc = ""]
+    #[doc = "size_t xUART_Receive( uint8_t *pucBuffer, size_t uxWantedBytes )"]
+    #[doc = "{"]
+    #[doc = "size_t uxReceived = 0;"]
+    #[doc = "TickType_t xTicksToWait = MAX_TIME_TO_WAIT;"]
+    #[doc = "TimeOut_t xTimeOut;"]
+    #[doc = ""]
+    #[doc = "vTaskSetTimeOutState( &xTimeOut );"]
+    #[doc = ""]
+    #[doc = "while( UART_bytes_in_rx_buffer( pxUARTInstance ) < uxWantedBytes )"]
+    #[doc = "{"]
+    #[doc = "if( xTaskCheckForTimeOut( &xTimeOut, &xTicksToWait ) != pdFALSE )"]
+    #[doc = "{"]
+    #[doc = "break;"]
+    #[doc = "}"]
+    #[doc = ""]
+    #[doc = "ulTaskNotifyTake( pdTRUE, xTicksToWait );"]
+    #[doc = "}"]
+    #[doc = ""]
+    #[doc = "uxReceived = UART_read_from_receive_buffer( pxUARTInstance,"]
+    #[doc = "pucBuffer,"]
+    #[doc = "uxWantedBytes );"]
+    #[doc = ""]
+    #[doc = "return uxReceived;"]
+    #[doc = "}"]
+    #[doc = "</pre>"]
+    #[doc = " \\defgroup xTaskCheckForTimeOut xTaskCheckForTimeOut"]
+    #[doc = " \\ingroup TaskCtrl"]
+    pub fn xTaskCheckForTimeOut(
+        pxTimeOut: *mut TimeOut_t,
+        pxTicksToWait: *mut TickType_t,
+    ) -> BaseType_t;
+}
+extern "C" {
+    pub fn xTaskIncrementTick() -> BaseType_t;
+}
+extern "C" {
+    pub fn vTaskPlaceOnEventList(pxEventList: *mut List_t, xTicksToWait: TickType_t);
+}
+extern "C" {
+    pub fn vTaskPlaceOnUnorderedEventList(
+        pxEventList: *mut List_t,
+        xItemValue: TickType_t,
+        xTicksToWait: TickType_t,
+    );
+}
+extern "C" {
+    pub fn vTaskPlaceOnEventListRestricted(
+        pxEventList: *mut List_t,
+        xTicksToWait: TickType_t,
+        xWaitIndefinitely: BaseType_t,
+    );
+}
+extern "C" {
+    pub fn xTaskRemoveFromEventList(pxEventList: *const List_t) -> BaseType_t;
+}
+extern "C" {
+    pub fn vTaskRemoveFromUnorderedEventList(
+        pxEventListItem: *mut ListItem_t,
+        xItemValue: TickType_t,
+    );
+}
+extern "C" {
+    pub fn vTaskSwitchContext();
+}
+extern "C" {
+    pub fn uxTaskResetEventItemValue() -> TickType_t;
+}
+extern "C" {
+    pub fn xTaskGetCurrentTaskHandle() -> TaskHandle_t;
+}
+extern "C" {
+    pub fn vTaskMissedYield();
+}
+extern "C" {
+    pub fn xTaskGetSchedulerState() -> BaseType_t;
+}
+extern "C" {
+    pub fn xTaskPriorityInherit(pxMutexHolder: TaskHandle_t) -> BaseType_t;
+}
+extern "C" {
+    pub fn xTaskPriorityDisinherit(pxMutexHolder: TaskHandle_t) -> BaseType_t;
+}
+extern "C" {
+    pub fn vTaskPriorityDisinheritAfterTimeout(
+        pxMutexHolder: TaskHandle_t,
+        uxHighestPriorityWaitingTask: UBaseType_t,
+    );
+}
+extern "C" {
+    pub fn uxTaskGetTaskNumber(xTask: TaskHandle_t) -> UBaseType_t;
+}
+extern "C" {
+    pub fn vTaskSetTaskNumber(xTask: TaskHandle_t, uxHandle: UBaseType_t);
+}
+extern "C" {
+    pub fn vTaskStepTick(xTicksToJump: TickType_t);
+}
+extern "C" {
+    pub fn xTaskCatchUpTicks(xTicksToCatchUp: TickType_t) -> BaseType_t;
+}
+extern "C" {
+    pub fn eTaskConfirmSleepModeStatus() -> eSleepModeStatus;
+}
+extern "C" {
+    pub fn pvTaskIncrementMutexHeldCount() -> TaskHandle_t;
+}
+extern "C" {
+    pub fn vTaskInternalSetTimeOutState(pxTimeOut: *mut TimeOut_t);
+}
+#[doc = " Type by which software timers are referenced.  For example, a call to"]
+#[doc = " xTimerCreate() returns an TimerHandle_t variable that can then be used to"]
+#[doc = " reference the subject timer in calls to other software timer API functions"]
+#[doc = " (for example, xTimerStart(), xTimerReset(), etc.)."]
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct tmrTimerControl {
+    _unused: [u8; 0],
+}
+pub type TimerHandle_t = *mut tmrTimerControl;
+pub type TimerCallbackFunction_t =
+    ::core::option::Option<unsafe extern "C" fn(xTimer: TimerHandle_t)>;
+pub type PendedFunction_t =
+    ::core::option::Option<unsafe extern "C" fn(arg1: *mut ::core::ffi::c_void, arg2: u32)>;
+extern "C" {
+    pub fn xTimerCreate(
+        pcTimerName: *const ::std::os::raw::c_char,
+        xTimerPeriodInTicks: TickType_t,
+        uxAutoReload: UBaseType_t,
+        pvTimerID: *mut ::core::ffi::c_void,
+        pxCallbackFunction: TimerCallbackFunction_t,
+    ) -> TimerHandle_t;
+}
+extern "C" {
+    pub fn xTimerCreateStatic(
+        pcTimerName: *const ::std::os::raw::c_char,
+        xTimerPeriodInTicks: TickType_t,
+        uxAutoReload: UBaseType_t,
+        pvTimerID: *mut ::core::ffi::c_void,
+        pxCallbackFunction: TimerCallbackFunction_t,
+        pxTimerBuffer: *mut StaticTimer_t,
+    ) -> TimerHandle_t;
+}
+extern "C" {
+    #[doc = " void *pvTimerGetTimerID( TimerHandle_t xTimer );"]
+    #[doc = ""]
+    #[doc = " Returns the ID assigned to the timer."]
+    #[doc = ""]
+    #[doc = " IDs are assigned to timers using the pvTimerID parameter of the call to"]
+    #[doc = " xTimerCreated() that was used to create the timer, and by calling the"]
+    #[doc = " vTimerSetTimerID() API function."]
+    #[doc = ""]
+    #[doc = " If the same callback function is assigned to multiple timers then the timer"]
+    #[doc = " ID can be used as time specific (timer local) storage."]
+    #[doc = ""]
+    #[doc = " @param xTimer The timer being queried."]
+    #[doc = ""]
+    #[doc = " @return The ID assigned to the timer being queried."]
+    #[doc = ""]
+    #[doc = " Example usage:"]
+    #[doc = ""]
+    #[doc = " See the xTimerCreate() API function example usage scenario."]
+    pub fn pvTimerGetTimerID(xTimer: TimerHandle_t) -> *mut ::core::ffi::c_void;
+}
+extern "C" {
+    #[doc = " void vTimerSetTimerID( TimerHandle_t xTimer, void *pvNewID );"]
+    #[doc = ""]
+    #[doc = " Sets the ID assigned to the timer."]
+    #[doc = ""]
+    #[doc = " IDs are assigned to timers using the pvTimerID parameter of the call to"]
+    #[doc = " xTimerCreated() that was used to create the timer."]
+    #[doc = ""]
+    #[doc = " If the same callback function is assigned to multiple timers then the timer"]
+    #[doc = " ID can be used as time specific (timer local) storage."]
+    #[doc = ""]
+    #[doc = " @param xTimer The timer being updated."]
+    #[doc = ""]
+    #[doc = " @param pvNewID The ID to assign to the timer."]
+    #[doc = ""]
+    #[doc = " Example usage:"]
+    #[doc = ""]
+    #[doc = " See the xTimerCreate() API function example usage scenario."]
+    pub fn vTimerSetTimerID(xTimer: TimerHandle_t, pvNewID: *mut ::core::ffi::c_void);
+}
+extern "C" {
+    #[doc = " BaseType_t xTimerIsTimerActive( TimerHandle_t xTimer );"]
+    #[doc = ""]
+    #[doc = " Queries a timer to see if it is active or dormant."]
+    #[doc = ""]
+    #[doc = " A timer will be dormant if:"]
+    #[doc = "     1) It has been created but not started, or"]
+    #[doc = "     2) It is an expired one-shot timer that has not been restarted."]
+    #[doc = ""]
+    #[doc = " Timers are created in the dormant state.  The xTimerStart(), xTimerReset(),"]
+    #[doc = " xTimerStartFromISR(), xTimerResetFromISR(), xTimerChangePeriod() and"]
+    #[doc = " xTimerChangePeriodFromISR() API functions can all be used to transition a timer into the"]
+    #[doc = " active state."]
+    #[doc = ""]
+    #[doc = " @param xTimer The timer being queried."]
+    #[doc = ""]
+    #[doc = " @return pdFALSE will be returned if the timer is dormant.  A value other than"]
+    #[doc = " pdFALSE will be returned if the timer is active."]
+    #[doc = ""]
+    #[doc = " Example usage:"]
+    #[doc = " @verbatim"]
+    #[doc = " // This function assumes xTimer has already been created."]
+    #[doc = " void vAFunction( TimerHandle_t xTimer )"]
+    #[doc = " {"]
+    #[doc = "     if( xTimerIsTimerActive( xTimer ) != pdFALSE ) // or more simply and equivalently \"if( xTimerIsTimerActive( xTimer ) )\""]
+    #[doc = "     {"]
+    #[doc = "         // xTimer is active, do something."]
+    #[doc = "     }"]
+    #[doc = "     else"]
+    #[doc = "     {"]
+    #[doc = "         // xTimer is not active, do something else."]
+    #[doc = "     }"]
+    #[doc = " }"]
+    #[doc = " @endverbatim"]
+    pub fn xTimerIsTimerActive(xTimer: TimerHandle_t) -> BaseType_t;
+}
+extern "C" {
+    #[doc = " TaskHandle_t xTimerGetTimerDaemonTaskHandle( void );"]
+    #[doc = ""]
+    #[doc = " Simply returns the handle of the timer service/daemon task.  It it not valid"]
+    #[doc = " to call xTimerGetTimerDaemonTaskHandle() before the scheduler has been started."]
+    pub fn xTimerGetTimerDaemonTaskHandle() -> TaskHandle_t;
+}
+extern "C" {
+    #[doc = " BaseType_t xTimerPendFunctionCallFromISR( PendedFunction_t xFunctionToPend,"]
+    #[doc = "                                          void *pvParameter1,"]
+    #[doc = "                                          uint32_t ulParameter2,"]
+    #[doc = "                                          BaseType_t *pxHigherPriorityTaskWoken );"]
+    #[doc = ""]
+    #[doc = ""]
+    #[doc = " Used from application interrupt service routines to defer the execution of a"]
+    #[doc = " function to the RTOS daemon task (the timer service task, hence this function"]
+    #[doc = " is implemented in timers.c and is prefixed with 'Timer')."]
+    #[doc = ""]
+    #[doc = " Ideally an interrupt service routine (ISR) is kept as short as possible, but"]
+    #[doc = " sometimes an ISR either has a lot of processing to do, or needs to perform"]
+    #[doc = " processing that is not deterministic.  In these cases"]
+    #[doc = " xTimerPendFunctionCallFromISR() can be used to defer processing of a function"]
+    #[doc = " to the RTOS daemon task."]
+    #[doc = ""]
+    #[doc = " A mechanism is provided that allows the interrupt to return directly to the"]
+    #[doc = " task that will subsequently execute the pended callback function.  This"]
+    #[doc = " allows the callback function to execute contiguously in time with the"]
+    #[doc = " interrupt - just as if the callback had executed in the interrupt itself."]
+    #[doc = ""]
+    #[doc = " @param xFunctionToPend The function to execute from the timer service/"]
+    #[doc = " daemon task.  The function must conform to the PendedFunction_t"]
+    #[doc = " prototype."]
+    #[doc = ""]
+    #[doc = " @param pvParameter1 The value of the callback function's first parameter."]
+    #[doc = " The parameter has a void * type to allow it to be used to pass any type."]
+    #[doc = " For example, unsigned longs can be cast to a void *, or the void * can be"]
+    #[doc = " used to point to a structure."]
+    #[doc = ""]
+    #[doc = " @param ulParameter2 The value of the callback function's second parameter."]
+    #[doc = ""]
+    #[doc = " @param pxHigherPriorityTaskWoken As mentioned above, calling this function"]
+    #[doc = " will result in a message being sent to the timer daemon task.  If the"]
+    #[doc = " priority of the timer daemon task (which is set using"]
+    #[doc = " configTIMER_TASK_PRIORITY in FreeRTOSConfig.h) is higher than the priority of"]
+    #[doc = " the currently running task (the task the interrupt interrupted) then"]
+    #[doc = " *pxHigherPriorityTaskWoken will be set to pdTRUE within"]
+    #[doc = " xTimerPendFunctionCallFromISR(), indicating that a context switch should be"]
+    #[doc = " requested before the interrupt exits.  For that reason"]
+    #[doc = " *pxHigherPriorityTaskWoken must be initialised to pdFALSE.  See the"]
+    #[doc = " example code below."]
+    #[doc = ""]
+    #[doc = " @return pdPASS is returned if the message was successfully sent to the"]
+    #[doc = " timer daemon task, otherwise pdFALSE is returned."]
+    #[doc = ""]
+    #[doc = " Example usage:"]
+    #[doc = " @verbatim"]
+    #[doc = ""]
+    #[doc = "\t// The callback function that will execute in the context of the daemon task."]
+    #[doc = "  // Note callback functions must all use this same prototype."]
+    #[doc = "  void vProcessInterface( void *pvParameter1, uint32_t ulParameter2 )"]
+    #[doc = "\t{"]
+    #[doc = "\t\tBaseType_t xInterfaceToService;"]
+    #[doc = ""]
+    #[doc = "\t\t// The interface that requires servicing is passed in the second"]
+    #[doc = "      // parameter.  The first parameter is not used in this case."]
+    #[doc = "\t\txInterfaceToService = ( BaseType_t ) ulParameter2;"]
+    #[doc = ""]
+    #[doc = "\t\t// ...Perform the processing here..."]
+    #[doc = "\t}"]
+    #[doc = ""]
+    #[doc = "\t// An ISR that receives data packets from multiple interfaces"]
+    #[doc = "  void vAnISR( void )"]
+    #[doc = "\t{"]
+    #[doc = "\t\tBaseType_t xInterfaceToService, xHigherPriorityTaskWoken;"]
+    #[doc = ""]
+    #[doc = "\t\t// Query the hardware to determine which interface needs processing."]
+    #[doc = "\t\txInterfaceToService = prvCheckInterfaces();"]
+    #[doc = ""]
+    #[doc = "      // The actual processing is to be deferred to a task.  Request the"]
+    #[doc = "      // vProcessInterface() callback function is executed, passing in the"]
+    #[doc = "\t\t// number of the interface that needs processing.  The interface to"]
+    #[doc = "\t\t// service is passed in the second parameter.  The first parameter is"]
+    #[doc = "\t\t// not used in this case."]
+    #[doc = "\t\txHigherPriorityTaskWoken = pdFALSE;"]
+    #[doc = "\t\txTimerPendFunctionCallFromISR( vProcessInterface, NULL, ( uint32_t ) xInterfaceToService, &xHigherPriorityTaskWoken );"]
+    #[doc = ""]
+    #[doc = "\t\t// If xHigherPriorityTaskWoken is now set to pdTRUE then a context"]
+    #[doc = "\t\t// switch should be requested.  The macro used is port specific and will"]
+    #[doc = "\t\t// be either portYIELD_FROM_ISR() or portEND_SWITCHING_ISR() - refer to"]
+    #[doc = "\t\t// the documentation page for the port being used."]
+    #[doc = "\t\tportYIELD_FROM_ISR( xHigherPriorityTaskWoken );"]
+    #[doc = ""]
+    #[doc = "\t}"]
+    #[doc = " @endverbatim"]
+    pub fn xTimerPendFunctionCallFromISR(
+        xFunctionToPend: PendedFunction_t,
+        pvParameter1: *mut ::core::ffi::c_void,
+        ulParameter2: u32,
+        pxHigherPriorityTaskWoken: *mut BaseType_t,
+    ) -> BaseType_t;
+}
+extern "C" {
+    #[doc = " BaseType_t xTimerPendFunctionCall( PendedFunction_t xFunctionToPend,"]
+    #[doc = "                                    void *pvParameter1,"]
+    #[doc = "                                    uint32_t ulParameter2,"]
+    #[doc = "                                    TickType_t xTicksToWait );"]
+    #[doc = ""]
+    #[doc = ""]
+    #[doc = " Used to defer the execution of a function to the RTOS daemon task (the timer"]
+    #[doc = " service task, hence this function is implemented in timers.c and is prefixed"]
+    #[doc = " with 'Timer')."]
+    #[doc = ""]
+    #[doc = " @param xFunctionToPend The function to execute from the timer service/"]
+    #[doc = " daemon task.  The function must conform to the PendedFunction_t"]
+    #[doc = " prototype."]
+    #[doc = ""]
+    #[doc = " @param pvParameter1 The value of the callback function's first parameter."]
+    #[doc = " The parameter has a void * type to allow it to be used to pass any type."]
+    #[doc = " For example, unsigned longs can be cast to a void *, or the void * can be"]
+    #[doc = " used to point to a structure."]
+    #[doc = ""]
+    #[doc = " @param ulParameter2 The value of the callback function's second parameter."]
+    #[doc = ""]
+    #[doc = " @param xTicksToWait Calling this function will result in a message being"]
+    #[doc = " sent to the timer daemon task on a queue.  xTicksToWait is the amount of"]
+    #[doc = " time the calling task should remain in the Blocked state (so not using any"]
+    #[doc = " processing time) for space to become available on the timer queue if the"]
+    #[doc = " queue is found to be full."]
+    #[doc = ""]
+    #[doc = " @return pdPASS is returned if the message was successfully sent to the"]
+    #[doc = " timer daemon task, otherwise pdFALSE is returned."]
+    #[doc = ""]
+    pub fn xTimerPendFunctionCall(
+        xFunctionToPend: PendedFunction_t,
+        pvParameter1: *mut ::core::ffi::c_void,
+        ulParameter2: u32,
+        xTicksToWait: TickType_t,
+    ) -> BaseType_t;
+}
+extern "C" {
+    #[doc = " const char * const pcTimerGetName( TimerHandle_t xTimer );"]
+    #[doc = ""]
+    #[doc = " Returns the name that was assigned to a timer when the timer was created."]
+    #[doc = ""]
+    #[doc = " @param xTimer The handle of the timer being queried."]
+    #[doc = ""]
+    #[doc = " @return The name assigned to the timer specified by the xTimer parameter."]
+    pub fn pcTimerGetName(xTimer: TimerHandle_t) -> *const ::std::os::raw::c_char;
+}
+extern "C" {
+    #[doc = " void vTimerSetReloadMode( TimerHandle_t xTimer, const UBaseType_t uxAutoReload );"]
+    #[doc = ""]
+    #[doc = " Updates a timer to be either an auto-reload timer, in which case the timer"]
+    #[doc = " automatically resets itself each time it expires, or a one-shot timer, in"]
+    #[doc = " which case the timer will only expire once unless it is manually restarted."]
+    #[doc = ""]
+    #[doc = " @param xTimer The handle of the timer being updated."]
+    #[doc = ""]
+    #[doc = " @param uxAutoReload If uxAutoReload is set to pdTRUE then the timer will"]
+    #[doc = " expire repeatedly with a frequency set by the timer's period (see the"]
+    #[doc = " xTimerPeriodInTicks parameter of the xTimerCreate() API function).  If"]
+    #[doc = " uxAutoReload is set to pdFALSE then the timer will be a one-shot timer and"]
+    #[doc = " enter the dormant state after it expires."]
+    pub fn vTimerSetReloadMode(xTimer: TimerHandle_t, uxAutoReload: UBaseType_t);
+}
+extern "C" {
+    #[doc = " UBaseType_t uxTimerGetReloadMode( TimerHandle_t xTimer );"]
+    #[doc = ""]
+    #[doc = " Queries a timer to determine if it is an auto-reload timer, in which case the timer"]
+    #[doc = " automatically resets itself each time it expires, or a one-shot timer, in"]
+    #[doc = " which case the timer will only expire once unless it is manually restarted."]
+    #[doc = ""]
+    #[doc = " @param xTimer The handle of the timer being queried."]
+    #[doc = ""]
+    #[doc = " @return If the timer is an auto-reload timer then pdTRUE is returned, otherwise"]
+    #[doc = " pdFALSE is returned."]
+    pub fn uxTimerGetReloadMode(xTimer: TimerHandle_t) -> UBaseType_t;
+}
+extern "C" {
+    #[doc = " TickType_t xTimerGetPeriod( TimerHandle_t xTimer );"]
+    #[doc = ""]
+    #[doc = " Returns the period of a timer."]
+    #[doc = ""]
+    #[doc = " @param xTimer The handle of the timer being queried."]
+    #[doc = ""]
+    #[doc = " @return The period of the timer in ticks."]
+    pub fn xTimerGetPeriod(xTimer: TimerHandle_t) -> TickType_t;
+}
+extern "C" {
+    #[doc = " TickType_t xTimerGetExpiryTime( TimerHandle_t xTimer );"]
+    #[doc = ""]
+    #[doc = " Returns the time in ticks at which the timer will expire.  If this is less"]
+    #[doc = " than the current tick count then the expiry time has overflowed from the"]
+    #[doc = " current time."]
+    #[doc = ""]
+    #[doc = " @param xTimer The handle of the timer being queried."]
+    #[doc = ""]
+    #[doc = " @return If the timer is running then the time in ticks at which the timer"]
+    #[doc = " will next expire is returned.  If the timer is not running then the return"]
+    #[doc = " value is undefined."]
+    pub fn xTimerGetExpiryTime(xTimer: TimerHandle_t) -> TickType_t;
+}
+extern "C" {
+    pub fn xTimerCreateTimerTask() -> BaseType_t;
+}
+extern "C" {
+    pub fn xTimerGenericCommand(
+        xTimer: TimerHandle_t,
+        xCommandID: BaseType_t,
+        xOptionalValue: TickType_t,
+        pxHigherPriorityTaskWoken: *mut BaseType_t,
+        xTicksToWait: TickType_t,
+    ) -> BaseType_t;
+}
+extern "C" {
+    pub fn vTimerSetTimerNumber(xTimer: TimerHandle_t, uxTimerNumber: UBaseType_t);
+}
+extern "C" {
+    pub fn uxTimerGetTimerNumber(xTimer: TimerHandle_t) -> UBaseType_t;
+}
+#[doc = " Type by which queues are referenced.  For example, a call to xQueueCreate()"]
+#[doc = " returns an QueueHandle_t variable that can then be used as a parameter to"]
+#[doc = " xQueueSend(), xQueueReceive(), etc."]
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct QueueDefinition {
+    _unused: [u8; 0],
+}
+pub type QueueHandle_t = *mut QueueDefinition;
+#[doc = " Type by which queue sets are referenced.  For example, a call to"]
+#[doc = " xQueueCreateSet() returns an xQueueSet variable that can then be used as a"]
+#[doc = " parameter to xQueueSelectFromSet(), xQueueAddToSet(), etc."]
+pub type QueueSetHandle_t = *mut QueueDefinition;
+#[doc = " Queue sets can contain both queues and semaphores, so the"]
+#[doc = " QueueSetMemberHandle_t is defined as a type to be used where a parameter or"]
+#[doc = " return value can be either an QueueHandle_t or an SemaphoreHandle_t."]
+pub type QueueSetMemberHandle_t = *mut QueueDefinition;
+extern "C" {
+    #[doc = " queue. h"]
+    #[doc = " <pre>"]
+    #[doc = "BaseType_t xQueueGenericSend("]
+    #[doc = "QueueHandle_t xQueue,"]
+    #[doc = "const void * pvItemToQueue,"]
+    #[doc = "TickType_t xTicksToWait"]
+    #[doc = "BaseType_t xCopyPosition"]
+    #[doc = ");"]
+    #[doc = " </pre>"]
+    #[doc = ""]
+    #[doc = " It is preferred that the macros xQueueSend(), xQueueSendToFront() and"]
+    #[doc = " xQueueSendToBack() are used in place of calling this function directly."]
+    #[doc = ""]
+    #[doc = " Post an item on a queue.  The item is queued by copy, not by reference."]
+    #[doc = " This function must not be called from an interrupt service routine."]
+    #[doc = " See xQueueSendFromISR () for an alternative which may be used in an ISR."]
+    #[doc = ""]
+    #[doc = " @param xQueue The handle to the queue on which the item is to be posted."]
+    #[doc = ""]
+    #[doc = " @param pvItemToQueue A pointer to the item that is to be placed on the"]
+    #[doc = " queue.  The size of the items the queue will hold was defined when the"]
+    #[doc = " queue was created, so this many bytes will be copied from pvItemToQueue"]
+    #[doc = " into the queue storage area."]
+    #[doc = ""]
+    #[doc = " @param xTicksToWait The maximum amount of time the task should block"]
+    #[doc = " waiting for space to become available on the queue, should it already"]
+    #[doc = " be full.  The call will return immediately if this is set to 0 and the"]
+    #[doc = " queue is full.  The time is defined in tick periods so the constant"]
+    #[doc = " portTICK_PERIOD_MS should be used to convert to real time if this is required."]
+    #[doc = ""]
+    #[doc = " @param xCopyPosition Can take the value queueSEND_TO_BACK to place the"]
+    #[doc = " item at the back of the queue, or queueSEND_TO_FRONT to place the item"]
+    #[doc = " at the front of the queue (for high priority messages)."]
+    #[doc = ""]
+    #[doc = " @return pdTRUE if the item was successfully posted, otherwise errQUEUE_FULL."]
+    #[doc = ""]
+    #[doc = " Example usage:"]
+    #[doc = "<pre>"]
+    #[doc = "struct AMessage"]
+    #[doc = "{"]
+    #[doc = "char ucMessageID;"]
+    #[doc = "char ucData[ 20 ];"]
+    #[doc = "} xMessage;"]
+    #[doc = ""]
+    #[doc = "uint32_t ulVar = 10UL;"]
+    #[doc = ""]
+    #[doc = "void vATask( void *pvParameters )"]
+    #[doc = "{"]
+    #[doc = "QueueHandle_t xQueue1, xQueue2;"]
+    #[doc = "struct AMessage *pxMessage;"]
+    #[doc = ""]
+    #[doc = "xQueue1 = xQueueCreate( 10, sizeof( uint32_t ) );"]
+    #[doc = ""]
+    #[doc = "xQueue2 = xQueueCreate( 10, sizeof( struct AMessage * ) );"]
+    #[doc = ""]
+    #[doc = ""]
+    #[doc = "if( xQueue1 != 0 )"]
+    #[doc = "{"]
+    #[doc = "if( xQueueGenericSend( xQueue1, ( void * ) &ulVar, ( TickType_t ) 10, queueSEND_TO_BACK ) != pdPASS )"]
+    #[doc = "{"]
+    #[doc = "}"]
+    #[doc = "}"]
+    #[doc = ""]
+    #[doc = "if( xQueue2 != 0 )"]
+    #[doc = "{"]
+    #[doc = "pxMessage = & xMessage;"]
+    #[doc = "xQueueGenericSend( xQueue2, ( void * ) &pxMessage, ( TickType_t ) 0, queueSEND_TO_BACK );"]
+    #[doc = "}"]
+    #[doc = ""]
+    #[doc = "}"]
+    #[doc = "</pre>"]
+    #[doc = " \\defgroup xQueueSend xQueueSend"]
+    #[doc = " \\ingroup QueueManagement"]
+    pub fn xQueueGenericSend(
+        xQueue: QueueHandle_t,
+        pvItemToQueue: *const ::core::ffi::c_void,
+        xTicksToWait: TickType_t,
+        xCopyPosition: BaseType_t,
+    ) -> BaseType_t;
+}
+extern "C" {
+    #[doc = " queue. h"]
+    #[doc = " <pre>"]
+    #[doc = "BaseType_t xQueuePeek("]
+    #[doc = "QueueHandle_t xQueue,"]
+    #[doc = "void * const pvBuffer,"]
+    #[doc = "TickType_t xTicksToWait"]
+    #[doc = ");</pre>"]
+    #[doc = ""]
+    #[doc = " Receive an item from a queue without removing the item from the queue."]
+    #[doc = " The item is received by copy so a buffer of adequate size must be"]
+    #[doc = " provided.  The number of bytes copied into the buffer was defined when"]
+    #[doc = " the queue was created."]
+    #[doc = ""]
+    #[doc = " Successfully received items remain on the queue so will be returned again"]
+    #[doc = " by the next call, or a call to xQueueReceive()."]
+    #[doc = ""]
+    #[doc = " This macro must not be used in an interrupt service routine.  See"]
+    #[doc = " xQueuePeekFromISR() for an alternative that can be called from an interrupt"]
+    #[doc = " service routine."]
+    #[doc = ""]
+    #[doc = " @param xQueue The handle to the queue from which the item is to be"]
+    #[doc = " received."]
+    #[doc = ""]
+    #[doc = " @param pvBuffer Pointer to the buffer into which the received item will"]
+    #[doc = " be copied."]
+    #[doc = ""]
+    #[doc = " @param xTicksToWait The maximum amount of time the task should block"]
+    #[doc = " waiting for an item to receive should the queue be empty at the time"]
+    #[doc = " of the call.\t The time is defined in tick periods so the constant"]
+    #[doc = " portTICK_PERIOD_MS should be used to convert to real time if this is required."]
+    #[doc = " xQueuePeek() will return immediately if xTicksToWait is 0 and the queue"]
+    #[doc = " is empty."]
+    #[doc = ""]
+    #[doc = " @return pdTRUE if an item was successfully received from the queue,"]
+    #[doc = " otherwise pdFALSE."]
+    #[doc = ""]
+    #[doc = " Example usage:"]
+    #[doc = "<pre>"]
+    #[doc = "struct AMessage"]
+    #[doc = "{"]
+    #[doc = "char ucMessageID;"]
+    #[doc = "char ucData[ 20 ];"]
+    #[doc = "} xMessage;"]
+    #[doc = ""]
+    #[doc = "QueueHandle_t xQueue;"]
+    #[doc = ""]
+    #[doc = "void vATask( void *pvParameters )"]
+    #[doc = "{"]
+    #[doc = "struct AMessage *pxMessage;"]
+    #[doc = ""]
+    #[doc = "xQueue = xQueueCreate( 10, sizeof( struct AMessage * ) );"]
+    #[doc = "if( xQueue == 0 )"]
+    #[doc = "{"]
+    #[doc = "}"]
+    #[doc = ""]
+    #[doc = ""]
+    #[doc = "pxMessage = & xMessage;"]
+    #[doc = "xQueueSend( xQueue, ( void * ) &pxMessage, ( TickType_t ) 0 );"]
+    #[doc = ""]
+    #[doc = "}"]
+    #[doc = ""]
+    #[doc = "void vADifferentTask( void *pvParameters )"]
+    #[doc = "{"]
+    #[doc = "struct AMessage *pxRxedMessage;"]
+    #[doc = ""]
+    #[doc = "if( xQueue != 0 )"]
+    #[doc = "{"]
+    #[doc = "if( xQueuePeek( xQueue, &( pxRxedMessage ), ( TickType_t ) 10 ) )"]
+    #[doc = "{"]
+    #[doc = "}"]
+    #[doc = "}"]
+    #[doc = ""]
+    #[doc = "}"]
+    #[doc = "</pre>"]
+    #[doc = " \\defgroup xQueuePeek xQueuePeek"]
+    #[doc = " \\ingroup QueueManagement"]
+    pub fn xQueuePeek(
+        xQueue: QueueHandle_t,
+        pvBuffer: *mut ::core::ffi::c_void,
+        xTicksToWait: TickType_t,
+    ) -> BaseType_t;
+}
+extern "C" {
+    #[doc = " queue. h"]
+    #[doc = " <pre>"]
+    #[doc = "BaseType_t xQueuePeekFromISR("]
+    #[doc = "QueueHandle_t xQueue,"]
+    #[doc = "void *pvBuffer,"]
+    #[doc = ");</pre>"]
+    #[doc = ""]
+    #[doc = " A version of xQueuePeek() that can be called from an interrupt service"]
+    #[doc = " routine (ISR)."]
+    #[doc = ""]
+    #[doc = " Receive an item from a queue without removing the item from the queue."]
+    #[doc = " The item is received by copy so a buffer of adequate size must be"]
+    #[doc = " provided.  The number of bytes copied into the buffer was defined when"]
+    #[doc = " the queue was created."]
+    #[doc = ""]
+    #[doc = " Successfully received items remain on the queue so will be returned again"]
+    #[doc = " by the next call, or a call to xQueueReceive()."]
+    #[doc = ""]
+    #[doc = " @param xQueue The handle to the queue from which the item is to be"]
+    #[doc = " received."]
+    #[doc = ""]
+    #[doc = " @param pvBuffer Pointer to the buffer into which the received item will"]
+    #[doc = " be copied."]
+    #[doc = ""]
+    #[doc = " @return pdTRUE if an item was successfully received from the queue,"]
+    #[doc = " otherwise pdFALSE."]
+    #[doc = ""]
+    #[doc = " \\defgroup xQueuePeekFromISR xQueuePeekFromISR"]
+    #[doc = " \\ingroup QueueManagement"]
+    pub fn xQueuePeekFromISR(
+        xQueue: QueueHandle_t,
+        pvBuffer: *mut ::core::ffi::c_void,
+    ) -> BaseType_t;
+}
+extern "C" {
+    #[doc = " queue. h"]
+    #[doc = " <pre>"]
+    #[doc = "BaseType_t xQueueReceive("]
+    #[doc = "QueueHandle_t xQueue,"]
+    #[doc = "void *pvBuffer,"]
+    #[doc = "TickType_t xTicksToWait"]
+    #[doc = ");</pre>"]
+    #[doc = ""]
+    #[doc = " Receive an item from a queue.  The item is received by copy so a buffer of"]
+    #[doc = " adequate size must be provided.  The number of bytes copied into the buffer"]
+    #[doc = " was defined when the queue was created."]
+    #[doc = ""]
+    #[doc = " Successfully received items are removed from the queue."]
+    #[doc = ""]
+    #[doc = " This function must not be used in an interrupt service routine.  See"]
+    #[doc = " xQueueReceiveFromISR for an alternative that can."]
+    #[doc = ""]
+    #[doc = " @param xQueue The handle to the queue from which the item is to be"]
+    #[doc = " received."]
+    #[doc = ""]
+    #[doc = " @param pvBuffer Pointer to the buffer into which the received item will"]
+    #[doc = " be copied."]
+    #[doc = ""]
+    #[doc = " @param xTicksToWait The maximum amount of time the task should block"]
+    #[doc = " waiting for an item to receive should the queue be empty at the time"]
+    #[doc = " of the call.\t xQueueReceive() will return immediately if xTicksToWait"]
+    #[doc = " is zero and the queue is empty.  The time is defined in tick periods so the"]
+    #[doc = " constant portTICK_PERIOD_MS should be used to convert to real time if this is"]
+    #[doc = " required."]
+    #[doc = ""]
+    #[doc = " @return pdTRUE if an item was successfully received from the queue,"]
+    #[doc = " otherwise pdFALSE."]
+    #[doc = ""]
+    #[doc = " Example usage:"]
+    #[doc = "<pre>"]
+    #[doc = "struct AMessage"]
+    #[doc = "{"]
+    #[doc = "char ucMessageID;"]
+    #[doc = "char ucData[ 20 ];"]
+    #[doc = "} xMessage;"]
+    #[doc = ""]
+    #[doc = "QueueHandle_t xQueue;"]
+    #[doc = ""]
+    #[doc = "void vATask( void *pvParameters )"]
+    #[doc = "{"]
+    #[doc = "struct AMessage *pxMessage;"]
+    #[doc = ""]
+    #[doc = "xQueue = xQueueCreate( 10, sizeof( struct AMessage * ) );"]
+    #[doc = "if( xQueue == 0 )"]
+    #[doc = "{"]
+    #[doc = "}"]
+    #[doc = ""]
+    #[doc = ""]
+    #[doc = "pxMessage = & xMessage;"]
+    #[doc = "xQueueSend( xQueue, ( void * ) &pxMessage, ( TickType_t ) 0 );"]
+    #[doc = ""]
+    #[doc = "}"]
+    #[doc = ""]
+    #[doc = "void vADifferentTask( void *pvParameters )"]
+    #[doc = "{"]
+    #[doc = "struct AMessage *pxRxedMessage;"]
+    #[doc = ""]
+    #[doc = "if( xQueue != 0 )"]
+    #[doc = "{"]
+    #[doc = "if( xQueueReceive( xQueue, &( pxRxedMessage ), ( TickType_t ) 10 ) )"]
+    #[doc = "{"]
+    #[doc = "}"]
+    #[doc = "}"]
+    #[doc = ""]
+    #[doc = "}"]
+    #[doc = "</pre>"]
+    #[doc = " \\defgroup xQueueReceive xQueueReceive"]
+    #[doc = " \\ingroup QueueManagement"]
+    pub fn xQueueReceive(
+        xQueue: QueueHandle_t,
+        pvBuffer: *mut ::core::ffi::c_void,
+        xTicksToWait: TickType_t,
+    ) -> BaseType_t;
+}
+extern "C" {
+    #[doc = " queue. h"]
+    #[doc = " <pre>UBaseType_t uxQueueMessagesWaiting( const QueueHandle_t xQueue );</pre>"]
+    #[doc = ""]
+    #[doc = " Return the number of messages stored in a queue."]
+    #[doc = ""]
+    #[doc = " @param xQueue A handle to the queue being queried."]
+    #[doc = ""]
+    #[doc = " @return The number of messages available in the queue."]
+    #[doc = ""]
+    #[doc = " \\defgroup uxQueueMessagesWaiting uxQueueMessagesWaiting"]
+    #[doc = " \\ingroup QueueManagement"]
+    pub fn uxQueueMessagesWaiting(xQueue: QueueHandle_t) -> UBaseType_t;
+}
+extern "C" {
+    #[doc = " queue. h"]
+    #[doc = " <pre>UBaseType_t uxQueueSpacesAvailable( const QueueHandle_t xQueue );</pre>"]
+    #[doc = ""]
+    #[doc = " Return the number of free spaces available in a queue.  This is equal to the"]
+    #[doc = " number of items that can be sent to the queue before the queue becomes full"]
+    #[doc = " if no items are removed."]
+    #[doc = ""]
+    #[doc = " @param xQueue A handle to the queue being queried."]
+    #[doc = ""]
+    #[doc = " @return The number of spaces available in the queue."]
+    #[doc = ""]
+    #[doc = " \\defgroup uxQueueMessagesWaiting uxQueueMessagesWaiting"]
+    #[doc = " \\ingroup QueueManagement"]
+    pub fn uxQueueSpacesAvailable(xQueue: QueueHandle_t) -> UBaseType_t;
+}
+extern "C" {
+    #[doc = " queue. h"]
+    #[doc = " <pre>void vQueueDelete( QueueHandle_t xQueue );</pre>"]
+    #[doc = ""]
+    #[doc = " Delete a queue - freeing all the memory allocated for storing of items"]
+    #[doc = " placed on the queue."]
+    #[doc = ""]
+    #[doc = " @param xQueue A handle to the queue to be deleted."]
+    #[doc = ""]
+    #[doc = " \\defgroup vQueueDelete vQueueDelete"]
+    #[doc = " \\ingroup QueueManagement"]
+    pub fn vQueueDelete(xQueue: QueueHandle_t);
+}
+extern "C" {
+    #[doc = " queue. h"]
+    #[doc = " <pre>"]
+    #[doc = "BaseType_t xQueueGenericSendFromISR("]
+    #[doc = "QueueHandle_t\t\txQueue,"]
+    #[doc = "const\tvoid\t*pvItemToQueue,"]
+    #[doc = "BaseType_t\t*pxHigherPriorityTaskWoken,"]
+    #[doc = "BaseType_t\txCopyPosition"]
+    #[doc = ");"]
+    #[doc = "</pre>"]
+    #[doc = ""]
+    #[doc = " It is preferred that the macros xQueueSendFromISR(),"]
+    #[doc = " xQueueSendToFrontFromISR() and xQueueSendToBackFromISR() be used in place"]
+    #[doc = " of calling this function directly.  xQueueGiveFromISR() is an"]
+    #[doc = " equivalent for use by semaphores that don't actually copy any data."]
+    #[doc = ""]
+    #[doc = " Post an item on a queue.  It is safe to use this function from within an"]
+    #[doc = " interrupt service routine."]
+    #[doc = ""]
+    #[doc = " Items are queued by copy not reference so it is preferable to only"]
+    #[doc = " queue small items, especially when called from an ISR.  In most cases"]
+    #[doc = " it would be preferable to store a pointer to the item being queued."]
+    #[doc = ""]
+    #[doc = " @param xQueue The handle to the queue on which the item is to be posted."]
+    #[doc = ""]
+    #[doc = " @param pvItemToQueue A pointer to the item that is to be placed on the"]
+    #[doc = " queue.  The size of the items the queue will hold was defined when the"]
+    #[doc = " queue was created, so this many bytes will be copied from pvItemToQueue"]
+    #[doc = " into the queue storage area."]
+    #[doc = ""]
+    #[doc = " @param pxHigherPriorityTaskWoken xQueueGenericSendFromISR() will set"]
+    #[doc = " *pxHigherPriorityTaskWoken to pdTRUE if sending to the queue caused a task"]
+    #[doc = " to unblock, and the unblocked task has a priority higher than the currently"]
+    #[doc = " running task.  If xQueueGenericSendFromISR() sets this value to pdTRUE then"]
+    #[doc = " a context switch should be requested before the interrupt is exited."]
+    #[doc = ""]
+    #[doc = " @param xCopyPosition Can take the value queueSEND_TO_BACK to place the"]
+    #[doc = " item at the back of the queue, or queueSEND_TO_FRONT to place the item"]
+    #[doc = " at the front of the queue (for high priority messages)."]
+    #[doc = ""]
+    #[doc = " @return pdTRUE if the data was successfully sent to the queue, otherwise"]
+    #[doc = " errQUEUE_FULL."]
+    #[doc = ""]
+    #[doc = " Example usage for buffered IO (where the ISR can obtain more than one value"]
+    #[doc = " per call):"]
+    #[doc = "<pre>"]
+    #[doc = "void vBufferISR( void )"]
+    #[doc = "{"]
+    #[doc = "char cIn;"]
+    #[doc = "BaseType_t xHigherPriorityTaskWokenByPost;"]
+    #[doc = ""]
+    #[doc = "xHigherPriorityTaskWokenByPost = pdFALSE;"]
+    #[doc = ""]
+    #[doc = "do"]
+    #[doc = "{"]
+    #[doc = "cIn = portINPUT_BYTE( RX_REGISTER_ADDRESS );"]
+    #[doc = ""]
+    #[doc = "xQueueGenericSendFromISR( xRxQueue, &cIn, &xHigherPriorityTaskWokenByPost, queueSEND_TO_BACK );"]
+    #[doc = ""]
+    #[doc = "} while( portINPUT_BYTE( BUFFER_COUNT ) );"]
+    #[doc = ""]
+    #[doc = "if( xHigherPriorityTaskWokenByPost )"]
+    #[doc = "{"]
+    #[doc = "portYIELD_FROM_ISR();"]
+    #[doc = "}"]
+    #[doc = "}"]
+    #[doc = "</pre>"]
+    #[doc = ""]
+    #[doc = " \\defgroup xQueueSendFromISR xQueueSendFromISR"]
+    #[doc = " \\ingroup QueueManagement"]
+    pub fn xQueueGenericSendFromISR(
+        xQueue: QueueHandle_t,
+        pvItemToQueue: *const ::core::ffi::c_void,
+        pxHigherPriorityTaskWoken: *mut BaseType_t,
+        xCopyPosition: BaseType_t,
+    ) -> BaseType_t;
+}
+extern "C" {
+    pub fn xQueueGiveFromISR(
+        xQueue: QueueHandle_t,
+        pxHigherPriorityTaskWoken: *mut BaseType_t,
+    ) -> BaseType_t;
+}
+extern "C" {
+    #[doc = " queue. h"]
+    #[doc = " <pre>"]
+    #[doc = "BaseType_t xQueueReceiveFromISR("]
+    #[doc = "QueueHandle_t\txQueue,"]
+    #[doc = "void\t*pvBuffer,"]
+    #[doc = "BaseType_t *pxTaskWoken"]
+    #[doc = ");"]
+    #[doc = " </pre>"]
+    #[doc = ""]
+    #[doc = " Receive an item from a queue.  It is safe to use this function from within an"]
+    #[doc = " interrupt service routine."]
+    #[doc = ""]
+    #[doc = " @param xQueue The handle to the queue from which the item is to be"]
+    #[doc = " received."]
+    #[doc = ""]
+    #[doc = " @param pvBuffer Pointer to the buffer into which the received item will"]
+    #[doc = " be copied."]
+    #[doc = ""]
+    #[doc = " @param pxTaskWoken A task may be blocked waiting for space to become"]
+    #[doc = " available on the queue.  If xQueueReceiveFromISR causes such a task to"]
+    #[doc = " unblock *pxTaskWoken will get set to pdTRUE, otherwise *pxTaskWoken will"]
+    #[doc = " remain unchanged."]
+    #[doc = ""]
+    #[doc = " @return pdTRUE if an item was successfully received from the queue,"]
+    #[doc = " otherwise pdFALSE."]
+    #[doc = ""]
+    #[doc = " Example usage:"]
+    #[doc = "<pre>"]
+    #[doc = ""]
+    #[doc = "QueueHandle_t xQueue;"]
+    #[doc = ""]
+    #[doc = "void vAFunction( void *pvParameters )"]
+    #[doc = "{"]
+    #[doc = "char cValueToPost;"]
+    #[doc = "const TickType_t xTicksToWait = ( TickType_t )0xff;"]
+    #[doc = ""]
+    #[doc = "xQueue = xQueueCreate( 10, sizeof( char ) );"]
+    #[doc = "if( xQueue == 0 )"]
+    #[doc = "{"]
+    #[doc = "}"]
+    #[doc = ""]
+    #[doc = ""]
+    #[doc = "cValueToPost = 'a';"]
+    #[doc = "xQueueSend( xQueue, ( void * ) &cValueToPost, xTicksToWait );"]
+    #[doc = "cValueToPost = 'b';"]
+    #[doc = "xQueueSend( xQueue, ( void * ) &cValueToPost, xTicksToWait );"]
+    #[doc = ""]
+    #[doc = ""]
+    #[doc = "cValueToPost = 'c';"]
+    #[doc = "xQueueSend( xQueue, ( void * ) &cValueToPost, xTicksToWait );"]
+    #[doc = "}"]
+    #[doc = ""]
+    #[doc = "void vISR_Routine( void )"]
+    #[doc = "{"]
+    #[doc = "BaseType_t xTaskWokenByReceive = pdFALSE;"]
+    #[doc = "char cRxedChar;"]
+    #[doc = ""]
+    #[doc = "while( xQueueReceiveFromISR( xQueue, ( void * ) &cRxedChar, &xTaskWokenByReceive) )"]
+    #[doc = "{"]
+    #[doc = "vOutputCharacter( cRxedChar );"]
+    #[doc = ""]
+    #[doc = "}"]
+    #[doc = ""]
+    #[doc = "if( cTaskWokenByPost != ( char ) pdFALSE;"]
+    #[doc = "{"]
+    #[doc = "taskYIELD ();"]
+    #[doc = "}"]
+    #[doc = "}"]
+    #[doc = "</pre>"]
+    #[doc = " \\defgroup xQueueReceiveFromISR xQueueReceiveFromISR"]
+    #[doc = " \\ingroup QueueManagement"]
+    pub fn xQueueReceiveFromISR(
+        xQueue: QueueHandle_t,
+        pvBuffer: *mut ::core::ffi::c_void,
+        pxHigherPriorityTaskWoken: *mut BaseType_t,
+    ) -> BaseType_t;
+}
+extern "C" {
+    pub fn xQueueIsQueueEmptyFromISR(xQueue: QueueHandle_t) -> BaseType_t;
+}
+extern "C" {
+    pub fn xQueueIsQueueFullFromISR(xQueue: QueueHandle_t) -> BaseType_t;
+}
+extern "C" {
+    pub fn uxQueueMessagesWaitingFromISR(xQueue: QueueHandle_t) -> UBaseType_t;
+}
+extern "C" {
+    pub fn xQueueCRSendFromISR(
+        xQueue: QueueHandle_t,
+        pvItemToQueue: *const ::core::ffi::c_void,
+        xCoRoutinePreviouslyWoken: BaseType_t,
+    ) -> BaseType_t;
+}
+extern "C" {
+    pub fn xQueueCRReceiveFromISR(
+        xQueue: QueueHandle_t,
+        pvBuffer: *mut ::core::ffi::c_void,
+        pxTaskWoken: *mut BaseType_t,
+    ) -> BaseType_t;
+}
+extern "C" {
+    pub fn xQueueCRSend(
+        xQueue: QueueHandle_t,
+        pvItemToQueue: *const ::core::ffi::c_void,
+        xTicksToWait: TickType_t,
+    ) -> BaseType_t;
+}
+extern "C" {
+    pub fn xQueueCRReceive(
+        xQueue: QueueHandle_t,
+        pvBuffer: *mut ::core::ffi::c_void,
+        xTicksToWait: TickType_t,
+    ) -> BaseType_t;
+}
+extern "C" {
+    pub fn xQueueCreateMutex(ucQueueType: u8) -> QueueHandle_t;
+}
+extern "C" {
+    pub fn xQueueCreateMutexStatic(
+        ucQueueType: u8,
+        pxStaticQueue: *mut StaticQueue_t,
+    ) -> QueueHandle_t;
+}
+extern "C" {
+    pub fn xQueueCreateCountingSemaphore(
+        uxMaxCount: UBaseType_t,
+        uxInitialCount: UBaseType_t,
+    ) -> QueueHandle_t;
+}
+extern "C" {
+    pub fn xQueueCreateCountingSemaphoreStatic(
+        uxMaxCount: UBaseType_t,
+        uxInitialCount: UBaseType_t,
+        pxStaticQueue: *mut StaticQueue_t,
+    ) -> QueueHandle_t;
+}
+extern "C" {
+    pub fn xQueueSemaphoreTake(xQueue: QueueHandle_t, xTicksToWait: TickType_t) -> BaseType_t;
+}
+extern "C" {
+    pub fn xQueueGetMutexHolder(xSemaphore: QueueHandle_t) -> TaskHandle_t;
+}
+extern "C" {
+    pub fn xQueueGetMutexHolderFromISR(xSemaphore: QueueHandle_t) -> TaskHandle_t;
+}
+extern "C" {
+    pub fn xQueueTakeMutexRecursive(xMutex: QueueHandle_t, xTicksToWait: TickType_t) -> BaseType_t;
+}
+extern "C" {
+    pub fn xQueueGiveMutexRecursive(xMutex: QueueHandle_t) -> BaseType_t;
+}
+extern "C" {
+    pub fn vQueueAddToRegistry(xQueue: QueueHandle_t, pcQueueName: *const ::std::os::raw::c_char);
+}
+extern "C" {
+    pub fn vQueueUnregisterQueue(xQueue: QueueHandle_t);
+}
+extern "C" {
+    pub fn pcQueueGetName(xQueue: QueueHandle_t) -> *const ::std::os::raw::c_char;
+}
+extern "C" {
+    pub fn xQueueGenericCreate(
+        uxQueueLength: UBaseType_t,
+        uxItemSize: UBaseType_t,
+        ucQueueType: u8,
+    ) -> QueueHandle_t;
+}
+extern "C" {
+    pub fn xQueueGenericCreateStatic(
+        uxQueueLength: UBaseType_t,
+        uxItemSize: UBaseType_t,
+        pucQueueStorage: *mut u8,
+        pxStaticQueue: *mut StaticQueue_t,
+        ucQueueType: u8,
+    ) -> QueueHandle_t;
+}
+extern "C" {
+    pub fn xQueueCreateSet(uxEventQueueLength: UBaseType_t) -> QueueSetHandle_t;
+}
+extern "C" {
+    pub fn xQueueAddToSet(
+        xQueueOrSemaphore: QueueSetMemberHandle_t,
+        xQueueSet: QueueSetHandle_t,
+    ) -> BaseType_t;
+}
+extern "C" {
+    pub fn xQueueRemoveFromSet(
+        xQueueOrSemaphore: QueueSetMemberHandle_t,
+        xQueueSet: QueueSetHandle_t,
+    ) -> BaseType_t;
+}
+extern "C" {
+    pub fn xQueueSelectFromSet(
+        xQueueSet: QueueSetHandle_t,
+        xTicksToWait: TickType_t,
+    ) -> QueueSetMemberHandle_t;
+}
+extern "C" {
+    pub fn xQueueSelectFromSetFromISR(xQueueSet: QueueSetHandle_t) -> QueueSetMemberHandle_t;
+}
+extern "C" {
+    pub fn vQueueWaitForMessageRestricted(
+        xQueue: QueueHandle_t,
+        xTicksToWait: TickType_t,
+        xWaitIndefinitely: BaseType_t,
+    );
+}
+extern "C" {
+    pub fn xQueueGenericReset(xQueue: QueueHandle_t, xNewQueue: BaseType_t) -> BaseType_t;
+}
+extern "C" {
+    pub fn vQueueSetQueueNumber(xQueue: QueueHandle_t, uxQueueNumber: UBaseType_t);
+}
+extern "C" {
+    pub fn uxQueueGetQueueNumber(xQueue: QueueHandle_t) -> UBaseType_t;
+}
+extern "C" {
+    pub fn ucQueueGetQueueType(xQueue: QueueHandle_t) -> u8;
+}
+pub type SemaphoreHandle_t = QueueHandle_t;
+extern "C" {
+    pub fn freertos_rs_sizeof(_type: u8) -> u8;
+}
+extern "C" {
+    pub fn freertos_rs_vTaskDelayUntil(
+        pxPreviousWakeTime: *mut TickType_t,
+        xTimeIncrement: TickType_t,
+    );
+}
+extern "C" {
+    pub fn freertos_rs_vTaskDelay(xTicksToDelay: TickType_t);
+}
+extern "C" {
+    pub fn freertos_rs_xTaskGetTickCount() -> TickType_t;
+}
+extern "C" {
+    pub fn freertos_rs_get_system_state(
+        pxTaskStatusArray: *mut TaskStatus_t,
+        uxArraySize: UBaseType_t,
+        pulTotalRunTime: *mut u32,
+    ) -> UBaseType_t;
+}
+extern "C" {
+    pub fn freertos_rs_get_portTICK_PERIOD_MS() -> TickType_t;
+}
+extern "C" {
+    pub fn freertos_rs_get_number_of_tasks() -> UBaseType_t;
+}
+extern "C" {
+    pub fn freertos_rs_create_recursive_mutex() -> QueueHandle_t;
+}
+extern "C" {
+    pub fn freertos_rs_take_recursive_mutex(mutex: QueueHandle_t, max: UBaseType_t) -> UBaseType_t;
+}
+extern "C" {
+    pub fn freertos_rs_give_recursive_mutex(mutex: QueueHandle_t) -> UBaseType_t;
+}
+extern "C" {
+    pub fn freertos_rs_create_mutex() -> QueueHandle_t;
+}
+extern "C" {
+    pub fn freertos_rs_create_binary_semaphore() -> QueueHandle_t;
+}
+extern "C" {
+    pub fn freertos_rs_create_counting_semaphore(
+        max: UBaseType_t,
+        initial: UBaseType_t,
+    ) -> QueueHandle_t;
+}
+extern "C" {
+    pub fn freertos_rs_delete_semaphore(semaphore: QueueHandle_t);
+}
+extern "C" {
+    pub fn freertos_rs_take_mutex(mutex: QueueHandle_t, max: UBaseType_t) -> UBaseType_t;
+}
+extern "C" {
+    pub fn freertos_rs_give_mutex(mutex: QueueHandle_t) -> UBaseType_t;
+}
+extern "C" {
+    pub fn freertos_rs_take_semaphore_isr(
+        semaphore: QueueHandle_t,
+        xHigherPriorityTaskWoken: *mut BaseType_t,
+    ) -> UBaseType_t;
+}
+extern "C" {
+    pub fn freertos_rs_give_semaphore_isr(
+        semaphore: QueueHandle_t,
+        xHigherPriorityTaskWoken: *mut BaseType_t,
+    ) -> UBaseType_t;
+}
+extern "C" {
+    pub fn freertos_rs_spawn_task(
+        entry_point: TaskFunction_t,
+        pvParameters: *mut ::core::ffi::c_void,
+        name: *const ::std::os::raw::c_char,
+        name_len: u8,
+        stack_size: u16,
+        priority: UBaseType_t,
+        task_handle: *mut TaskHandle_t,
+    ) -> UBaseType_t;
+}
+extern "C" {
+    pub fn freertos_rs_delete_task(task: TaskHandle_t);
+}
+extern "C" {
+    pub fn freertos_rs_get_stack_high_water_mark(task: TaskHandle_t) -> UBaseType_t;
+}
+extern "C" {
+    pub fn freertos_rs_queue_create(
+        queue_length: UBaseType_t,
+        item_size: UBaseType_t,
+    ) -> QueueHandle_t;
+}
+extern "C" {
+    pub fn freertos_rs_queue_delete(queue: QueueHandle_t);
+}
+extern "C" {
+    pub fn freertos_rs_queue_send(
+        queue: QueueHandle_t,
+        item: *mut ::core::ffi::c_void,
+        max_wait: TickType_t,
+    ) -> UBaseType_t;
+}
+extern "C" {
+    pub fn freertos_rs_queue_send_isr(
+        queue: QueueHandle_t,
+        item: *mut ::core::ffi::c_void,
+        xHigherPriorityTaskWoken: *mut BaseType_t,
+    ) -> UBaseType_t;
+}
+extern "C" {
+    pub fn freertos_rs_queue_receive(
+        queue: QueueHandle_t,
+        item: *mut ::core::ffi::c_void,
+        max_wait: TickType_t,
+    ) -> UBaseType_t;
+}
+extern "C" {
+    pub fn freertos_rs_isr_yield();
+}
+extern "C" {
+    pub fn freertos_rs_max_wait() -> TickType_t;
+}
+extern "C" {
+    pub fn freertos_rs_task_notify_take(clear_count: u8, wait: TickType_t) -> u32;
+}
+extern "C" {
+    pub fn freertos_rs_task_notify_wait(
+        ulBitsToClearOnEntry: u32,
+        ulBitsToClearOnExit: u32,
+        pulNotificationValue: *mut u32,
+        xTicksToWait: TickType_t,
+    ) -> BaseType_t;
+}
+extern "C" {
+    pub fn freertos_rs_task_notify_action(action: u8) -> eNotifyAction;
+}
+extern "C" {
+    pub fn freertos_rs_task_notify(
+        task: *mut ::core::ffi::c_void,
+        value: u32,
+        action: u8,
+    ) -> BaseType_t;
+}
+extern "C" {
+    pub fn freertos_rs_task_notify_isr(
+        task: *mut ::core::ffi::c_void,
+        value: u32,
+        action: u8,
+        xHigherPriorityTaskWoken: *mut BaseType_t,
+    ) -> BaseType_t;
+}
+extern "C" {
+    pub fn freertos_rs_get_current_task() -> TaskHandle_t;
+}
+extern "C" {
+    pub fn freertos_rs_timer_create(
+        name: *const ::std::os::raw::c_char,
+        name_len: u8,
+        period: TickType_t,
+        auto_reload: u8,
+        timer_id: *mut ::core::ffi::c_void,
+        callback: TimerCallbackFunction_t,
+    ) -> TimerHandle_t;
+}
+extern "C" {
+    pub fn freertos_rs_timer_start(timer: TimerHandle_t, block_time: TickType_t) -> BaseType_t;
+}
+extern "C" {
+    pub fn freertos_rs_timer_stop(timer: TimerHandle_t, block_time: TickType_t) -> BaseType_t;
+}
+extern "C" {
+    pub fn freertos_rs_timer_delete(timer: TimerHandle_t, block_time: TickType_t) -> BaseType_t;
+}
+extern "C" {
+    pub fn freertos_rs_timer_change_period(
+        timer: TimerHandle_t,
+        block_time: TickType_t,
+        new_period: TickType_t,
+    ) -> BaseType_t;
+}
+extern "C" {
+    pub fn freertos_rs_timer_get_id(timer: TimerHandle_t) -> *mut ::core::ffi::c_void;
+}
+extern "C" {
+    pub fn freertos_rs_enter_critical();
+}
+extern "C" {
+    pub fn freertos_rs_exit_critical();
+}

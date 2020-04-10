@@ -6,6 +6,10 @@ STM32 example:
 */
 
 #include "FreeRTOS.h"
+#include "task.h"
+#include "timers.h"
+#include "queue.h"
+#include "semphr.h"
 
 uint8_t freertos_rs_sizeof(uint8_t _type) {
 	switch (_type) {

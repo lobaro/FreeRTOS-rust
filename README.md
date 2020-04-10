@@ -22,9 +22,31 @@ After cloning without `--recurse-submodules` the submodules must be loaded
 
 * llvm-config is missing on windows
 
+## Setup
+
+For debugging the GNU Toolchain is required
+
+    rustup toolchain install stable-x86_64-pc-windows-gnu
+    rustup default stable-x86_64-pc-windows-gnu
+    
+MSVC Toolchain is not working for debugging:
+
+    rustup default stable-msvc
+    
+
+## Build
+
+    cargo build
+    
+To see all errors use:
+
+    cargo build -vv
+
 ## Generate C Bindings
 
 C-Bindings are based on `src/bindings.h` and generated with [bindgen](https://github.com/rust-lang/rust-bindgen)
+
+`bindgen` is executed during build in `build.rs`.
 
 
 
