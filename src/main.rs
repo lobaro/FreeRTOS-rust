@@ -1,9 +1,13 @@
-use freertos_rust::add;
+use freertos_rust::{xPortGetFreeHeapSize, add, xPortStartScheduler};
 
 fn main() {
     unsafe {
         let res = add(2, 3);
-        println!("2 + 3 = {}!", res);
+        let free = xPortGetFreeHeapSize();
+        println!("2 + 3 = {} Free: {}!", res, free);
+
+
+        xPortStartScheduler();
     }
 
 }
