@@ -23,12 +23,15 @@ fn main() {
     cc::Build::new()
         // TODO: This is the windows specific part that needs to be env specific
         .include(freertos_src_path.join("include"))
-        .include(freertos_demo_path.join("WIN32-MSVC"))
+        //.include(freertos_demo_path.join("WIN32-MSVC"))
         .include(freertos_demo_path.join("WIN32-MSVC/Trace_Recorder_Configuration"))
         .include(freertos_plus_src_path.join("FreeRTOS-Plus-Trace/Include"))
         .include(freertos_src_path.join("portable/MSVC-MingW"))
         .file(freertos_demo_path.join("WIN32-MSVC/Run-time-stats-utils.c"))
 
+        // Files related to port
+        .include("src/ports/win")
+        .file("src/ports/win/hooks.c")
 
         .file(freertos_plus_src_path.join("FreeRTOS-Plus-Trace/trcKernelPort.c"))
         .file(freertos_plus_src_path.join("FreeRTOS-Plus-Trace/trcSnapshotRecorder.c"))
@@ -41,7 +44,7 @@ fn main() {
         .file(freertos_src_path.join("queue.c"))
         .file(freertos_src_path.join("tasks.c"))
         .file(freertos_src_path.join("portable/MSVC-MingW/port.c"))
-        .file("src/freertos.c")
+
         //.file("src/freertos_shim.c")
 
         .compile("libfreertos.a");
