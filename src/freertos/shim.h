@@ -5,6 +5,8 @@
 #include "queue.h"
 #include "semphr.h"
 
+void freertos_rs_xPortStartScheduler();
+
 uint8_t freertos_rs_sizeof(uint8_t _type);
 
 #if (INCLUDE_vTaskDelayUntil == 1)

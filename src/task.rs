@@ -85,15 +85,12 @@ impl TaskBuilder {
         where F: FnOnce() -> (),
               F: Send + 'static
     {
-
         Task::spawn(&self.task_name,
                     self.task_stack_size,
                     self.task_priority,
                     func)
-
     }
 }
-
 
 
 impl Task {
@@ -162,7 +159,7 @@ impl Task {
     {
         unsafe {
             return Task::spawn_inner(Box::new(f), name, stack_size, priority);
-        }        
+        }
     }
 
 
@@ -230,13 +227,13 @@ impl Task {
 
     /// Wait for a notification to be posted.
     pub fn wait_for_notification<D: DurationTicks>(&self,
-                                 clear_bits_enter: u32,
-                                 clear_bits_exit: u32,
-                                 wait_for: D)
-                                 -> Result<u32, FreeRtosError>
-    {        
+                                                   clear_bits_enter: u32,
+                                                   clear_bits_exit: u32,
+                                                   wait_for: D)
+                                                   -> Result<u32, FreeRtosError>
+    {
         let mut val = 0;
-        let r = unsafe { 
+        let r = unsafe {
             freertos_rs_task_notify_wait(clear_bits_enter,
                                          clear_bits_exit,
                                          &mut val as *mut _,
@@ -260,6 +257,7 @@ impl Task {
 
 /// Helper methods to be performed on the task that is currently executing.
 pub struct CurrentTask;
+
 impl CurrentTask {
     /// Delay the execution of the current task.
     pub fn delay<D: DurationTicks>(delay: D) {
@@ -279,45 +277,45 @@ impl CurrentTask {
 #[derive(Debug)]
 pub struct FreeRtosSchedulerState {
     pub tasks: Vec<FreeRtosTaskStatus>,
-    pub total_run_time: u32
+    pub total_run_time: u32,
 }
 
 impl fmt::Display for FreeRtosSchedulerState {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {        
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         fmt.write_str("FreeRTOS tasks\r\n")?;
 
         write!(fmt, "{id: <6} | {name: <16} | {state: <9} | {priority: <8} | {stack: >10} | {cpu_abs: >10} | {cpu_rel: >4}\r\n",
-            id = "ID",
-            name = "Name",
-            state = "State",
-            priority = "Priority",
-            stack = "Stack left",
-            cpu_abs = "CPU",
-            cpu_rel = "%"
-            )?;
+               id = "ID",
+               name = "Name",
+               state = "State",
+               priority = "Priority",
+               stack = "Stack left",
+               cpu_abs = "CPU",
+               cpu_rel = "%"
+        )?;
 
         for task in &self.tasks {
             write!(fmt, "{id: <6} | {name: <16} | {state: <9} | {priority: <8} | {stack: >10} | {cpu_abs: >10} | {cpu_rel: >4}\r\n",
-            id = task.task_number,
-            name = task.name,
-            state = format!("{:?}", task.task_state),
-            priority = task.current_priority.0,
-            stack = task.stack_high_water_mark,
-            cpu_abs = task.run_time_counter,
-            cpu_rel = if self.total_run_time > 0 && task.run_time_counter <= self.total_run_time {
-                let p = (((task.run_time_counter as u64) * 100) / self.total_run_time as u64) as u32;
-                let ps = if p == 0 && task.run_time_counter > 0 {
-                    "<1".to_string()
-                } else {
-                    p.to_string()
-                };
-                format!("{: >3}%", ps)
-            } else {
-                "-".to_string()
-            }
+                   id = task.task_number,
+                   name = task.name,
+                   state = format!("{:?}", task.task_state),
+                   priority = task.current_priority.0,
+                   stack = task.stack_high_water_mark,
+                   cpu_abs = task.run_time_counter,
+                   cpu_rel = if self.total_run_time > 0 && task.run_time_counter <= self.total_run_time {
+                       let p = (((task.run_time_counter as u64) * 100) / self.total_run_time as u64) as u32;
+                       let ps = if p == 0 && task.run_time_counter > 0 {
+                           "<1".to_string()
+                       } else {
+                           p.to_string()
+                       };
+                       format!("{: >3}%", ps)
+                   } else {
+                       "-".to_string()
+                   }
             )?;
         }
-        
+
         if self.total_run_time > 0 {
             write!(fmt, "Total run time: {}\r\n", self.total_run_time)?;
         }
@@ -335,12 +333,15 @@ pub struct FreeRtosTaskStatus {
     pub current_priority: TaskPriority,
     pub base_priority: TaskPriority,
     pub run_time_counter: FreeRtosUnsignedLong,
-    pub stack_high_water_mark: FreeRtosUnsignedShort
+    pub stack_high_water_mark: FreeRtosUnsignedShort,
 }
 
 
 pub struct FreeRtosUtils;
+
 impl FreeRtosUtils {
+    pub fn start_scheduler() { unsafe { freertos_rs_xPortStartScheduler(); } }
+
     pub fn get_tick_count() -> FreeRtosTickType {
         unsafe { freertos_rs_xTaskGetTickCount() }
     }
@@ -353,12 +354,12 @@ impl FreeRtosUtils {
         unsafe { freertos_rs_get_number_of_tasks() as usize }
     }
 
-    pub fn get_all_tasks(tasks_len: Option<usize>) -> FreeRtosSchedulerState {        
+    pub fn get_all_tasks(tasks_len: Option<usize>) -> FreeRtosSchedulerState {
         let tasks_len = tasks_len.unwrap_or(Self::get_number_of_tasks());
         let mut tasks = Vec::with_capacity(tasks_len as usize);
         let mut total_run_time = 0;
-        
-        unsafe {            
+
+        unsafe {
             let filled = freertos_rs_get_system_state(tasks.as_mut_ptr(), tasks_len as FreeRtosUBaseType, &mut total_run_time);
             tasks.set_len(filled as usize);
         }
@@ -372,13 +373,13 @@ impl FreeRtosUtils {
                 current_priority: TaskPriority(t.current_priority as u8),
                 base_priority: TaskPriority(t.base_priority as u8),
                 run_time_counter: t.run_time_counter,
-                stack_high_water_mark: t.stack_high_water_mark
+                stack_high_water_mark: t.stack_high_water_mark,
             }
         }).collect();
 
         FreeRtosSchedulerState {
             tasks: tasks,
-            total_run_time: total_run_time
+            total_run_time: total_run_time,
         }
     }
 }

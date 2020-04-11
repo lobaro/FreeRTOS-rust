@@ -5,7 +5,7 @@ use std::path::PathBuf;
 
 // See: https://doc.rust-lang.org/cargo/reference/build-scripts.html
 fn main() {
-    println!("cargo:rerun-if-changed=src/freertos.c");
+    println!("cargo:rerun-if-changed=always");
 
 
     // Build C Code
@@ -30,21 +30,28 @@ fn main() {
         //.flag("-DprojCOVERAGE_TEST=0")
         .define("projCOVERAGE_TEST", "0")
         .static_flag(true)
+        //.shared_flag(true)
         // Files related to port
         //.include("src/freertos/ports/win/")
         // TODO: This is the windows specific part that needs to be env specific
+        // FreeRTOS.h and modules (Task, Queues, etc.)
         .include(freertos_src_path.join("include"))
-        .include(freertos_demo_path.join(demo))
+        // FreeRTOSConfig.h
+        //.include(freertos_demo_path.join(demo))
+        .include("src/freertos/ports/win")
+        // portmacro.h
+        .include(freertos_src_path.join("portable").join(port))
+        // Tracing from Demo TODO: Get rid of this
         .include(freertos_demo_path.join(demo).join("Trace_Recorder_Configuration"))
         .include(freertos_plus_src_path.join("FreeRTOS-Plus-Trace/Include"))
-        .include(freertos_src_path.join("portable").join(port))
+
 
 
         // TODO: Make runtime stats not needed
         .file(freertos_demo_path.join(demo).join("Run-time-stats-utils.c"))
         .file("src/freertos/ports/win/hooks.c")
         .file("src/freertos/ports/win/heap.c")
-        .file("src/freertos/freertos_shim.c")
+        .file("src/freertos/shim.c") // TODO: make separate lib file for shim?
 
         // FreeRTOS Plus Trace is needed for windows Demo
         .file(freertos_plus_src_path.join("FreeRTOS-Plus-Trace/trcKernelPort.c"))
@@ -68,8 +75,10 @@ fn main() {
     println!("cargo:rerun-if-changed=src/bindings.h");
     println!("cargo:rerun-if-changed=c-lib/add.c");
 
-    return; // TODO: Some flags are missing for minGW bindgen to solve: 'x86intrin.h' file not found
-
+    //return; // TODO: Some flags are missing for minGW bindgen to solve: 'x86intrin.h' file not found
+    // Does not work:
+    //std::env::set_var("RUST_LOG", "debug");
+    //println!("cargo:rustc-env=RUST_LOG=debug");
     //println!("FOO: -I{}", freertos_src_path.join("portable/MSVC-MingW").to_str().unwrap());
     // The bindgen::Builder is the main entry point
     // to bindgen, and lets you build up options for
@@ -82,7 +91,9 @@ fn main() {
         // The input header we would like to generate
         // bindings for.
         .header("src/bindings.h")
-        .header("src/freertos/freertos_shim.h")
+        //.trust_clang_mangling(false)
+
+        //.header("src/freertos/freertos_shim.h")
         //portmacro.h
         //.clang_arg(format!("-I{}", freertos_src_path.join("portable/MSVC-MingW").to_str().unwrap()))
         // FreeRTOS.h

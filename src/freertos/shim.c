@@ -1,15 +1,19 @@
 /*
 FreeRTOS.rs shim library
-
 Include headers relevant for your platform.
-
 STM32 example:
-
 #include "stm32f4xx_hal.h"
-
 */
 
 #include "FreeRTOS.h"
+#include "task.h"
+#include "timers.h"
+#include "queue.h"
+#include "semphr.h"
+
+void freertos_rs_xPortStartScheduler() {
+	xPortStartScheduler();
+}
 
 uint8_t freertos_rs_sizeof(uint8_t _type) {
 	switch (_type) {
@@ -22,7 +26,7 @@ uint8_t freertos_rs_sizeof(uint8_t _type) {
 		case 2:
 			return sizeof(char);
 			break;
-		
+
 		case 10:
 			return sizeof(BaseType_t);
 			break;
@@ -31,8 +35,8 @@ uint8_t freertos_rs_sizeof(uint8_t _type) {
 			break;
 		case 12:
 			return sizeof(TickType_t);
-			break;		
-		
+			break;
+
 		case 20:
 			return sizeof(TaskHandle_t);
 			break;
@@ -64,9 +68,9 @@ uint8_t freertos_rs_sizeof(uint8_t _type) {
 		case 33:
 			return sizeof(unsigned short);
 			break;
-		
 
-		break;
+
+			break;
 		default:
 			return 0;
 	}
@@ -217,12 +221,12 @@ void freertos_rs_queue_delete(QueueHandle_t queue) {
 }
 
 UBaseType_t freertos_rs_queue_send(QueueHandle_t queue, void* item, TickType_t max_wait) {
-    if (xQueueSend(queue, item, max_wait ) != pdTRUE)
-    {
-        return 1;
-    }
+	if (xQueueSend(queue, item, max_wait ) != pdTRUE)
+	{
+		return 1;
+	}
 
-    return 0;
+	return 0;
 }
 
 UBaseType_t freertos_rs_queue_send_isr(QueueHandle_t queue, void* item, BaseType_t* xHigherPriorityTaskWoken) {
@@ -249,11 +253,10 @@ TickType_t freertos_rs_max_wait() {
 	return portMAX_DELAY;
 }
 
-#if (INCLUDE_pcTaskGetTaskName == 1)
+
 char* freertos_rs_task_get_name(TaskHandle_t task) {
-	return pcTaskGetTaskName(task);
+	return pcTaskGetName(task);
 }
-#endif
 
 uint32_t freertos_rs_task_notify_take(uint8_t clear_count, TickType_t wait) {
 	return ulTaskNotifyTake(clear_count == 1 ? pdTRUE : pdFALSE, wait);
@@ -268,7 +271,7 @@ BaseType_t freertos_rs_task_notify_wait(uint32_t ulBitsToClearOnEntry, uint32_t 
 }
 
 eNotifyAction freertos_rs_task_notify_action(uint8_t action) {
-	switch (action) {					
+	switch (action) {
 		case 1:
 			return eSetBits;
 		case 2:
@@ -286,7 +289,7 @@ BaseType_t freertos_rs_task_notify(void* task, uint32_t value, uint8_t action) {
 	eNotifyAction eAction = freertos_rs_task_notify_action(action);
 
 	BaseType_t v = xTaskNotify(task, value, eAction);
-	if (v != pdPASS) { 
+	if (v != pdPASS) {
 		return 1;
 	}
 	return 0;
@@ -296,7 +299,7 @@ BaseType_t freertos_rs_task_notify_isr(void* task, uint32_t value, uint8_t actio
 	eNotifyAction eAction = freertos_rs_task_notify_action(action);
 
 	BaseType_t v = xTaskNotifyFromISR(task, value, eAction, xHigherPriorityTaskWoken);
-	if (v != pdPASS) { 
+	if (v != pdPASS) {
 		return 1;
 	}
 	return 0;

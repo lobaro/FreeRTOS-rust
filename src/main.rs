@@ -1,9 +1,4 @@
-use freertos_rust::*;
-use core::mem;
-
-fn task1() {
-
-}
+use ::freertos_rust::*;
 
 fn main() {
     unsafe {
@@ -11,26 +6,25 @@ fn main() {
         println!("2 + 3 = {}", res);
         initialiseHeap();
 
-        println!("Delay 1000...");
+        println!("Starting FreeRTOS app ...");
 
         Task::new().name("hello").stack_size(128).start(|| {
             loop {
                 println!("Hello world!");
-                CurrentTask::delay(Duration::infinite());
+                CurrentTask::delay(Duration::ms(100));
             }
         }).unwrap();
 
         //freertos_rs_spawn_task(task1, null);
         //freertos_rs_vTaskDelay(1000);
-        println!("1 Second later");
+        println!("Task registered");
 
 
 
-        let free = xPortGetFreeHeapSize();
-        println!("Free Memory: {}!", free);
+        //let free = freertos_rs_xPortGetFreeHeapSize();
+       // println!("Free Memory: {}!", free);
 
-
-        xPortStartScheduler();
+        FreeRtosUtils::start_scheduler();
         loop {
             println!("Loop forever!");
         }
