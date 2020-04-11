@@ -117,8 +117,8 @@ uses the same semantics as the standard C assert() macro. */
 //#define configASSERT( x ) if( ( x ) == 0 ) vAssertCalled( __LINE__, __FILE__ )
 
 // Use the freertos_rs implementation
-extern void freerots_rs_assert_called();
-#define configASSERT( x ) if( ( x ) == 0 ) freerots_rs_assert_called()
+extern void freerots_rs_assert_called(unsigned long ulLine, const char * const pcFileName);
+#define configASSERT( x ) if( ( x ) == 0 ) freerots_rs_assert_called(__LINE__, __FILE__)
 
 #define configINCLUDE_MESSAGE_BUFFER_AMP_DEMO	0
 #if ( configINCLUDE_MESSAGE_BUFFER_AMP_DEMO == 1 )

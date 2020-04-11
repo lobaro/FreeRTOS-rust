@@ -1,8 +1,8 @@
-
-
+use crate::base::*;
+use crate::utils::*;
 
 #[no_mangle]
-pub extern "C" fn freerots_rs_assert_called() {
+pub extern "C" fn freerots_rs_assert_called(line: FreeRtosUBaseType, file_name_ptr: FreeRtosCharPtr) {
     /**
     void vAssertCalled( unsigned long ulLine, const char * const pcFileName )
 
@@ -18,7 +18,10 @@ pub extern "C" fn freerots_rs_assert_called() {
 
 	printf( "ASSERT! Line %ld, file %s, GetLastError() %ld\r\n", ulLine, pcFileName, GetLastError() );
 */
-
-    println!("ASSERT!");
-    loop{}
+    let file_name: String;
+    unsafe {
+        file_name = str_from_c_string(file_name_ptr).unwrap();
+    }
+    println!("ASSERT: {} {}", line, file_name);
+    loop {}
 }

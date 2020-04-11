@@ -12,9 +12,11 @@ fn main() {
 
         println!("Starting FreeRTOS app ...");
         Task::new().name("hello").stack_size(128).priority(TaskPriority(2)).start(|| {
+            let mut i = 0;
             loop {
-                println!("Hello from Task!");
-                CurrentTask::delay(Duration::ms(100));
+                println!("Hello from Task! {}", i);
+                CurrentTask::delay(Duration::ms(1000));
+                i = i+1;
             }
         }).unwrap();
         println!("Task registered");
