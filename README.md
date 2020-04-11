@@ -7,7 +7,7 @@ Including submodule:
 
      git clone https://github.com/lobaro/FreeRTOS-rust.git --recurse-submodules
 
-## Update Submodules
+### Update Submodules
 
 After cloning without `--recurse-submodules` the submodules must be loaded
 
@@ -37,15 +37,22 @@ Cortex-M3 (ARMv7-M architecture):
 
     rustup target add thumbv7m-none-eabi
 
-## Build
+### Build
 
     cargo build
     
 To see all errors use:
 
     cargo build -vv
+    
+When building with `cargo build --all-targets` (like CLion does) the rustc compiler flags for linking
+are not passed and thus the build failes.
 
-## Generate C Bindings
+### Run Windows Demo
+
+    cargo run --bin freertos_demo_win
+
+### Generate C Bindings
 
 C-Bindings are based on `src/bindings.h` and generated with [bindgen](https://github.com/rust-lang/rust-bindgen)
 

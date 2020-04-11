@@ -2,10 +2,8 @@
 
 use crate::base::*;
 
-//#[link(name = "freertos", kind = "dylib")]
 extern {
     pub fn freertos_rs_vTaskStartScheduler();
-    pub fn freertos_rs_configASSERT(condition: FreeRtosUBaseType);
 
     pub fn freertos_rs_sizeof(_type: u8) -> u8;
 

@@ -72,9 +72,3 @@ pub enum FreeRtosTaskState {
     /// The task being queried has been deleted, but its TCB has not yet been freed.
     Deleted = 4,
 }
-
-pub fn assert(condition: bool) {
-    unsafe {
-        freertos_rs_configASSERT(if condition { 1 } else { 0 });
-    }
-}

@@ -15,11 +15,6 @@ void freertos_rs_vTaskStartScheduler() {
 	vTaskStartScheduler();
 }
 
-// TODO: Remove this, it makes n sense to call assert wth this line number
-void freertos_rs_configASSERT(UBaseType_t condition) {
-	configASSERT(condition);
-}
-
 uint8_t freertos_rs_sizeof(uint8_t _type) {
 	switch (_type) {
 		case 0:

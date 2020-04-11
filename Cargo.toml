@@ -17,8 +17,8 @@ path = "src/lib.rs"
 #crate-type = ["staticlib"] # Creates static lib
 
 [[bin]]
-name = "freertos_rust"
-path = "src/main.rs"
+name = "freertos_demo_win"
+path = "src/demo/win/main.rs"
 
 [dependencies]
 cty = "0.2.1"

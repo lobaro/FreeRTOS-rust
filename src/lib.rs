@@ -80,7 +80,6 @@ mod critical;
 pub mod patterns;
 
 pub use crate::base::FreeRtosError;
-pub use crate::base::assert;
 pub use crate::task::*;
 pub use crate::queue::*;
 pub use crate::units::*;

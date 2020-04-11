@@ -4,8 +4,8 @@ fn main() {
     unsafe {
         let res = add(2, 3);
         println!("2 + 3 = {}", res);
+
         initialiseHeap();
-        assert(false);
 
         // Invokes assert
         //CurrentTask::delay(Duration::ms(100));
