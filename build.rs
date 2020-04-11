@@ -11,11 +11,10 @@ fn main() {
     // ENV variables:
     // https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-build-scripts
     let target = env::var("TARGET").unwrap();
+    let target_env = env::var("CARGO_CFG_TARGET_ENV").unwrap(); // msvc, gnu, ...
     println!("cargo:warning=Target is '{}'", target);
-    // x86_64-pc-windows-gnu
 
     println!("cargo:rerun-if-changed=always");
-
 
 
     // Build C Code
@@ -28,19 +27,24 @@ fn main() {
     let freertos_plus_src_path = PathBuf::from("FreeRTOS/FreeRTOS-Plus/Source/");
     let freertos_demo_path = PathBuf::from("FreeRTOS/FreeRTOS/Demo");
 
-    let demo = "WIN32-MingW";
-    //let demo = "WIN32-MSVC";
+
+    // TODO: remove? We do not use anything from the demo dir anymore
+    let demo = match target.as_str() {
+        "x86_64-pc-windows-msvc" => String::from("WIN32-MSVC"),
+        "x86_64-pc-windows-gnu" => String::from("WIN32-MingW"),
+        _ => String::from("")
+    };
 
     let port = "MSVC-MingW";
 
     // For GNU compilation we need the winmm library
-    println!("cargo:rustc-link-lib=static=winmm");
+    if target_env.as_str() == "gnu" {
+        println!("cargo:rustc-link-lib=static=winmm");
+    }
     cc::Build::new()
-        //.cpp_link_stdlib("stdc++")
-        //.flag("-DprojCOVERAGE_TEST=0")
         .define("projCOVERAGE_TEST", "0")
-        .static_flag(true)
-        .shared_flag(true)
+        //.static_flag(true)
+        //.shared_flag(true)
         // Files related to port
         //.include("src/freertos/ports/win/")
         // TODO: This is the windows specific part that needs to be env specific
@@ -55,10 +59,7 @@ fn main() {
         //.include(freertos_demo_path.join(demo).join("Trace_Recorder_Configuration"))
         //.include(freertos_plus_src_path.join("FreeRTOS-Plus-Trace/Include"))
 
-
-
-        // TODO: Make runtime stats not needed
-        .file(freertos_demo_path.join(demo).join("Run-time-stats-utils.c"))
+        .file("src/freertos/ports/win/Run-time-stats-utils.c")
         .file("src/freertos/ports/win/hooks.c")
         .file("src/freertos/ports/win/heap.c")
         .file("src/freertos/shim.c") // TODO: make separate lib file for shim?
@@ -107,14 +108,14 @@ fn main() {
         //portmacro.h
         //.clang_arg(format!("-I{}", freertos_src_path.join("portable/MSVC-MingW").to_str().unwrap()))
         // FreeRTOS.h
-        .clang_arg(format!("-I{}", freertos_src_path.join("include").to_str().unwrap()))
+        //.clang_arg(format!("-I{}", freertos_src_path.join("include").to_str().unwrap()))
         // FreeRTOSConfig.h
-        .clang_arg("-Isrc/freertos/ports/win")
+        //.clang_arg("-Isrc/freertos/ports/win")
         //.clang_arg(format!("-I{}", freertos_demo_path.join(demo).to_str().unwrap()))
         // trcRecorder.h
-        .clang_arg(format!("-I{}", freertos_plus_src_path.join("FreeRTOS-Plus-Trace/Include").to_str().unwrap()))
+        //.clang_arg(format!("-I{}", freertos_plus_src_path.join("FreeRTOS-Plus-Trace/Include").to_str().unwrap()))
         // trcConfig.h
-        .clang_arg(format!("-I{}", freertos_demo_path.join(demo).join("Trace_Recorder_Configuration").to_str().unwrap()))
+        //.clang_arg(format!("-I{}", freertos_demo_path.join(demo).join("Trace_Recorder_Configuration").to_str().unwrap()))
         // Make the generated code #![no_std] compatible
         .use_core()
         // Tip from https://rust-embedded.github.io/book/interoperability/c-with-rust.html

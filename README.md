@@ -31,6 +31,7 @@ For debugging the GNU Toolchain is required
     
 MSVC Toolchain is not working for debugging:
 
+    rustup toolchain install stable-msvc
     rustup default stable-msvc
     
 Cortex-M3 (ARMv7-M architecture):

@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <conio.h>
 
-
 /* FreeRTOS kernel includes. */
 #include "FreeRTOS.h"
 #include "task.h"
@@ -159,6 +158,8 @@ void vApplicationDaemonTaskStartupHook( void )
 
 void vAssertCalled( unsigned long ulLine, const char * const pcFileName )
 {
+	freerots_rs_assert_called(ulLine, pcFileName);
+
 	static BaseType_t xPrinted = pdFALSE;
 	volatile uint32_t ulSetToNonZeroInDebuggerToContinue = 0;
 
