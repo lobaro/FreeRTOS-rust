@@ -33,6 +33,9 @@ MSVC Toolchain is not working for debugging:
 
     rustup default stable-msvc
     
+Cortex-M3 (ARMv7-M architecture):
+
+    rustup target add thumbv7m-none-eabi
 
 ## Build
 
