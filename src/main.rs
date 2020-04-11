@@ -7,23 +7,16 @@ fn main() {
         initialiseHeap();
 
         println!("Starting FreeRTOS app ...");
-
-        Task::new().name("hello").stack_size(128).start(|| {
+        Task::new().name("hello").stack_size(128).priority(TaskPriority(2)).start(|| {
             loop {
-                println!("Hello world!");
+                println!("Hello from Task!");
                 CurrentTask::delay(Duration::ms(100));
             }
         }).unwrap();
-
-        //freertos_rs_spawn_task(task1, null);
-        //freertos_rs_vTaskDelay(1000);
         println!("Task registered");
-
-
-
         //let free = freertos_rs_xPortGetFreeHeapSize();
        // println!("Free Memory: {}!", free);
-
+        println!("Starting scheduler");
         FreeRtosUtils::start_scheduler();
         loop {
             println!("Loop forever!");

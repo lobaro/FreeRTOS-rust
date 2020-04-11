@@ -77,7 +77,7 @@
 /* Run time stats gathering configuration options. */
 unsigned long ulGetRunTimeCounterValue( void ); /* Prototype of function that returns run time counter. */
 void vConfigureTimerForRunTimeStats( void );	/* Prototype of function that initialises the run time counter. */
-#define configGENERATE_RUN_TIME_STATS			1
+#define configGENERATE_RUN_TIME_STATS			0
 #define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() vConfigureTimerForRunTimeStats()
 #define portGET_RUN_TIME_COUNTER_VALUE() ulGetRunTimeCounterValue()
 
@@ -127,6 +127,8 @@ extern void vGenerateCoreBInterrupt( void * xUpdatedMessageBuffer );
 #endif /* configINCLUDE_MESSAGE_BUFFER_AMP_DEMO */
 
 /* Include the FreeRTOS+Trace FreeRTOS trace macro definitions. */
-#include "trcRecorder.h"
+#if configUSE_TRACE_FACILITY == 1
+//#include "trcRecorder.h"
+#endif
 
 #endif /* FREERTOS_CONFIG_H */

@@ -42,8 +42,8 @@ fn main() {
         // portmacro.h
         .include(freertos_src_path.join("portable").join(port))
         // Tracing from Demo TODO: Get rid of this
-        .include(freertos_demo_path.join(demo).join("Trace_Recorder_Configuration"))
-        .include(freertos_plus_src_path.join("FreeRTOS-Plus-Trace/Include"))
+        //.include(freertos_demo_path.join(demo).join("Trace_Recorder_Configuration"))
+        //.include(freertos_plus_src_path.join("FreeRTOS-Plus-Trace/Include"))
 
 
 
@@ -54,8 +54,8 @@ fn main() {
         .file("src/freertos/shim.c") // TODO: make separate lib file for shim?
 
         // FreeRTOS Plus Trace is needed for windows Demo
-        .file(freertos_plus_src_path.join("FreeRTOS-Plus-Trace/trcKernelPort.c"))
-        .file(freertos_plus_src_path.join("FreeRTOS-Plus-Trace/trcSnapshotRecorder.c"))
+        //.file(freertos_plus_src_path.join("FreeRTOS-Plus-Trace/trcKernelPort.c"))
+        //.file(freertos_plus_src_path.join("FreeRTOS-Plus-Trace/trcSnapshotRecorder.c"))
 
         // FreeRTOS
         .file(freertos_src_path.join("croutine.c"))

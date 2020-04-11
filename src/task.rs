@@ -340,7 +340,7 @@ pub struct FreeRtosTaskStatus {
 pub struct FreeRtosUtils;
 
 impl FreeRtosUtils {
-    pub fn start_scheduler() { unsafe { freertos_rs_xPortStartScheduler(); } }
+    pub fn start_scheduler() { unsafe { freertos_rs_vTaskStartScheduler(); } }
 
     pub fn get_tick_count() -> FreeRtosTickType {
         unsafe { freertos_rs_xTaskGetTickCount() }

@@ -11,8 +11,8 @@ STM32 example:
 #include "queue.h"
 #include "semphr.h"
 
-void freertos_rs_xPortStartScheduler() {
-	xPortStartScheduler();
+void freertos_rs_vTaskStartScheduler() {
+	vTaskStartScheduler();
 }
 
 uint8_t freertos_rs_sizeof(uint8_t _type) {
@@ -92,11 +92,9 @@ TickType_t freertos_rs_xTaskGetTickCount() {
 	return xTaskGetTickCount();
 }
 
-#if (configUSE_TRACE_FACILITY == 1)
 UBaseType_t freertos_rs_get_system_state(TaskStatus_t * const pxTaskStatusArray, const UBaseType_t uxArraySize, uint32_t * const pulTotalRunTime) {
 	return uxTaskGetSystemState(pxTaskStatusArray, uxArraySize, pulTotalRunTime);
 }
-#endif
 
 TickType_t freertos_rs_get_portTICK_PERIOD_MS() {
 	return portTICK_PERIOD_MS;

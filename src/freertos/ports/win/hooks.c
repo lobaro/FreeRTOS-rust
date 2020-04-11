@@ -51,12 +51,6 @@ void vApplicationTickHook( void );
 void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize );
 void vApplicationGetTimerTaskMemory( StaticTask_t **ppxTimerTaskTCBBuffer, StackType_t **ppxTimerTaskStackBuffer, uint32_t *pulTimerTaskStackSize );
 
-/*
- * Writes trace data to a disk file when the trace recording is stopped.
- * This function will simply overwrite any trace files that already exist.
- */
-static void prvSaveTraceFile( void );
-
 /*-----------------------------------------------------------*/
 
 /* When configSUPPORT_STATIC_ALLOCATION is set to 1 the application writer can
@@ -178,25 +172,6 @@ void vAssertCalled( unsigned long ulLine, const char * const pcFileName )
 	printf( "ASSERT! Line %ld, file %s, GetLastError() %ld\r\n", ulLine, pcFileName, GetLastError() );
 
 	for(;;){}
-}
-/*-----------------------------------------------------------*/
-
-static void prvSaveTraceFile( void )
-{
-	FILE* pxOutputFile;
-
-	fopen_s( &pxOutputFile, "Trace.dump", "wb");
-
-	if( pxOutputFile != NULL )
-	{
-		fwrite( RecorderDataPtr, sizeof( RecorderDataType ), 1, pxOutputFile );
-		fclose( pxOutputFile );
-		printf( "\r\nTrace output saved to Trace.dump\r\n" );
-	}
-	else
-	{
-		printf( "\r\nFailed to create trace dump file\r\n" );
-	}
 }
 /*-----------------------------------------------------------*/
 
