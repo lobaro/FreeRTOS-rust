@@ -6,7 +6,6 @@ edition = "2018"
 description = "Create to use FreeRTOS in rust projects. It contains binaries for demos on some architecutres."
 keywords = ["FreeRTOS", "embedded", "demo", "library"]
 links = "winmm" # Actually just for the Windows demo
-default-run = "freertos_demo_win"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [build]
@@ -19,14 +18,17 @@ path = "src/lib.rs"
 #crate-type = ["cdylib"]      # Creates dynamic lib
 #crate-type = ["staticlib"] # Creates static lib
 
-[[bin]]
-name = "freertos_demo_win"
-path = "src/demo/win/main.rs"
-
-
 # [target.x86_64-pc-windows-gnu.dependencies]
 [dependencies]
 cty = "0.2.1"
+
+[target.'cfg(target_arch = "arm")'.dependencies]
+cortex-m = "0.6.0"
+cortex-m-rt = "0.6.10"
+cortex-m-semihosting = "0.3.3"
+panic-halt = "0.2.0"
+panic-semihosting = { version = "0.5.3", features = ["exit"] }
+
 
 [build-dependencies]
 bindgen = "0.53.1"

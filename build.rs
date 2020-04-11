@@ -12,7 +12,8 @@ fn main() {
     // https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-build-scripts
     let target = env::var("TARGET").unwrap();
     let target_env = env::var("CARGO_CFG_TARGET_ENV").unwrap(); // msvc, gnu, ...
-    println!("cargo:warning=Target is '{}'", target);
+    let target_arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap(); // x86_64
+    println!("cargo:warning=Target is '{}', ARCH = {}, ENV = {}", target, target_arch, target_env);
 
     println!("cargo:rerun-if-changed=always");
 
@@ -30,12 +31,15 @@ fn main() {
 
     // TODO: remove? We do not use anything from the demo dir anymore
     let demo = match target.as_str() {
-        "x86_64-pc-windows-msvc" => String::from("WIN32-MSVC"),
-        "x86_64-pc-windows-gnu" => String::from("WIN32-MingW"),
-        _ => String::from("")
+        "x86_64-pc-windows-msvc" => "WIN32-MSVC",
+        "x86_64-pc-windows-gnu" => "WIN32-MingW",
+        _ => ""
     };
 
-    let port = "MSVC-MingW";
+    let port = match target_arch.as_str() {
+        "x86_64" => "MSVC-MingW",
+        _ => "MSVC-MingW",
+    };
 
     // For GNU compilation we need the winmm library
     if target_env.as_str() == "gnu" {

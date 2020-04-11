@@ -24,7 +24,7 @@ After cloning without `--recurse-submodules` the submodules must be loaded
 
 ## Setup
 
-For debugging the GNU Toolchain is required
+For debugging the GNU Toolchain is required:
 
     rustup toolchain install stable-x86_64-pc-windows-gnu
     rustup default stable-x86_64-pc-windows-gnu
@@ -48,7 +48,11 @@ To see all errors use:
 
 ### Run Windows Demo
 
-    cargo run --bin freertos_demo_win
+    cargo run --example win
+    
+### Run STM32 Coretex M3 Demo
+
+    rustup target add thumbv7m-none-eabi
 
 ### Generate C Bindings
 
