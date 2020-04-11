@@ -5,6 +5,9 @@ use std::path::PathBuf;
 
 // See: https://doc.rust-lang.org/cargo/reference/build-scripts.html
 fn main() {
+    println!("run build.rs");
+    //println!("cargo:warning=Test Warning");
+
     println!("cargo:rerun-if-changed=always");
 
 
@@ -30,7 +33,7 @@ fn main() {
         //.flag("-DprojCOVERAGE_TEST=0")
         .define("projCOVERAGE_TEST", "0")
         .static_flag(true)
-        //.shared_flag(true)
+        .shared_flag(true)
         // Files related to port
         //.include("src/freertos/ports/win/")
         // TODO: This is the windows specific part that needs to be env specific
@@ -68,7 +71,7 @@ fn main() {
         .file(freertos_src_path.join("tasks.c"))
         .file(freertos_src_path.join("portable").join(port).join("port.c"))
 
-        .compile("libfreertos.a");
+        .compile("freertos");
 
 
     // Tell cargo to invalidate the built crate whenever the wrapper changes

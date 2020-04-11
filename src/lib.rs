@@ -61,6 +61,7 @@ extern crate alloc;
 //include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 include!("bindings.rs");
 
+mod hooks;
 mod prelude;
 mod shim;
 
@@ -79,6 +80,7 @@ mod critical;
 pub mod patterns;
 
 pub use crate::base::FreeRtosError;
+pub use crate::base::assert;
 pub use crate::task::*;
 pub use crate::queue::*;
 pub use crate::units::*;

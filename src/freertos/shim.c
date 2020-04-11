@@ -15,6 +15,10 @@ void freertos_rs_vTaskStartScheduler() {
 	vTaskStartScheduler();
 }
 
+void freertos_rs_configASSERT(UBaseType_t condition) {
+	configASSERT(condition);
+}
+
 uint8_t freertos_rs_sizeof(uint8_t _type) {
 	switch (_type) {
 		case 0:

@@ -5,6 +5,10 @@ fn main() {
         let res = add(2, 3);
         println!("2 + 3 = {}", res);
         initialiseHeap();
+        assert(false);
+
+        // Invokes assert
+        //CurrentTask::delay(Duration::ms(100));
 
         println!("Starting FreeRTOS app ...");
         Task::new().name("hello").stack_size(128).priority(TaskPriority(2)).start(|| {

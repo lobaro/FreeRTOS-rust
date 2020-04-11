@@ -113,12 +113,12 @@ functions anyway. */
 
 /* It is a good idea to define configASSERT() while developing.  configASSERT()
 uses the same semantics as the standard C assert() macro. */
-extern void vAssertCalled( unsigned long ulLine, const char * const pcFileName );
-#define configASSERT( x ) if( ( x ) == 0 ) vAssertCalled( __LINE__, __FILE__ )
+//extern void vAssertCalled( unsigned long ulLine, const char * const pcFileName );
+//#define configASSERT( x ) if( ( x ) == 0 ) vAssertCalled( __LINE__, __FILE__ )
 
-// TODO: We want to use an assert hook in RUST
-//extern void freerots_rs_assert_called();
-//#define configASSERT( x ) if( ( x ) == 0 ) freerots_rs_assert_called()
+// Use the freertos_rs implementation
+extern void freerots_rs_assert_called();
+#define configASSERT( x ) if( ( x ) == 0 ) freerots_rs_assert_called()
 
 #define configINCLUDE_MESSAGE_BUFFER_AMP_DEMO	0
 #if ( configINCLUDE_MESSAGE_BUFFER_AMP_DEMO == 1 )

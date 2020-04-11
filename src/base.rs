@@ -1,3 +1,5 @@
+use crate::shim::*;
+
 /// Basic error type for the library.
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum FreeRtosError {
@@ -10,10 +12,11 @@ pub enum FreeRtosError {
     StringConversionError,
     TaskNotFound,
     InvalidQueueSize,
-    ProcessorHasShutDown
+    ProcessorHasShutDown,
 }
 
 unsafe impl Send for CVoid {}
+
 #[repr(u32)]
 pub enum CVoid {
     _Variant1,
@@ -52,7 +55,7 @@ pub struct FreeRtosTaskStatusFfi {
     pub current_priority: FreeRtosUBaseType,
     pub base_priority: FreeRtosUBaseType,
     pub run_time_counter: FreeRtosUnsignedLong,
-    pub stack_high_water_mark: FreeRtosUnsignedShort
+    pub stack_high_water_mark: FreeRtosUnsignedShort,
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -67,5 +70,11 @@ pub enum FreeRtosTaskState {
     /// The task being queried is in the Suspended state, or is in the Blocked state with an infinite time out.
     Suspended = 3,
     /// The task being queried has been deleted, but its TCB has not yet been freed.
-    Deleted = 4
+    Deleted = 4,
+}
+
+pub fn assert(condition: bool) {
+    unsafe {
+        freertos_rs_configASSERT(if condition { 1 } else { 0 });
+    }
 }
