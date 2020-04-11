@@ -11,6 +11,7 @@ fn main() {
     println!("cargo:rerun-if-changed=always");
 
 
+
     // Build C Code
     cc::Build::new()
         .file("c-lib/add.c")
@@ -27,7 +28,7 @@ fn main() {
     let port = "MSVC-MingW";
 
     // For GNU compilation we need the winmm library
-    println!("cargo:rustc-flags=-lwinmm");
+    println!("cargo:rustc-link-lib=static=winmm");
     cc::Build::new()
         //.cpp_link_stdlib("stdc++")
         //.flag("-DprojCOVERAGE_TEST=0")

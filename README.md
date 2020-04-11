@@ -44,9 +44,6 @@ Cortex-M3 (ARMv7-M architecture):
 To see all errors use:
 
     cargo build -vv
-    
-When building with `cargo build --all-targets` (like CLion does) the rustc compiler flags for linking
-are not passed and thus the build failes.
 
 ### Run Windows Demo
 
