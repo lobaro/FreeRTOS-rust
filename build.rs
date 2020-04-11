@@ -2,11 +2,17 @@ extern crate bindgen;
 extern crate cc;
 
 use std::path::PathBuf;
+use std::env;
 
 // See: https://doc.rust-lang.org/cargo/reference/build-scripts.html
 fn main() {
     println!("run build.rs");
-    //println!("cargo:warning=Test Warning");
+
+    // ENV variables:
+    // https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-build-scripts
+    let target = env::var("TARGET").unwrap();
+    println!("cargo:warning=Target is '{}'", target);
+    // x86_64-pc-windows-gnu
 
     println!("cargo:rerun-if-changed=always");
 

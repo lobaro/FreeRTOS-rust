@@ -7,6 +7,7 @@ pub type Mutex<T> = MutexImpl<T, MutexNormal>;
 pub type RecursiveMutex<T> = MutexImpl<T, MutexRecursive>;
 
 unsafe impl<T: Sync + Send, M> Send for MutexImpl<T, M> {}
+
 unsafe impl<T: Sync + Send, M> Sync for MutexImpl<T, M> {}
 
 /// Mutual exclusion access to a contained value. Can be recursive -
@@ -27,7 +28,7 @@ impl<T> MutexImpl<T, MutexNormal> {
     pub fn new(t: T) -> Result<Self, FreeRtosError> {
         Ok(MutexImpl {
             mutex: MutexNormal::create()?,
-            data: UnsafeCell::new(t)
+            data: UnsafeCell::new(t),
         })
     }
 }
@@ -37,7 +38,7 @@ impl<T> MutexImpl<T, MutexRecursive> {
     pub fn new(t: T) -> Result<Self, FreeRtosError> {
         Ok(MutexImpl {
             mutex: MutexRecursive::create()?,
-            data: UnsafeCell::new(t)
+            data: UnsafeCell::new(t),
         })
     }
 }
@@ -45,14 +46,12 @@ impl<T> MutexImpl<T, MutexRecursive> {
 impl<T, M> MutexImpl<T, M> where M: MutexInnerImpl {
     /// Try to obtain a lock and mutable access to our inner value
     pub fn lock<D: DurationTicks>(&self, max_wait: D) -> Result<MutexGuard<T, M>, FreeRtosError> {
-        unsafe {
-            self.mutex.take(max_wait)?;
+        self.mutex.take(max_wait)?;
 
-            Ok(MutexGuard {
-                __mutex: &self.mutex,
-                __data: &self.data,
-            })
-        }
+        Ok(MutexGuard {
+            __mutex: &self.mutex,
+            __data: &self.data,
+        })
     }
 
     /// Consume the mutex and return its inner value
@@ -98,7 +97,6 @@ impl<'a, T: ?Sized, M> Drop for MutexGuard<'a, T, M> where M: MutexInnerImpl {
         self.__mutex.give();
     }
 }
-
 
 
 pub trait MutexInnerImpl where Self: Sized + Drop {
@@ -149,6 +147,7 @@ impl fmt::Debug for MutexNormal {
 }
 
 pub struct MutexRecursive(FreeRtosSemaphoreHandle);
+
 impl MutexInnerImpl for MutexRecursive {
     fn create() -> Result<Self, FreeRtosError> {
         let m = unsafe { freertos_rs_create_recursive_mutex() };

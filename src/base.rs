@@ -1,5 +1,3 @@
-use crate::shim::*;
-
 /// Basic error type for the library.
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum FreeRtosError {
