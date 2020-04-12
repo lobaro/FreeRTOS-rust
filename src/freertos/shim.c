@@ -11,6 +11,11 @@ STM32 example:
 #include "queue.h"
 #include "semphr.h"
 
+// Just for testing
+void freertos_rs_invoke_configASSERT() {
+	configASSERT(0);
+}
+
 void freertos_rs_vTaskStartScheduler() {
 	vTaskStartScheduler();
 }

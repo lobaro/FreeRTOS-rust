@@ -9,6 +9,9 @@
 # runner = "gdb-multiarch -q -x openocd.gdb"
 # runner = "gdb -q -x openocd.gdb"
 
+# Not working, but would be nice to build the hex file
+# runner = "cargo objcopy --example stm32-cortex-m3 --target thumbv7m-none-eabi -- -O ihex app.hex"
+
 rustflags = [
   # LLD (shipped with the Rust toolchain) is used as the default linker
   "-C", "link-arg=-Tlink.x",

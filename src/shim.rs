@@ -3,6 +3,7 @@
 use crate::base::*;
 
 extern {
+    pub fn freertos_rs_invoke_configASSERT();
     pub fn freertos_rs_vTaskStartScheduler();
 
     pub fn freertos_rs_sizeof(_type: u8) -> u8;

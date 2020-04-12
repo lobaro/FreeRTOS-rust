@@ -1,8 +1,12 @@
 use ::freertos_rust::*;
+use std::borrow::{BorrowMut, Borrow};
 
 fn main() {
-    // Invokes assert
-    //CurrentTask::delay(Duration::ms(100));
+    unsafe {
+        FREERTOS_HOOKS.set_on_assert(|| { println!("Assert hook called") });
+    }
+
+    FreeRtosUtils::invoke_assert();
 
     println!("Starting FreeRTOS app ...");
     Task::new().name("hello").stack_size(128).priority(TaskPriority(2)).start(|| {

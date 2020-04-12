@@ -89,5 +89,6 @@ pub use crate::isr::*;
 pub use crate::delays::*;
 pub use crate::timers::*;
 pub use crate::critical::*;
+pub use crate::hooks::*;
 
 pub use crate::utils::shim_sanity_check;

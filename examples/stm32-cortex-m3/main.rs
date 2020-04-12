@@ -45,7 +45,7 @@ const GPIOA_BASE: u32 = AHBPERIPH_BASE + 0x0000;
 const RCC_BASE: u32 = AHBPERIPH_BASE + 0x3800;
 
 fn set_led(gpio: &mut hw::GPIO, on: bool) {
-    set_gpio(gpio, 1, on)
+    set_gpio(gpio, 1, !on)
 }
 
 fn set_gpio(gpio: &mut hw::GPIO, pin: u8, state: bool) {
@@ -88,19 +88,32 @@ fn do_blink() {
     }
 }
 
+fn board_set_led(on: bool) {
+    let rcc = unsafe { hw::RCC::from_addr(RCC_BASE) };
+    let gpio_a = unsafe { hw::GPIO::from_addr(GPIOA_BASE) };
+    rcc.ahbenr.write(1);
+    gpio_a.moder.write(4);
+    set_led(gpio_a, on);
+}
+
 #[entry]
 fn main() -> ! {
+    unsafe {
+        // Permanently flash LED on assert
+        FREERTOS_HOOKS.set_on_assert(|| { board_set_led(true); });
+    }
+
     // Initialize the allocator BEFORE you use it
     unsafe { ALLOCATOR.init(cortex_m_rt::heap_start() as usize, HEAP_SIZE) }
 
-    //unsafe { initialiseHeap(); }
+    // Just blink (works)
+    // do_blink();
 
-   // do_blink();
-
+    // TODO: What comes now does not work yet!
     // Initialize Tasks and start FreeRTOS
 
     //println!("Starting FreeRTOS app ...");
-    Task::new().name("hello").stack_size(128).priority(TaskPriority(2)).start(|| {
+    Task::new().name("hello").stack_size(128).priority(TaskPriority(1)).start(|| {
         // Blink forever
         // TODO: Replace loops with FreeRTOS vTaskDelay once this is running at all
         do_blink();
@@ -109,6 +122,8 @@ fn main() -> ! {
     //let free = freertos_rs_xPortGetFreeHeapSize();
     // println!("Free Memory: {}!", free);
     //println!("Starting scheduler");
+    // TODO: Starting the scheduler fails, we need debugging to find the issue
+    // Seems like we don't even get an assert
     FreeRtosUtils::start_scheduler();
     loop {
         //println!("Loop forever!");
@@ -123,41 +138,11 @@ fn DefaultHandler(irqn: i16) {
     panic!("Exception: {}", irqn);
 }
 
-#[exception]
-fn SysTick() {
-    static mut COUNT: u32 = 0;
-    static mut STDOUT: Option<HStdout> = None;
-
-    *COUNT += 1;
-
-    // Lazy initialization
-    if STDOUT.is_none() {
-        *STDOUT = hio::hstdout().ok();
-    }
-
-    if let Some(hstdout) = STDOUT.as_mut() {
-        write!(hstdout, "{}", *COUNT).ok();
-    }
-
-    // IMPORTANT omit this `if` block if running on real hardware or your
-    // debugger will end in an inconsistent state
-    if *COUNT == 9 {
-        // This will terminate the QEMU process
-        panic!("9 is enough!");
-    }
-}
-
-// TODO: Not working!!! (at least in QEMU)
-#[allow(dead_code)]
-fn trigger_hard_fault() {
-    // read a nonexistent memory location
-    unsafe {
-        ptr::read_volatile(0x3FFF_FFFE as *const u32);
-    }
-}
 
 #[exception]
 fn HardFault(ef: &ExceptionFrame) -> ! {
+    board_set_led(true);
+
     if let Ok(mut hstdout) = hio::hstdout() {
         writeln!(hstdout, "{:#?}", ef).ok();
     }
@@ -168,7 +153,7 @@ fn HardFault(ef: &ExceptionFrame) -> ! {
 // define what happens in an Out Of Memory (OOM) condition
 #[alloc_error_handler]
 fn alloc_error(_layout: Layout) -> ! {
+    board_set_led(true);
     asm::bkpt();
-
     loop {}
 }
