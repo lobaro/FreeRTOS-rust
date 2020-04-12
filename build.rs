@@ -160,24 +160,6 @@ fn main() {
     bindings
         .write_to_file(out_path.join("bindings.rs"))
         .expect("Couldn't write bindings!");
-
-
-    // TODO: create hex file:
-    // Use?: https://github.com/rust-embedded/cargo-binutils
-    // cargo objcopy -O ihex
-    /*
-        add_custom_command(TARGET ${TARGET} POST_BUILD
-            COMMAND ${CMAKE_OBJCOPY} -Oihex $<TARGET_FILE:${TARGET}> ${HEX_FILE}
-            COMMENT "Building ${HEX_FILE}")
-
-    add_custom_command(TARGET ${TARGET} POST_BUILD
-            COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${TARGET}> ${BIN_FILE}
-            COMMENT "Building ${BIN_FILE}")
-
-    add_custom_command(TARGET ${TARGET} POST_BUILD
-            COMMAND arm-none-eabi-size --format=berkeley --totals "$<TARGET_FILE:${TARGET}>"
-            COMMENT "Invoking: Cross ARM GNU Print Size")
-    */
 }
 
 fn build_linker_script(path: &str) {
