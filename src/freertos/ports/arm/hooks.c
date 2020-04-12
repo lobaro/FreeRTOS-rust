@@ -27,14 +27,6 @@ choice.  See http://www.freertos.org/a00111.html for an explanation. */
 
 
 /*
- * This demo uses heap_5.c, so start by defining some heap regions.  It is not
- * necessary for this demo to use heap_5, as it could define one large heap
- * region.  Heap_5 is only used for test and example purposes.  See
- * http://www.freertos.org/a00111.html for an explanation.
- */
-static void  prvInitialiseHeap( void );
-
-/*
  * Prototypes for the standard FreeRTOS application hook (callback) functions
  * implemented within this file.  See http://www.freertos.org/a00016.html .
  */
@@ -53,9 +45,6 @@ and timer tasks.  This is the stack that will be used by the timer task.  It is
 declared here, as a global, so it can be checked by a test that is implemented
 in a different file. */
 StackType_t uxTimerTaskStack[ configTIMER_TASK_STACK_DEPTH ];
-
-/* Notes if the trace is running or not. */
-static BaseType_t xTraceRunning = pdTRUE;
 
 void vApplicationMallocFailedHook( void )
 {
@@ -86,29 +75,6 @@ void vApplicationIdleHook( void )
 	that vApplicationIdleHook() is permitted to return to its calling function,
 	because it is the responsibility of the idle task to clean up memory
 	allocated by the kernel to any task that has since deleted itself. */
-
-	/* Uncomment the following code to allow the trace to be stopped with any
-	key press.  The code is commented out by default as the kbhit() function
-	interferes with the run time behaviour. */
-	/*
-		if( _kbhit() != pdFALSE )
-		{
-			if( xTraceRunning == pdTRUE )
-			{
-				vTraceStop();
-				prvSaveTraceFile();
-				xTraceRunning = pdFALSE;
-			}
-		}
-	*/
-
-#if ( mainCREATE_SIMPLE_BLINKY_DEMO_ONLY != 1 )
-	{
-		/* Call the idle task processing used by the full demo.  The simple
-		blinky demo does not use the idle task hook. */
-		//vFullDemoIdleFunction();
-	}
-#endif
 }
 /*-----------------------------------------------------------*/
 
