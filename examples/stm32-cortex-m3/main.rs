@@ -30,7 +30,6 @@ use core::fmt::Write;
 use core::ptr;
 
 use cortex_m::asm;
-use cortex_m::peripheral::syst::SystClkSource;
 use cortex_m_rt::exception;
 use cortex_m_rt::{entry, ExceptionFrame};
 use cortex_m_semihosting::hio::HStdout;
@@ -64,6 +63,7 @@ static ALLOCATOR: CortexMHeap = CortexMHeap::empty();
 
 const HEAP_SIZE: usize = 512; // in bytes
 
+// Setup IO for the LED and blink, does not return.
 fn do_blink() {
     // Initialize LED
     let rcc = unsafe { hw::RCC::from_addr(RCC_BASE) };
@@ -71,20 +71,18 @@ fn do_blink() {
     rcc.ahbenr.write(1);
     gpio_a.moder.write(4);
 
-    let mut i = 0;
     loop {
         //println!("Hello from Task! {}", i);
         //CurrentTask::delay(Duration::ms(1000));
         //i = i + 1;
 
-
-        let mut i = 0;
+        let mut _i = 0;
         for _ in 0..2_00 {
-            i += 1;
+            _i += 1;
         }
         set_led(gpio_a, true);
         for _ in 0..2_00 {
-            i += 1;
+            _i += 1;
         }
         set_led(gpio_a, false);
     }
@@ -103,29 +101,9 @@ fn main() -> ! {
 
     //println!("Starting FreeRTOS app ...");
     Task::new().name("hello").stack_size(128).priority(TaskPriority(2)).start(|| {
-        // Initialize LED
-        let rcc = unsafe { hw::RCC::from_addr(RCC_BASE) };
-        let gpio_a = unsafe { hw::GPIO::from_addr(GPIOA_BASE) };
-        rcc.ahbenr.write(1);
-        gpio_a.moder.write(4);
-
-        let mut i = 0;
-        loop {
-            //println!("Hello from Task! {}", i);
-            //CurrentTask::delay(Duration::ms(1000));
-            //i = i + 1;
-
-
-            let mut i = 0;
-            for _ in 0..2_00 {
-                i += 1;
-            }
-            set_led(gpio_a, true);
-            for _ in 0..2_00 {
-                i += 1;
-            }
-            set_led(gpio_a, false);
-        }
+        // Blink forever
+        // TODO: Replace loops with FreeRTOS vTaskDelay once this is running at all
+        do_blink();
     }).unwrap();
     //println!("Task registered");
     //let free = freertos_rs_xPortGetFreeHeapSize();

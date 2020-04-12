@@ -100,11 +100,8 @@ impl<'a, T: ?Sized, M> Drop for MutexGuard<'a, T, M> where M: MutexInnerImpl {
 
 
 pub trait MutexInnerImpl where Self: Sized + Drop {
-    #[inline]
     fn create() -> Result<Self, FreeRtosError>;
-    #[inline]
     fn take<D: DurationTicks>(&self, max_wait: D) -> Result<(), FreeRtosError>;
-    #[inline]
     fn give(&self);
 }
 

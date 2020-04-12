@@ -3,9 +3,7 @@ use crate::shim::*;
 use crate::base::FreeRtosTickType;
 
 pub trait FreeRtosTimeUnits {
-    #[inline]
     fn get_tick_period_ms() -> u32;
-    #[inline]
     fn get_max_wait() -> u32;
 }
 

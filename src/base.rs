@@ -38,6 +38,7 @@ pub type FreeRtosSemaphoreHandle = *const CVoid;
 pub type FreeRtosTaskFunction = *const CVoid;
 pub type FreeRtosTimerHandle = *const CVoid;
 pub type FreeRtosTimerCallback = *const CVoid;
+#[allow(dead_code)]
 pub type FreeRtosStackType = *const CVoid;
 
 pub type FreeRtosUnsignedLong = u32;

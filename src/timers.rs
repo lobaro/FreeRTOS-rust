@@ -1,9 +1,6 @@
 use crate::prelude::v1::*;
 use crate::base::*;
-use crate::task::*;
 use crate::shim::*;
-use crate::mutex::*;
-use crate::queue::*;
 use crate::units::*;
 
 unsafe impl Send for Timer {}
@@ -71,7 +68,7 @@ impl Timer {
     unsafe fn spawn_inner<'a>(name: &str,
                               period_ticks: FreeRtosTickType,
                               auto_reload: bool,
-                              callback: Box<Fn(Timer) + Send + 'a>,)
+                              callback: Box<dyn Fn(Timer) + Send + 'a>,)
                               -> Result<Timer, FreeRtosError> {
         let f = Box::new(callback);
         let param_ptr = &*f as *const _ as *mut _;
@@ -105,7 +102,7 @@ impl Timer {
                         detached: true
                     };
                     if let Ok(callback_ptr) = timer.get_id() {
-                        let b = Box::from_raw(callback_ptr as *mut Box<Fn(Timer)>);
+                        let b = Box::from_raw(callback_ptr as *mut Box<dyn Fn(Timer)>);
                         b(timer);
                         Box::into_raw(b);
                     }
@@ -181,14 +178,16 @@ impl Timer {
     }
 }
 
+
 impl Drop for Timer {
+    #[allow(unused_must_use)]
     fn drop(&mut self) {
         if self.detached == true { return; }
 
         unsafe {
             if let Ok(callback_ptr) = self.get_id() {
                 // free the memory
-                Box::from_raw(callback_ptr as *mut Box<Fn(Timer)>);
+                Box::from_raw(callback_ptr as *mut Box<dyn Fn(Timer)>);
             }
             
             // todo: configurable timeout?

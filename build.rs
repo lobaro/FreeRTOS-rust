@@ -18,6 +18,7 @@ fn main() {
     println!("cargo:warning=Target is '{}', ARCH = {}, ENV = {}, OS = {}",
              target, target_arch, target_env, target_os);
 
+    println!("cargo:warning=HOST '{}'", env::var("HOST").unwrap());
     println!("cargo:warning=CARGO_MANIFEST_DIR '{}'", env::var("CARGO_MANIFEST_DIR").unwrap());
     println!("cargo:warning=OUT_DIR '{}'", env::var("OUT_DIR").unwrap());
     println!("cargo:warning=CARGO_PKG_NAME '{}'", env::var("CARGO_PKG_NAME").unwrap());
@@ -56,8 +57,8 @@ fn main() {
     }
     let mut build = &mut cc::Build::new();
     build = build
-        .pic(false) // Needed for ARM target
-        .define("projCOVERAGE_TEST", "0")
+        .pic(false) // Needed for ARM target, windows build still works with it
+        .define("projCOVERAGE_TEST", "0") // TODO: Still needed?
         //.static_flag(true)
         //.shared_flag(true)
         // Files related to port

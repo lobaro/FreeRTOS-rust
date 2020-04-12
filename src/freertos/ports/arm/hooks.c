@@ -144,6 +144,7 @@ void vApplicationDaemonTaskStartupHook( void )
 	after the scheduler has been started. */
 }
 /*-----------------------------------------------------------*/
+void freerots_rs_assert_called(unsigned long ulLine, const char *const pcFileName);
 
 // const char* file, int linenum
 // unsigned long ulLine, const char * const pcFileName
