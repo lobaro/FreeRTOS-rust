@@ -8,23 +8,41 @@ use std::path::PathBuf;
 // See: https://doc.rust-lang.org/cargo/reference/build-scripts.html
 fn main() {
     println!("run build.rs");
+    println!("cargo:warning=Printing some infos as warnings:");
 
     // ENV variables:
     // https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-build-scripts
     let target = env::var("TARGET").unwrap();
+    // x86_64-pc-windows-msvc, x86_64-pc-windows-gnu, thumbv7m-none-eabi
+
     let target_env = env::var("CARGO_CFG_TARGET_ENV").unwrap(); // msvc, gnu, ...
+    let target_family = env::var("CARGO_CFG_TARGET_FAMILY").unwrap_or_default(); // unix, windows
     let target_arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap(); // x86_64
     let target_os = env::var("CARGO_CFG_TARGET_OS").unwrap(); // none, windows, linux, macos
-    println!("cargo:warning=Target is '{}', ARCH = {}, ENV = {}, OS = {}",
-             target, target_arch, target_env, target_os);
+    println!("cargo:warning=Target is '{}', ARCH = {}, OS = {}, ENV = {}, FAMILY = {}",
+             target, target_arch, target_os, target_env, target_family);
 
     println!("cargo:warning=HOST '{}'", env::var("HOST").unwrap());
     println!("cargo:warning=CARGO_MANIFEST_DIR '{}'", env::var("CARGO_MANIFEST_DIR").unwrap());
     println!("cargo:warning=OUT_DIR '{}'", env::var("OUT_DIR").unwrap());
     println!("cargo:warning=CARGO_PKG_NAME '{}'", env::var("CARGO_PKG_NAME").unwrap());
 
+
+    let port = match (target.as_str(), target_arch.as_str(), target_os.as_str(), target_env.as_str()) {
+        (_, "x86_64", "windows", _) => "MSVC-MingW",
+        ("thumbv7m-none-eabi", _, _, _) => "GCC/ARM_CM3",
+        _ => {
+            println!("cargo:warning=Unknown arch: '{}'", target_arch);
+            "MSVC-MingW"
+        }
+    };
+    println!("cargo:warning=Using FreeRTOS port '{}'", port);
+    println!("cargo:warning=---------------------------------");
+
+
     println!("cargo:rerun-if-changed=always");
 
+    // TODO: link scripts will be in final crate
     build_linker_script("examples/stm32-cortex-m3/layout.ld");
 
     // Build FreeRTOS for Windows
@@ -33,26 +51,9 @@ fn main() {
     let freertos_demo_path = PathBuf::from("FreeRTOS/FreeRTOS/Demo");
 
 
-    // TODO: remove? We do not use anything from the demo dir anymore
-    let demo = match target.as_str() {
-        "x86_64-pc-windows-msvc" => "WIN32-MSVC",
-        "x86_64-pc-windows-gnu" => "WIN32-MingW",
-        "thumbv7m-none-eabi" => "",
-        _ => ""
-    };
 
-    // TODO: We have to make this more fine grained as more ports are added
-    let port = match target_arch.as_str() {
-        "x86_64" => "MSVC-MingW",
-        "arm" => "GCC/ARM_CM3",
-        _ => {
-            println!("cargo:warning=Unknown arch: '{}'", target_arch);
-            "MSVC-MingW"
-        }
-    };
-
-    // For GNU compilation we need the winmm library
-    if target_env.as_str() == "gnu" {
+    // For Windows GNU compilation we need the winmm library
+    if target.as_str() == "x86_64-pc-windows-gnu" {
         println!("cargo:rustc-link-lib=static=winmm");
     }
     let mut build = &mut cc::Build::new();
