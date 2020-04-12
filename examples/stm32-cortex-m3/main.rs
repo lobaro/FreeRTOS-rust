@@ -29,15 +29,16 @@ use core::fmt::Write;
 // extern crate panic_itm; // logs messages over ITM; requires ITM support
 use core::ptr;
 
-use cortex_m::asm;
+use cortex_m::{asm, Peripherals};
 use cortex_m_rt::exception;
 use cortex_m_rt::{entry, ExceptionFrame};
-use cortex_m_semihosting::hio::HStdout;
-use cortex_m_semihosting::hio;
 use alloc_cortex_m::CortexMHeap;
 use crate::hw::VolatileStruct;
 use freertos_rust::*;
 use core::alloc::Layout;
+use stm32l1xx_hal as hal;
+use crate::hal::{prelude::*};
+use embedded_hal::digital::v2::OutputPin;
 
 const PERIPH_BASE: u32 = 0x40000000;
 const AHBPERIPH_BASE: u32 = PERIPH_BASE + 0x20000;
@@ -62,6 +63,13 @@ fn set_gpio(gpio: &mut hw::GPIO, pin: u8, state: bool) {
 static ALLOCATOR: CortexMHeap = CortexMHeap::empty();
 
 const HEAP_SIZE: usize = 512; // in bytes
+
+fn delay() {
+    let mut _i = 0;
+    for _ in 0..2_00 {
+        _i += 1;
+    }
+}
 
 // Setup IO for the LED and blink, does not return.
 fn do_blink() {
@@ -98,6 +106,35 @@ fn board_set_led(on: bool) {
 
 #[entry]
 fn main() -> ! {
+
+    if let (Some(dp), Some(cp)) = (
+        hal::stm32::Peripherals::take(),
+        cortex_m::peripheral::Peripherals::take(),
+    ) {
+        // Set up the LED, it's connected to pin PA1.
+        let gpioa = dp.GPIOA.split();
+
+
+        let mut led = gpioa.pa1.into_push_pull_output();
+
+        // Set up the system clock. We want to run at 48MHz for this one.
+        //let rcc = dp.RCC.constrain();
+        //let clocks = rcc.cfgr.sysclk(48.mhz()).freeze();
+
+        // Create a delay abstraction based on SysTick
+        //let mut delay = hal::delay::Delay::new(cp.SYST, clocks);
+
+        loop {
+            // On for 1s, off for 1s.
+            led.set_high().unwrap();
+            //delay.delay_ms(1000_u32);
+            delay();
+            led.set_low().unwrap();
+            //delay.delay_ms(1000_u32);
+            delay();
+        }
+    }
+
     unsafe {
         // Permanently flash LED on assert
         FREERTOS_HOOKS.set_on_assert(|| { board_set_led(true); });
@@ -142,11 +179,6 @@ fn DefaultHandler(irqn: i16) {
 #[exception]
 fn HardFault(ef: &ExceptionFrame) -> ! {
     board_set_led(true);
-
-    if let Ok(mut hstdout) = hio::hstdout() {
-        writeln!(hstdout, "{:#?}", ef).ok();
-    }
-
     loop {}
 }
 
