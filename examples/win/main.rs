@@ -2,9 +2,7 @@ use ::freertos_rust::*;
 
 fn main() {
     unsafe {
-        let res = add(2, 3);
-        println!("2 + 3 = {}", res);
-
+        println!("Initialize heap ...");
         initialiseHeap();
 
         // Invokes assert

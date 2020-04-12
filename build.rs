@@ -26,11 +26,6 @@ fn main() {
 
     build_linker_script("examples/stm32-cortex-m3/layout.ld");
 
-    // Build C Code
-    cc::Build::new()
-        .file("c-lib/add.c")
-        .compile("libadd.a");
-
     // Build FreeRTOS for Windows
     let freertos_src_path = PathBuf::from("FreeRTOS/FreeRTOS/Source/");
     let freertos_plus_src_path = PathBuf::from("FreeRTOS/FreeRTOS-Plus/Source/");
@@ -111,7 +106,6 @@ fn main() {
 
     // Tell cargo to invalidate the built crate whenever the wrapper changes
     println!("cargo:rerun-if-changed=src/bindings.h");
-    println!("cargo:rerun-if-changed=c-lib/add.c");
 
     //return; // TODO: Some flags are missing for minGW bindgen to solve: 'x86intrin.h' file not found
     // Does not work:
