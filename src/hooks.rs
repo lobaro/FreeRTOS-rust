@@ -1,5 +1,8 @@
 use crate::base::*;
 use crate::utils::*;
+use crate::prelude::v1::String;
+
+#[allow(unused_doc_comments)]
 
 #[no_mangle]
 pub extern "C" fn freerots_rs_assert_called(line: FreeRtosUBaseType, file_name_ptr: FreeRtosCharPtr) {
@@ -22,6 +25,8 @@ pub extern "C" fn freerots_rs_assert_called(line: FreeRtosUBaseType, file_name_p
     unsafe {
         file_name = str_from_c_string(file_name_ptr).unwrap();
     }
-    println!("ASSERT: {} {}", line, file_name);
+    // we can't print without std yet.
+    // TODO: make the macro work for debug UART? Or use Panic here?
+    // println!("ASSERT: {} {}", line, file_name);
     loop {}
 }

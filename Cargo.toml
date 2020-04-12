@@ -9,9 +9,12 @@ links = "winmm" # Actually just for the Windows demo
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [build]
-#target = "x86_64-pc-windows-msvc"
-#target = "x86_64-pc-windows-gnu"
+# Pick a target or use s--target <name>
+# target = "x86_64-pc-windows-gnu" # Windows GNU Toolchain
+# target = "x86_64-pc-windows-msvc" # Windows MSVC Toolchain (no debugging)
+target = "thumbv7m-none-eabi"    # Cortex-M3
 #rustflags = ["-lwinmm"]
+
 [lib]
 name = "freertos_rust"
 path = "src/lib.rs"
@@ -27,9 +30,14 @@ cortex-m = "0.6.0"
 cortex-m-rt = "0.6.10"
 cortex-m-semihosting = "0.3.3"
 panic-halt = "0.2.0"
-panic-semihosting = { version = "0.5.3", features = ["exit"] }
+#panic-semihosting = { version = "0.5.3", features = ["exit"] }
 
 
 [build-dependencies]
 bindgen = "0.53.1"
 cc = "1.0"
+
+[profile.release]
+codegen-units = 1 # better optimizations
+debug = true # symbols are nice and they don't increase the size on Flash
+lto = true # better optimizations

@@ -37,6 +37,12 @@ MSVC Toolchain is not working for debugging:
 Cortex-M3 (ARMv7-M architecture):
 
     rustup target add thumbv7m-none-eabi
+    
+    
+Add some tooling
+
+    cargo install cargo-binutils
+    rustup component add llvm-tools-preview
 
 ### Build
 
@@ -48,11 +54,15 @@ To see all errors use:
 
 ### Run Windows Demo
 
-    cargo run --example win
+    cargo run --example win --target x86_64-pc-windows-gnu
     
 ### Run STM32 Coretex M3 Demo
 
     rustup target add thumbv7m-none-eabi
+    
+Create hex file
+
+    cargo objcopy --example stm32-cortex-m3 --target thumbv7m-none-eabi -- -O ihex app.hex
 
 ### Generate C Bindings
 
