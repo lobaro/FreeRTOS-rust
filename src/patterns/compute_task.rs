@@ -91,6 +91,7 @@ pub struct ComputeTask<R> {
     finished: bool,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Copy, Clone)]
 enum ComputeTaskStatus {
     Finished,

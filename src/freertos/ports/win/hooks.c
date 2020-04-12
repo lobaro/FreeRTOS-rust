@@ -27,9 +27,6 @@ declared here, as a global, so it can be checked by a test that is implemented
 in a different file. */
 StackType_t uxTimerTaskStack[configTIMER_TASK_STACK_DEPTH];
 
-/* Notes if the trace is running or not. */
-static BaseType_t xTraceRunning = pdTRUE;
-
 void vApplicationMallocFailedHook(void) {
 	/* vApplicationMallocFailedHook() will only be called if
 	configUSE_MALLOC_FAILED_HOOK is set to 1 in FreeRTOSConfig.h.  It is a hook
