@@ -26,6 +26,7 @@ After cloning without `--recurse-submodules` the submodules must be loaded
 
 For debugging the GNU Toolchain is required:
 
+    rustup default stable
     rustup toolchain install stable-x86_64-pc-windows-gnu
     rustup default stable-x86_64-pc-windows-gnu
     
@@ -59,6 +60,10 @@ To see all errors use:
 ### Run STM32 Coretex M3 Demo
 
     rustup target add thumbv7m-none-eabi
+    
+we need the nightly build for some features like allocator_api:
+
+    rustup default nightly
     
 Create hex file
 

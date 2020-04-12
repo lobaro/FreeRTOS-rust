@@ -2,8 +2,8 @@ use ::freertos_rust::*;
 
 fn main() {
     unsafe {
-        println!("Initialize heap ...");
-        initialiseHeap();
+        //println!("Initialize heap ...");
+        //initialiseHeap();
 
         // Invokes assert
         //CurrentTask::delay(Duration::ms(100));

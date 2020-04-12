@@ -1,11 +1,38 @@
-/* Standard includes. */
-#include <stdio.h>
-#include <stdlib.h>
-#include <conio.h>
-
 /* FreeRTOS kernel includes. */
 #include "FreeRTOS.h"
 #include "task.h"
+
+/* This project provides two demo applications.  A simple blinky style demo
+application, and a more comprehensive test and demo application.  The
+mainCREATE_SIMPLE_BLINKY_DEMO_ONLY setting is used to select between the two.
+
+If mainCREATE_SIMPLE_BLINKY_DEMO_ONLY is 1 then the blinky demo will be built.
+The blinky demo is implemented and described in main_blinky.c.
+
+If mainCREATE_SIMPLE_BLINKY_DEMO_ONLY is not 1 then the comprehensive test and
+demo application will be built.  The comprehensive test and demo application is
+implemented and described in main_full.c. */
+#define mainCREATE_SIMPLE_BLINKY_DEMO_ONLY	1
+
+/* This demo uses heap_5.c, and these constants define the sizes of the regions
+that make up the total heap.  heap_5 is only used for test and example purposes
+as this demo could easily create one large heap region instead of multiple
+smaller heap regions - in which case heap_4.c would be the more appropriate
+choice.  See http://www.freertos.org/a00111.html for an explanation. */
+#define mainREGION_1_SIZE	8201
+#define mainREGION_2_SIZE	29905
+#define mainREGION_3_SIZE	7607
+
+/*-----------------------------------------------------------*/
+
+
+/*
+ * This demo uses heap_5.c, so start by defining some heap regions.  It is not
+ * necessary for this demo to use heap_5, as it could define one large heap
+ * region.  Heap_5 is only used for test and example purposes.  See
+ * http://www.freertos.org/a00111.html for an explanation.
+ */
+static void  prvInitialiseHeap( void );
 
 /*
  * Prototypes for the standard FreeRTOS application hook (callback) functions
@@ -59,6 +86,29 @@ void vApplicationIdleHook( void )
 	that vApplicationIdleHook() is permitted to return to its calling function,
 	because it is the responsibility of the idle task to clean up memory
 	allocated by the kernel to any task that has since deleted itself. */
+
+	/* Uncomment the following code to allow the trace to be stopped with any
+	key press.  The code is commented out by default as the kbhit() function
+	interferes with the run time behaviour. */
+	/*
+		if( _kbhit() != pdFALSE )
+		{
+			if( xTraceRunning == pdTRUE )
+			{
+				vTraceStop();
+				prvSaveTraceFile();
+				xTraceRunning = pdFALSE;
+			}
+		}
+	*/
+
+#if ( mainCREATE_SIMPLE_BLINKY_DEMO_ONLY != 1 )
+	{
+		/* Call the idle task processing used by the full demo.  The simple
+		blinky demo does not use the idle task hook. */
+		//vFullDemoIdleFunction();
+	}
+#endif
 }
 /*-----------------------------------------------------------*/
 
@@ -95,6 +145,8 @@ void vApplicationDaemonTaskStartupHook( void )
 }
 /*-----------------------------------------------------------*/
 
+// const char* file, int linenum
+// unsigned long ulLine, const char * const pcFileName
 void vAssertCalled( unsigned long ulLine, const char * const pcFileName )
 {
 	freerots_rs_assert_called(ulLine, pcFileName);

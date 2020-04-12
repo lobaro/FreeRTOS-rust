@@ -2,7 +2,7 @@ extern crate bindgen;
 extern crate cc;
 
 use std::env;
-use std::path::{PathBuf};
+use std::path::PathBuf;
 
 #[allow(unused_variables)]
 // See: https://doc.rust-lang.org/cargo/reference/build-scripts.html
@@ -56,6 +56,7 @@ fn main() {
     }
     let mut build = &mut cc::Build::new();
     build = build
+        .pic(false) // Needed for ARM target
         .define("projCOVERAGE_TEST", "0")
         //.static_flag(true)
         //.shared_flag(true)
@@ -76,15 +77,17 @@ fn main() {
         build = build.include("examples/stm32-cortex-m3");
     } else {
         //.include(freertos_demo_path.join(demo))
-        build= build.include("src/freertos/ports/win")
+        build = build.include("src/freertos/ports/win")
     }
 
     if target_os.as_str() == "windows" {
         build = build.file("src/freertos/ports/win/Run-time-stats-utils.c")
             .file("src/freertos/ports/win/hooks.c")
-            .file("src/freertos/ports/win/heap.c")
-            .file("src/freertos/shim.c") // TODO: make separate lib file for shim?
+    } else {
+        build = build.file("src/freertos/ports/arm/hooks.c")
     }
+
+    build = build.file("src/freertos/shim.c"); // TODO: make separate lib file for shim?
 
     // FreeRTOS Plus Trace is needed for windows Demo
     //.file(freertos_plus_src_path.join("FreeRTOS-Plus-Trace/trcKernelPort.c"))
@@ -93,7 +96,7 @@ fn main() {
     // FreeRTOS
     build = build.file(freertos_src_path.join("croutine.c"))
         .file(freertos_src_path.join("event_groups.c"))
-        .file(freertos_src_path.join("portable/MemMang/heap_5.c"))
+        .file(freertos_src_path.join("portable/MemMang/heap_4.c"))
         .file(freertos_src_path.join("stream_buffer.c"))
         .file(freertos_src_path.join("timers.c"))
         .file(freertos_src_path.join("list.c"))

@@ -8,12 +8,6 @@ keywords = ["FreeRTOS", "embedded", "demo", "library"]
 links = "winmm" # Actually just for the Windows demo
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[build]
-# Pick a target or use s--target <name>
-# target = "x86_64-pc-windows-gnu" # Windows GNU Toolchain
-# target = "x86_64-pc-windows-msvc" # Windows MSVC Toolchain (no debugging)
-target = "thumbv7m-none-eabi"    # Cortex-M3
-#rustflags = ["-lwinmm"]
 
 [lib]
 name = "freertos_rust"
@@ -30,8 +24,11 @@ cortex-m = "0.6.0"
 cortex-m-rt = "0.6.10"
 cortex-m-semihosting = "0.3.3"
 panic-halt = "0.2.0"
-#panic-semihosting = { version = "0.5.3", features = ["exit"] }
 
+#panic-semihosting = { version = "0.5.3", features = ["exit"] }
+alloc-cortex-m = { git = "https://github.com/rust-embedded/alloc-cortex-m", branch = "master" }
+#alloc-cortex-m = "0.3.5"
+#linked_list_allocator = "0.8.2"
 
 [build-dependencies]
 bindgen = "0.53.1"
