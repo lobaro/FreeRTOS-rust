@@ -37,8 +37,8 @@ use crate::hw::VolatileStruct;
 use freertos_rust::*;
 use core::alloc::Layout;
 use stm32l1xx_hal as hal;
-use crate::hal::{prelude::*};
-use embedded_hal::digital::v2::OutputPin;
+use stm32l1xx_hal::hal::digital::v2::*;
+use stm32l1xx_hal::gpio::*;
 
 const PERIPH_BASE: u32 = 0x40000000;
 const AHBPERIPH_BASE: u32 = PERIPH_BASE + 0x20000;
@@ -71,6 +71,12 @@ fn delay() {
     }
 }
 
+fn delay_n(n: i32) {
+    for _ in 0..n {
+        delay();
+    }
+}
+
 // Setup IO for the LED and blink, does not return.
 fn do_blink() {
     // Initialize LED
@@ -84,14 +90,9 @@ fn do_blink() {
         //CurrentTask::delay(Duration::ms(1000));
         //i = i + 1;
 
-        let mut _i = 0;
-        for _ in 0..2_00 {
-            _i += 1;
-        }
+        delay();
         set_led(gpio_a, true);
-        for _ in 0..2_00 {
-            _i += 1;
-        }
+        delay();
         set_led(gpio_a, false);
     }
 }
@@ -106,38 +107,23 @@ fn board_set_led(on: bool) {
 
 #[entry]
 fn main() -> ! {
+    let dp = hal::stm32::Peripherals::take().unwrap();
 
-    if let (Some(dp), Some(cp)) = (
-        hal::stm32::Peripherals::take(),
-        cortex_m::peripheral::Peripherals::take(),
-    ) {
-        // Set up the LED, it's connected to pin PA1.
-        let gpioa = dp.GPIOA.split();
+    // Set up the LED, it's connected to pin PA1.
+    let gpioa: stm32l1xx_hal::gpio::gpioa::Parts = dp.GPIOA.split();
+    // low = on
+    let mut led = gpioa.pa1.into_push_pull_output();
 
+    // Initial blink
+    led.set_low().unwrap();
+    delay_n(10);
+    led.set_high().unwrap();
+    delay_n(10);
 
-        let mut led = gpioa.pa1.into_push_pull_output();
-
-        // Set up the system clock. We want to run at 48MHz for this one.
-        //let rcc = dp.RCC.constrain();
-        //let clocks = rcc.cfgr.sysclk(48.mhz()).freeze();
-
-        // Create a delay abstraction based on SysTick
-        //let mut delay = hal::delay::Delay::new(cp.SYST, clocks);
-
-        loop {
-            // On for 1s, off for 1s.
-            led.set_high().unwrap();
-            //delay.delay_ms(1000_u32);
-            delay();
-            led.set_low().unwrap();
-            //delay.delay_ms(1000_u32);
-            delay();
-        }
-    }
 
     unsafe {
         // Permanently flash LED on assert
-        FREERTOS_HOOKS.set_on_assert(|| { board_set_led(true); });
+        FREERTOS_HOOKS.set_on_assert(|| { board_set_led(false); });
     }
 
     // Initialize the allocator BEFORE you use it

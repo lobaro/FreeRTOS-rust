@@ -22,6 +22,11 @@ After cloning without `--recurse-submodules` the submodules must be loaded
 
 * llvm-config is missing on windows
 
+### CLion Settings
+
+To get propper auto completion for macros (e.g. in HAL crates for GPIOs) you have to set
+*Settings | Languages & Frameworks | Rust | Expand declarative macros* to `Expand with experimental engine`.
+
 ## Setup
 
 For debugging the GNU Toolchain is required:
