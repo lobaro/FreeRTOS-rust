@@ -1,8 +1,6 @@
 #![feature(custom_test_frameworks)]
 
 use ::freertos_rust::*;
-use std::borrow::{BorrowMut, Borrow};
-use std::alloc::GlobalAlloc;
 
 #[global_allocator]
 static GLOBAL: FreeRtosAllocator = FreeRtosAllocator;
@@ -10,7 +8,7 @@ static GLOBAL: FreeRtosAllocator = FreeRtosAllocator;
 
 fn main() {
     let x = Box::new(15);
-    println!("Boxed int {}", 15);
+    println!("Boxed int {}", x);
 
     unsafe {
         FREERTOS_HOOKS.set_on_assert(|| { println!("Assert hook called") });
