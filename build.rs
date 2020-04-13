@@ -40,7 +40,8 @@ fn main() {
     println!("cargo:warning=---------------------------------");
 
 
-    println!("cargo:rerun-if-changed=always");
+    //println!("cargo:rerun-if-changed=always");
+    println!("cargo:rerun-if-changed=build.rs");
 
     // TODO: link scripts will be in final crate
     build_linker_script("examples/stm32-cortex-m3/layout.ld");
@@ -49,7 +50,6 @@ fn main() {
     let freertos_src_path = PathBuf::from("FreeRTOS/FreeRTOS/Source/");
     let freertos_plus_src_path = PathBuf::from("FreeRTOS/FreeRTOS-Plus/Source/");
     let freertos_demo_path = PathBuf::from("FreeRTOS/FreeRTOS/Demo");
-
 
 
     // For Windows GNU compilation we need the winmm library
@@ -83,12 +83,17 @@ fn main() {
     }
 
     if target_os.as_str() == "windows" {
-        build = build.file("src/freertos/ports/win/Run-time-stats-utils.c")
+        println!("cargo:rerun-if-changed=src/freertos/ports/win/Run-time-stats-utils.c");
+        println!("cargo:rerun-if-changed=src/freertos/ports/win/hooks.c");
+        build = build
+            .file("src/freertos/ports/win/Run-time-stats-utils.c")
             .file("src/freertos/ports/win/hooks.c")
     } else {
+        println!("cargo:rerun-if-changed=src/freertos/ports/arm/hooks.c");
         build = build.file("src/freertos/ports/arm/hooks.c")
     }
 
+    println!("cargo:rerun-if-changed=src/freertos/shim.c");
     build = build.file("src/freertos/shim.c"); // TODO: make separate lib file for shim?
 
     // FreeRTOS Plus Trace is needed for windows Demo
@@ -107,59 +112,6 @@ fn main() {
         .file(freertos_src_path.join("portable").join(port).join("port.c"));
 
     build.compile("freertos");
-
-
-    // Tell cargo to invalidate the built crate whenever the wrapper changes
-    println!("cargo:rerun-if-changed=src/bindings.h");
-
-    //return; // TODO: Some flags are missing for minGW bindgen to solve: 'x86intrin.h' file not found
-    // Does not work:
-    //std::env::set_var("RUST_LOG", "debug");
-    //println!("cargo:rustc-env=RUST_LOG=debug");
-    //println!("FOO: -I{}", freertos_src_path.join("portable/MSVC-MingW").to_str().unwrap());
-    // The bindgen::Builder is the main entry point
-    // to bindgen, and lets you build up options for
-    // the resulting bindings.
-    let bindings = bindgen::Builder::default()
-        .derive_debug(false)
-        .impl_debug(false)
-        .layout_tests(false)
-        .detect_include_paths(false)
-        // The input header we would like to generate
-        // bindings for.
-        .header("src/bindings.h")
-        //.trust_clang_mangling(false)
-
-        //.header("src/freertos/freertos_shim.h")
-        //portmacro.h
-        //.clang_arg(format!("-I{}", freertos_src_path.join("portable/MSVC-MingW").to_str().unwrap()))
-        // FreeRTOS.h
-        //.clang_arg(format!("-I{}", freertos_src_path.join("include").to_str().unwrap()))
-        // FreeRTOSConfig.h
-        //.clang_arg("-Isrc/freertos/ports/win")
-        //.clang_arg(format!("-I{}", freertos_demo_path.join(demo).to_str().unwrap()))
-        // trcRecorder.h
-        //.clang_arg(format!("-I{}", freertos_plus_src_path.join("FreeRTOS-Plus-Trace/Include").to_str().unwrap()))
-        // trcConfig.h
-        //.clang_arg(format!("-I{}", freertos_demo_path.join(demo).join("Trace_Recorder_Configuration").to_str().unwrap()))
-        // Make the generated code #![no_std] compatible
-        .use_core()
-        // Tip from https://rust-embedded.github.io/book/interoperability/c-with-rust.html
-        //.ctypes_prefix("cty")
-        // Tell cargo to invalidate the built crate whenever any of the
-        // included header files changed.
-        .parse_callbacks(Box::new(bindgen::CargoCallbacks))
-        // Finish the builder and generate the bindings.
-        .generate()
-        // Unwrap the Result and panic on failure.
-        .expect("Unable to generate bindings");
-
-    // Write the bindings to the $OUT_DIR/bindings.rs file.
-    //let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
-    let out_path = PathBuf::from("src/");
-    bindings
-        .write_to_file(out_path.join("bindings.rs"))
-        .expect("Couldn't write bindings!");
 }
 
 fn build_linker_script(path: &str) {

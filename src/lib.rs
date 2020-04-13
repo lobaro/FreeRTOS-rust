@@ -59,9 +59,6 @@
 #[macro_use]
 extern crate alloc;
 
-//include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
-include!("bindings.rs");
-
 mod hooks;
 mod prelude;
 mod shim;
