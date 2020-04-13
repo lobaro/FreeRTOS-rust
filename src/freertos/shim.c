@@ -20,6 +20,14 @@ void freertos_rs_vTaskStartScheduler() {
 	vTaskStartScheduler();
 }
 
+void *freertos_rs_pvPortMalloc(size_t xWantedSize) {
+	return pvPortMalloc(xWantedSize);
+}
+
+void freertos_rs_vPortFree(void *pv) {
+	vPortFree(pv);
+}
+
 uint8_t freertos_rs_sizeof(uint8_t _type) {
 	switch (_type) {
 		case 0:

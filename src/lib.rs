@@ -1,3 +1,4 @@
+#![feature(allocator_api)]
 //! # FreeRTOS for Rust
 //!
 //! Rust interface for the FreeRTOS embedded operating system. Requires beta Rust.
@@ -76,6 +77,7 @@ mod utils;
 mod isr;
 mod delays;
 mod critical;
+mod allocator;
 
 pub mod patterns;
 
@@ -90,5 +92,6 @@ pub use crate::delays::*;
 pub use crate::timers::*;
 pub use crate::critical::*;
 pub use crate::hooks::*;
+pub use crate::allocator::*;
 
 pub use crate::utils::shim_sanity_check;

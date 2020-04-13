@@ -19,7 +19,6 @@ path = "src/lib.rs"
 [dependencies]
 cty = "0.2.1"
 
-
 [target.'cfg(target_arch = "arm")'.dependencies]
 cortex-m = "0.6.0"
 cortex-m-rt = "0.6.10"
@@ -38,6 +37,9 @@ alloc-cortex-m = { git = "https://github.com/rust-embedded/alloc-cortex-m", bran
 [build-dependencies]
 bindgen = "0.53.1"
 cc = "1.0"
+
+[dev-dependencies]
+test-case = "0.3.1"
 
 [profile.release]
 codegen-units = 1 # better optimizations

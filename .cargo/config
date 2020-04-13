@@ -30,6 +30,6 @@ rustflags = [
 
 [build]
 # Pick a target or use --target <name>
-# target = "x86_64-pc-windows-gnu" # Windows GNU Toolchain
+target = "x86_64-pc-windows-gnu" # Windows GNU Toolchain
 # target = "x86_64-pc-windows-msvc" # Windows MSVC Toolchain (no debugging)
-target = "thumbv7m-none-eabi"    # Cortex-M3
+# target = "thumbv7m-none-eabi"    # Cortex-M3

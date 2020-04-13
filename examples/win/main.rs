@@ -1,11 +1,22 @@
+#![feature(custom_test_frameworks)]
+
 use ::freertos_rust::*;
 use std::borrow::{BorrowMut, Borrow};
+use std::alloc::GlobalAlloc;
+
+#[global_allocator]
+static GLOBAL: FreeRtosAllocator = FreeRtosAllocator;
+
 
 fn main() {
+    let x = Box::new(15);
+    println!("Boxed int {}", 15);
+
     unsafe {
         FREERTOS_HOOKS.set_on_assert(|| { println!("Assert hook called") });
     }
 
+    println!("Calling assert ...");
     FreeRtosUtils::invoke_assert();
 
     println!("Starting FreeRTOS app ...");
@@ -25,4 +36,15 @@ fn main() {
     loop {
         println!("Loop forever!");
     }
+}
+
+#[test]
+fn many_boxes() {
+    init_allocator();
+    println!("many_boxes... ");
+    for i in 0..10 { // .. HEAP_SIZE
+        let x = Box::new(i);
+        assert_eq!(*x, i);
+    }
+    println!("[ok]");
 }

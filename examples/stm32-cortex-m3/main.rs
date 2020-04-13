@@ -24,15 +24,12 @@ extern crate panic_halt; // you can put a breakpoint on `rust_begin_unwind` to c
 
 // requires nightly
 
-use core::fmt::Write;
 // extern crate panic_halt; // just stop the world
 // extern crate panic_itm; // logs messages over ITM; requires ITM support
-use core::ptr;
 
-use cortex_m::{asm, Peripherals};
+use cortex_m::{asm};
 use cortex_m_rt::exception;
 use cortex_m_rt::{entry, ExceptionFrame};
-use alloc_cortex_m::CortexMHeap;
 use crate::hw::VolatileStruct;
 use freertos_rust::*;
 use core::alloc::Layout;
@@ -57,12 +54,8 @@ fn set_gpio(gpio: &mut hw::GPIO, pin: u8, state: bool) {
     }
 }
 
-
-// this is the allocator the application will use
 #[global_allocator]
-static ALLOCATOR: CortexMHeap = CortexMHeap::empty();
-
-const HEAP_SIZE: usize = 512; // in bytes
+static GLOBAL: FreeRtosAllocator = FreeRtosAllocator;
 
 fn delay() {
     let mut _i = 0;
@@ -107,6 +100,11 @@ fn board_set_led(on: bool) {
 
 #[entry]
 fn main() -> ! {
+    //let raw = (&HEAP as *const _);
+    // Initialize the allocator BEFORE you use it
+    //unsafe { ALLOCATOR.lock().init(raw as usize, HEAP.len()) }
+
+
     let dp = hal::stm32::Peripherals::take().unwrap();
 
     // Set up the LED, it's connected to pin PA1.
@@ -123,11 +121,8 @@ fn main() -> ! {
 
     unsafe {
         // Permanently flash LED on assert
-        FREERTOS_HOOKS.set_on_assert(|| { board_set_led(false); });
+        FREERTOS_HOOKS.set_on_assert(|| { board_set_led(true); });
     }
-
-    // Initialize the allocator BEFORE you use it
-    unsafe { ALLOCATOR.init(cortex_m_rt::heap_start() as usize, HEAP_SIZE) }
 
     // Just blink (works)
     // do_blink();
@@ -154,18 +149,28 @@ fn main() -> ! {
 }
 
 #[exception]
-fn DefaultHandler(irqn: i16) {
+fn DefaultHandler(_irqn: i16) {
     // custom default handler
     // irqn is negative for Cortex-M exceptions
     // irqn is positive for device specific (line IRQ)
-    panic!("Exception: {}", irqn);
+    //board_set_led(true);
+    //panic!("Exception: {}", irqn);
 }
 
 
 #[exception]
-fn HardFault(ef: &ExceptionFrame) -> ! {
-    board_set_led(true);
-    loop {}
+fn HardFault(_ef: &ExceptionFrame) -> ! {
+    // Blink 3 times long when exception occures
+    delay_n(10);
+    for _ in 0..3 {
+        board_set_led(true);
+        delay_n(10);
+        board_set_led(false);
+        delay_n(5);
+    }
+    loop {
+
+    }
 }
 
 // define what happens in an Out Of Memory (OOM) condition
