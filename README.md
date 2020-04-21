@@ -42,6 +42,7 @@ MSVC Toolchain is not working for debugging:
 
     rustup toolchain install stable-msvc
     rustup default stable-msvc
+    rustup default nightly-msvc
     
 Cortex-M3 (ARMv7-M architecture):
 

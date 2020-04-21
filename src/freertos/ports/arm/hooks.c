@@ -60,7 +60,7 @@ void vApplicationMallocFailedHook( void )
 	(although it does not provide information on how the remaining heap might be
 	fragmented).  See http://www.freertos.org/a00111.html for more
 	information. */
-	vAssertCalled( __LINE__, __FILE__ );
+	configASSERT(1);
 }
 /*-----------------------------------------------------------*/
 
@@ -88,7 +88,7 @@ void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName )
 	function is called if a stack overflow is detected.  This function is
 	provided as an example only as stack overflow checking does not function
 	when running the FreeRTOS Windows port. */
-	vAssertCalled( __LINE__, __FILE__ );
+	configASSERT(1);
 }
 /*-----------------------------------------------------------*/
 
@@ -110,13 +110,13 @@ void vApplicationDaemonTaskStartupHook( void )
 	after the scheduler has been started. */
 }
 /*-----------------------------------------------------------*/
-void freerots_rs_assert_called(unsigned long ulLine, const char *const pcFileName);
+void freerots_rs_assert_called(const char *const pcFileName, unsigned long ulLine);
 
 // const char* file, int linenum
 // unsigned long ulLine, const char * const pcFileName
-void vAssertCalled( unsigned long ulLine, const char * const pcFileName )
+void vAssertCalled(const char * const pcFileName, unsigned long ulLine)
 {
-	freerots_rs_assert_called(ulLine, pcFileName);
+	freerots_rs_assert_called(pcFileName, ulLine);
 }
 /*-----------------------------------------------------------*/
 

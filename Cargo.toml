@@ -20,8 +20,10 @@ path = "src/lib.rs"
 cty = "0.2.1"
 
 [target.'cfg(target_arch = "arm")'.dependencies]
-cortex-m = "0.6.0"
-cortex-m-rt = "0.6.10"
+
+[target.'cfg(target_feature = "examples")'.dependencies]
+#cortex-m = "0.6.0"
+cortex-m-rt = "0.6.12"
 cortex-m-semihosting = "0.3.3"
 panic-halt = "0.2.0"
 stm32l1xx-hal = {version = "0.1.0", features = ["stm32l151"], default-features = false}

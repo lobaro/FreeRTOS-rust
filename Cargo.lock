@@ -233,7 +233,6 @@ dependencies = [
  "alloc-cortex-m 0.3.5 (git+https://github.com/rust-embedded/alloc-cortex-m)",
  "bindgen 0.53.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "cc 1.0.50 (registry+https://github.com/rust-lang/crates.io-index)",
- "cortex-m 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "cortex-m-rt 0.6.12 (registry+https://github.com/rust-lang/crates.io-index)",
  "cortex-m-semihosting 0.3.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "cty 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",

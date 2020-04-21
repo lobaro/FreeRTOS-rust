@@ -19,18 +19,24 @@ fn main() {
     let target_family = env::var("CARGO_CFG_TARGET_FAMILY").unwrap_or_default(); // unix, windows
     let target_arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap(); // x86_64
     let target_os = env::var("CARGO_CFG_TARGET_OS").unwrap(); // none, windows, linux, macos
-    println!("cargo:warning=Target is '{}', ARCH = {}, OS = {}, ENV = {}, FAMILY = {}",
-             target, target_arch, target_os, target_env, target_family);
 
-    println!("cargo:warning=HOST '{}'", env::var("HOST").unwrap());
-    println!("cargo:warning=CARGO_MANIFEST_DIR '{}'", env::var("CARGO_MANIFEST_DIR").unwrap());
-    println!("cargo:warning=OUT_DIR '{}'", env::var("OUT_DIR").unwrap());
-    println!("cargo:warning=CARGO_PKG_NAME '{}'", env::var("CARGO_PKG_NAME").unwrap());
-
+    let env_keys =["TARGET", "OUT_DIR", "HOST"];
+    env::vars().for_each(|(key, val)| {
+        if key.starts_with("CARGO") {
+            println!("cargo:warning={}={}", key, val);
+        } else if env_keys.contains(&key.as_str()) {
+            println!("cargo:warning={}={}", key, val);
+        } else {
+            //println!("cargo:warning={}={}", key, val);
+        }
+    });
 
     let port = match (target.as_str(), target_arch.as_str(), target_os.as_str(), target_env.as_str()) {
         (_, "x86_64", "windows", _) => "MSVC-MingW",
         ("thumbv7m-none-eabi", _, _, _) => "GCC/ARM_CM3",
+        // TODO We should support feature "trustzone"
+        ("thumbv8m.main-none-eabi", _, _, _) => "GCC/ARM_CM33_NTZ/non_secure",
+        ("thumbv8m.main-none-eabihf", _, _, _) => "GCC/ARM_CM33_NTZ/non_secure",
         _ => {
             println!("cargo:warning=Unknown arch: '{}'", target_arch);
             "MSVC-MingW"
@@ -56,8 +62,8 @@ fn main() {
     if target.as_str() == "x86_64-pc-windows-gnu" {
         println!("cargo:rustc-link-lib=static=winmm");
     }
-    let mut build = &mut cc::Build::new();
-    build = build
+    let mut build = cc::Build::new();
+    build
         .pic(false) // Needed for ARM target, windows build still works with it
         .define("projCOVERAGE_TEST", "0") // TODO: Still needed?
         //.static_flag(true)
@@ -76,32 +82,34 @@ fn main() {
     // TODO: find a better way to find the correct FreeRTOSConfig.h
     // FreeRTOSConfig.h
     if target.as_str() == "thumbv7m-none-eabi" {
-        build = build.include("examples/stm32-cortex-m3");
-    } else {
+        build.include("examples/stm32-cortex-m3");
+    } else if target_os.as_str() == "win" {
         //.include(freertos_demo_path.join(demo))
-        build = build.include("src/freertos/ports/win")
+        build.include("src/freertos/ports/win");
+    } else {
+        build.include("src/freertos/ports");
+        //panic!("missing include dir for FreeRTOSconfig.h")
     }
 
     if target_os.as_str() == "windows" {
         println!("cargo:rerun-if-changed=src/freertos/ports/win/Run-time-stats-utils.c");
         println!("cargo:rerun-if-changed=src/freertos/ports/win/hooks.c");
-        build = build
-            .file("src/freertos/ports/win/Run-time-stats-utils.c")
-            .file("src/freertos/ports/win/hooks.c")
+        build.file("src/freertos/ports/win/Run-time-stats-utils.c");
+        build.file("src/freertos/ports/win/hooks.c");
     } else {
         println!("cargo:rerun-if-changed=src/freertos/ports/arm/hooks.c");
-        build = build.file("src/freertos/ports/arm/hooks.c")
+        build.file("src/freertos/ports/arm/hooks.c");
     }
 
     println!("cargo:rerun-if-changed=src/freertos/shim.c");
-    build = build.file("src/freertos/shim.c"); // TODO: make separate lib file for shim?
+    build.file("src/freertos/shim.c"); // TODO: make separate lib file for shim?
 
     // FreeRTOS Plus Trace is needed for windows Demo
     //.file(freertos_plus_src_path.join("FreeRTOS-Plus-Trace/trcKernelPort.c"))
     //.file(freertos_plus_src_path.join("FreeRTOS-Plus-Trace/trcSnapshotRecorder.c"))
 
     // FreeRTOS
-    build = build.file(freertos_src_path.join("croutine.c"))
+    build.file(freertos_src_path.join("croutine.c"))
         .file(freertos_src_path.join("event_groups.c"))
         .file(freertos_src_path.join("portable/MemMang/heap_4.c"))
         .file(freertos_src_path.join("stream_buffer.c"))

@@ -23,7 +23,7 @@ pub static mut FREERTOS_HOOKS: FreeRtosHooks = FreeRtosHooks { on_assert: || {} 
 
 #[allow(unused_doc_comments)]
 #[no_mangle]
-pub extern "C" fn freerots_rs_assert_called(line: FreeRtosUBaseType, file_name_ptr: FreeRtosCharPtr) {
+pub extern "C" fn freerots_rs_assert_called(file_name_ptr: FreeRtosCharPtr, line: FreeRtosUBaseType) {
     let file_name: String;
     unsafe {
         file_name = str_from_c_string(file_name_ptr).unwrap();

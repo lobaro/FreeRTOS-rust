@@ -14,8 +14,8 @@ fn main() {
         FREERTOS_HOOKS.set_on_assert(|| { println!("Assert hook called") });
     }
 
-    println!("Calling assert ...");
-    FreeRtosUtils::invoke_assert();
+    //println!("Calling assert ...");
+    //FreeRtosUtils::invoke_assert();
 
     println!("Starting FreeRTOS app ...");
     Task::new().name("hello").stack_size(128).priority(TaskPriority(2)).start(|| {

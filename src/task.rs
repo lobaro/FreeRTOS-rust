@@ -342,7 +342,7 @@ pub struct FreeRtosUtils;
 impl FreeRtosUtils {
     // Should only be used for testing purpose!
     pub fn invoke_assert() { unsafe { freertos_rs_invoke_configASSERT(); } }
-    pub fn start_scheduler() { unsafe { freertos_rs_vTaskStartScheduler(); } }
+    pub fn start_scheduler() -> ! { unsafe { freertos_rs_vTaskStartScheduler(); } }
 
     pub fn get_tick_count() -> FreeRtosTickType {
         unsafe { freertos_rs_xTaskGetTickCount() }
