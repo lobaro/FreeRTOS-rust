@@ -1,0 +1,22 @@
+[package]
+name = "freertos-rust-examples"
+version = "0.1.0"
+authors = ["Tobias Kaupat <tk@lobaro.de>"]
+edition = "2018"
+description = "Create to use FreeRTOS in rust projects. It contains binaries for demos on some architecutres."
+keywords = ["FreeRTOS", "embedded", "demo", "examples"]
+
+[dependencies]
+freertos_rust = {path = "../freertos-rust"}
+
+[target.'cfg(target_arch = "arm")'.dependencies]
+cortex-m-rt = "0.6.12"
+cortex-m-semihosting = "0.3.3"
+panic-halt = "0.2.0"
+stm32l1xx-hal = {version = "0.1.0", features = ["stm32l151"], default-features = false}
+
+
+[target.x86_64-pc-windows-gnu.dependencies]
+
+[build-dependencies]
+freertos-cargo-build = {path = "../freertos-cargo-build"}

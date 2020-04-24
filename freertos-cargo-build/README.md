@@ -6,6 +6,14 @@ Create to help with building FreeRTOS applications with Cargo and Rust
 
 Add dependencies to your `Cargo.toml`
 
+```
+[dependencies]
+freertos_rust = "*"
+
+[build-dependencies]
+freertos-cargo-build = "*"
+```
+
 To build FreeRTOS you need to specify a path to the FreeRTOS `Source` directory and your `FreeRTOSConfig.h`.
 The FreeRTOS Source directory can also be set via the environment variable `FREERTOS_SRC`. It contains files like `taks.h`
 and subdirectories `include` and `portable`. The correct port is automatically detected.

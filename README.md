@@ -1,6 +1,17 @@
 # FreeRTOS-rust
 Rust crate for FreeRTOS
 
+The crate is based on code from [freertos.rs](https://github.com/hashmismatch/freertos.rs).
+
+It provides helper for you `build.rs` to make it easy to compile a embedded Rust application based on FreeRTOS. 
+In contrast to freertos.rs the `main()` is written in Rust.
+
+To build a project using this create see [freertos-cargo-build](freertos-cargo-build/README.md)
+
+The runtime dependency for you FreeRTOS Rust application will be [freertos-rust](freertos-rust/README.md)
+
+To get started there are examples in [freertos-rust-examples](freertos-rust-examples/README.md)
+
 ## Checkout
 
 Including submodule:
@@ -22,65 +33,6 @@ After cloning without `--recurse-submodules` the submodules must be loaded
 
 * llvm-config is missing on windows
 
-### CLion Settings
-
-To get propper auto completion for macros (e.g. in HAL crates for GPIOs) you have to set
-*Settings | Languages & Frameworks | Rust | Expand declarative macros* to `Expand with experimental engine`.
-
-## Setup
-
-For debugging the GNU Toolchain is required:
-
-    rustup default stable
-    rustup toolchain install stable-gnu
-    rustup default stable-gnu
-    
-    // Alternatively use the nightly
-    rustup default nightly-gnu
-    
-MSVC Toolchain is not working for debugging:
-
-    rustup toolchain install stable-msvc
-    rustup default stable-msvc
-    rustup default nightly-msvc
-    
-Cortex-M3 (ARMv7-M architecture):
-
-    rustup target add thumbv7m-none-eabi
-    
-    
-Add some tooling
-
-    cargo install cargo-binutils
-    rustup component add llvm-tools-preview
-
-### Build
-
-    cargo build
-    
-To see all errors use:
-
-    cargo build -vv
-
-### Run Windows Demo
-
-    cargo run --example win --target x86_64-pc-windows-gnu
-    
-### Run STM32 Coretex M3 Demo
-
-we need the nightly build for some features like allocator_api:
-
-    rustup default nightly-x86_64-pc-windows-gnu // TODO: Build does not finish with GNU Toolchain
-    rustup default nightly-x86_64-pc-windows-msvc
-    rustup target add thumbv7m-none-eabi
-    
-Build the binary:
-
-    cargo build --example stm32-cortex-m3 --target thumbv7m-none-eabi
-    
-Create hex file to be flashed (also creates the build):
-
-    cargo objcopy --example stm32-cortex-m3 --target thumbv7m-none-eabi -- -O ihex app.hex
 
 ### Generate C Bindings
 

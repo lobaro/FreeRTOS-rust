@@ -2,5 +2,6 @@
 
 members = [
     "freertos-rust",
-    "freertos-cargo-build"
+    "freertos-cargo-build",
+    "freertos-rust-examples"
 ]
