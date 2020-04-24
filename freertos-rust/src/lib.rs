@@ -78,6 +78,11 @@ mod allocator;
 
 pub mod patterns;
 
+// Internal stuff that is only public for first Proof of Concept
+pub use crate::base::*;
+pub use crate::shim::*;
+// ----------
+
 pub use crate::base::FreeRtosError;
 pub use crate::task::*;
 pub use crate::queue::*;

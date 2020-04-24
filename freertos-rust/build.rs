@@ -4,11 +4,42 @@ extern crate cc;
 use std::env;
 use std::path::PathBuf;
 
+fn print_env() {
+    let env_keys =["TARGET", "OUT_DIR", "HOST"];
+    env::vars().for_each(|(key, val)| {
+        if key.starts_with("CARGO") {
+            println!("cargo:warning={}={}", key, val);
+        } else if env_keys.contains(&key.as_str()) {
+            println!("cargo:warning={}={}", key, val);
+        } else {
+            //println!("cargo:warning={}={}", key, val);
+        }
+    });
+}
+
 #[allow(unused_variables)]
 // See: https://doc.rust-lang.org/cargo/reference/build-scripts.html
 fn main() {
+    println!("cargo:rerun-if-changed=build.rs");
+    let manifest_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
+    let shim_c = PathBuf::from(manifest_dir.as_str()).join("src/freertos/shim.c");
+    println!("cargo:warning=Setting FREERTOS_SHIM={}",shim_c.to_str().unwrap());
+    //env::set_var("FREERTOS_SHIM", shim_c);
+
+    println!("cargo:SHIM={}", PathBuf::from(manifest_dir).join("src/freertos").to_str().unwrap());
+    //print_env();
+
+    return;
+    let build_freertos = false;
     println!("run build.rs");
     println!("cargo:warning=Printing some infos as warnings:");
+
+    let mut build_shim = cc::Build::new();
+
+    println!("cargo:rerun-if-changed=src/freertos/shim.c");
+    build_shim.file("src/freertos/shim.c"); // TODO: make separate lib file for shim?
+    build_shim.compile("freertos_shim");
+
 
     // ENV variables:
     // https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-build-scripts
@@ -119,7 +150,9 @@ fn main() {
         .file(freertos_src_path.join("tasks.c"))
         .file(freertos_src_path.join("portable").join(port).join("port.c"));
 
-    build.compile("freertos");
+    if build_freertos {
+        build.compile("freertos");
+    }
 }
 
 fn build_linker_script(path: &str) {
