@@ -88,7 +88,12 @@ Create hex file to be flashed:
 * Go to: _File | Settings | Build, Execution, Deployment | Custom Build Targets_:
 * Click Add
 * Name: `nrf9160-example`
-* Toolchain: `MinGW`
+* Toolchain: `arm-none-eabi`
+
+Create the Toolchain under: `File | Settings | Build, Execution, Deployment | Toolchains`
+
+* Name: `arm-none-eabi`
+* Debugger: `/path/to/arm-none-eabi-gdb.exe`
 
 Build: 
 
