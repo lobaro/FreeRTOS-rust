@@ -40,7 +40,17 @@ To see all errors use:
 
 ### Run Windows Demo
 
-    cargo run --example win --target x86_64-pc-windows-gnu
+You need to build with nightly GNU to allow debugging. 
+The target must be `x86_64-pc-windows-msvc` for the FreeRTOS `MSVC-MingW` port.
+
+Prepare the build with:
+
+    rustup default nightly-x86_64-pc-windows-gnu
+    rustup target add x86_64-pc-windows-msvc
+    
+Run the build
+
+    cargo run --package freertos-rust-examples --example win --target x86_64-pc-windows-msvc
     
 ### Run STM32 Coretex M3 Demo
 
@@ -52,11 +62,11 @@ we need the nightly build for some features like allocator_api:
     
 Build the binary:
 
-    cargo build --example stm32-cortex-m3 --target thumbv7m-none-eabi
+    cargo build --package freertos-rust-examples --example stm32-cortex-m3 --target thumbv7m-none-eabi
     
 Create hex file to be flashed (also creates the build):
 
-    cargo objcopy --example stm32-cortex-m3 --target thumbv7m-none-eabi -- -O ihex app.hex
+    cargo objcopy --package freertos-rust-examples --example stm32-cortex-m3 --target thumbv7m-none-eabi -- -O ihex stm32-cortex-m3.hex
 
 ## CLion Settings
 

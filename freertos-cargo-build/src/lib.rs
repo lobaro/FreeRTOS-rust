@@ -62,7 +62,7 @@ impl Builder {
         let freertos_config_path = env::var(ENV_KEY_FREERTOS_CONFIG).unwrap_or_default();
         let freertos_shim = env::var(ENV_KEY_FREERTOS_SHIM).unwrap_or_default();
 
-        let mut b = Builder {
+        let b = Builder {
             freertos_dir: PathBuf::from(freertos_path),
             freertos_config_dir: PathBuf::from(freertos_config_path),
             freertos_shim: PathBuf::from(freertos_shim),
@@ -226,16 +226,14 @@ impl Builder {
         // Add the freertos shim.c to support freertos_rust
         let shim_c = self.shim_c_file();
         if !shim_c.clone().exists() || !shim_c.clone().is_file() {
-            return Err(Error::new(&format!("File freertos_shim does not exist: {}", shim_c.clone().to_str().unwrap())));
+            return Err(Error::new(&format!("File freertos_shim '{}' does not exist, missing freertos_rust dependency?", shim_c.clone().to_str().unwrap())));
         }
 
         Ok(())
     }
 
     pub fn compile(&self) -> Result<(), Error> {
-        let port_dir = self.get_freertos_port_dir();
         let mut b = self.cc.clone();
-
 
         let path_error = self.verify_paths();
         if path_error.is_err() {
@@ -252,7 +250,6 @@ impl Builder {
             b.file(f);
         });
         self.freertos_port_files().iter().for_each(|f| {
-            print!("freertos_port_file: {}", f);
             b.file(f);
         });
         self.freertos_shim_files().iter().for_each(|f| {

@@ -110,15 +110,6 @@ void vApplicationDaemonTaskStartupHook( void )
 	after the scheduler has been started. */
 }
 /*-----------------------------------------------------------*/
-void freerots_rs_assert_called(const char *const pcFileName, unsigned long ulLine);
-
-// const char* file, int linenum
-// unsigned long ulLine, const char * const pcFileName
-void vAssertCalled(const char * const pcFileName, unsigned long ulLine)
-{
-	freerots_rs_assert_called(pcFileName, ulLine);
-}
-/*-----------------------------------------------------------*/
 
 /* configUSE_STATIC_ALLOCATION is set to 1, so the application must provide an
 implementation of vApplicationGetIdleTaskMemory() to provide the memory that is

@@ -4,55 +4,18 @@
 #![feature(lang_items)]
 #![feature(alloc_error_handler)]
 
-// Remove this later and clean up code
-#[allow(unused_variables)]
-#[allow(unused_imports)]
-#[allow(unused_assignments)]
-#[allow(unused_attributes)]
-pub mod hw;
-
-// release profile: minimize the binary size of the application
-// TODO: We want some custom panic handler that logs & resets
-#[cfg(not(debug_assertions))]
-extern crate panic_abort;
-// dev profile: easier to debug panics; can put a breakpoint on `rust_begin_unwind`
-//#[cfg(debug_assertions)]
 extern crate panic_halt; // you can put a breakpoint on `rust_begin_unwind` to catch panics
-//#[cfg(debug_assertions)]
-//extern crate panic_semihosting;
-// logs messages to the host stderr; requires a debugger
 
-// requires nightly
-
-// extern crate panic_halt; // just stop the world
-// extern crate panic_itm; // logs messages over ITM; requires ITM support
-
-use cortex_m::{asm};
+use cortex_m::asm;
 use cortex_m_rt::exception;
 use cortex_m_rt::{entry, ExceptionFrame};
-use crate::hw::VolatileStruct;
 use freertos_rust::*;
 use core::alloc::Layout;
 use stm32l1xx_hal as hal;
 use stm32l1xx_hal::hal::digital::v2::*;
 use stm32l1xx_hal::gpio::*;
+use stm32l1xx_hal::gpio::gpioa::PA1;
 
-const PERIPH_BASE: u32 = 0x40000000;
-const AHBPERIPH_BASE: u32 = PERIPH_BASE + 0x20000;
-const GPIOA_BASE: u32 = AHBPERIPH_BASE + 0x0000;
-const RCC_BASE: u32 = AHBPERIPH_BASE + 0x3800;
-
-fn set_led(gpio: &mut hw::GPIO, on: bool) {
-    set_gpio(gpio, 1, !on)
-}
-
-fn set_gpio(gpio: &mut hw::GPIO, pin: u8, state: bool) {
-    if state {
-        gpio.bssrl |= 1 << pin;
-    } else {
-        gpio.bssrh |= 1 << pin;
-    }
-}
 
 #[global_allocator]
 static GLOBAL: FreeRtosAllocator = FreeRtosAllocator;
@@ -70,113 +33,89 @@ fn delay_n(n: i32) {
     }
 }
 
-// Setup IO for the LED and blink, does not return.
-fn do_blink() {
-    // Initialize LED
-    let rcc = unsafe { hw::RCC::from_addr(RCC_BASE) };
-    let gpio_a = unsafe { hw::GPIO::from_addr(GPIOA_BASE) };
-    rcc.ahbenr.write(1);
-    gpio_a.moder.write(4);
+static mut LED: Option<PA1<Output<PushPull>>> = None;
 
-    loop {
-        //println!("Hello from Task! {}", i);
-        //CurrentTask::delay(Duration::ms(1000));
-        //i = i + 1;
-
-        delay();
-        set_led(gpio_a, true);
-        delay();
-        set_led(gpio_a, false);
+fn set_led(on: bool) {
+    unsafe {
+        let mut led = LED.take().unwrap();
+    }
+    if on {
+        led.set_low();
+    } else {
+        led.set_high();
     }
 }
 
-fn board_set_led(on: bool) {
-    let rcc = unsafe { hw::RCC::from_addr(RCC_BASE) };
-    let gpio_a = unsafe { hw::GPIO::from_addr(GPIOA_BASE) };
-    rcc.ahbenr.write(1);
-    gpio_a.moder.write(4);
-    set_led(gpio_a, on);
+// Setup IO for the LED and blink, does not return.
+fn do_blink_forever() -> ! {
+    loop {
+        delay();
+        set_led(true);
+        delay();
+        set_led(false);
+    }
 }
 
 #[entry]
 fn main() -> ! {
-    //let raw = (&HEAP as *const _);
-    // Initialize the allocator BEFORE you use it
-    //unsafe { ALLOCATOR.lock().init(raw as usize, HEAP.len()) }
-
-
     let dp = hal::stm32::Peripherals::take().unwrap();
 
     // Set up the LED, it's connected to pin PA1.
     let gpioa: stm32l1xx_hal::gpio::gpioa::Parts = dp.GPIOA.split();
-    // low = on
-    let mut led = gpioa.pa1.into_push_pull_output();
+    unsafe { LED = Some(gpioa.pa1.into_push_pull_output()); }
 
     // Initial blink
-    led.set_low().unwrap();
+    set_led(true);
     delay_n(10);
-    led.set_high().unwrap();
+    set_led(false);
     delay_n(10);
 
-
-    unsafe {
-        // Permanently flash LED on assert
-        FREERTOS_HOOKS.set_on_assert(|| { board_set_led(true); });
-    }
-
-    // Just blink (works)
-    // do_blink();
+    // Just blink (does NOT work!)
+    do_blink_forever();
 
     // TODO: What comes now does not work yet!
     // Initialize Tasks and start FreeRTOS
-
-    //println!("Starting FreeRTOS app ...");
     Task::new().name("hello").stack_size(128).priority(TaskPriority(1)).start(|| {
-        // Blink forever
-        // TODO: Replace loops with FreeRTOS vTaskDelay once this is running at all
-        do_blink();
+        // Just blink
+        freertos_rust::CurrentTask::delay(Duration::ms(1000));
+        set_led(true);
+        freertos_rust::CurrentTask::delay(Duration::ms(1000));
+        set_led(false);
     }).unwrap();
-    //println!("Task registered");
-    //let free = freertos_rs_xPortGetFreeHeapSize();
-    // println!("Free Memory: {}!", free);
-    //println!("Starting scheduler");
+
+
     // TODO: Starting the scheduler fails, we need debugging to find the issue
     // Seems like we don't even get an assert
     FreeRtosUtils::start_scheduler();
-    loop {
-        //println!("Loop forever!");
-    }
 }
 
 #[exception]
 fn DefaultHandler(_irqn: i16) {
-    // custom default handler
-    // irqn is negative for Cortex-M exceptions
-    // irqn is positive for device specific (line IRQ)
-    //board_set_led(true);
-    //panic!("Exception: {}", irqn);
+// custom default handler
+// irqn is negative for Cortex-M exceptions
+// irqn is positive for device specific (line IRQ)
+// set_led(true);(true);
+// panic!("Exception: {}", irqn);
 }
 
 
 #[exception]
 fn HardFault(_ef: &ExceptionFrame) -> ! {
-    // Blink 3 times long when exception occures
+// Blink 3 times long when exception occures
     delay_n(10);
     for _ in 0..3 {
-        board_set_led(true);
+        set_led(true);
         delay_n(10);
-        board_set_led(false);
+        set_led(false);
         delay_n(5);
     }
-    loop {
-
-    }
+    loop {}
 }
 
 // define what happens in an Out Of Memory (OOM) condition
 #[alloc_error_handler]
 fn alloc_error(_layout: Layout) -> ! {
-    board_set_led(true);
+    set_led(true);
     asm::bkpt();
     loop {}
 }
