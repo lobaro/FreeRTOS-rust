@@ -72,7 +72,6 @@ fn main() -> ! {
 
     let h = Task::new().name("hello").stack_size(512).priority(TaskPriority(1)).start(|| {
         // Blink forever
-        // TODO: Replace loops with FreeRTOS vTaskDelay once this is running at all
         do_blink();
         loop {
 
