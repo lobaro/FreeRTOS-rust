@@ -10,14 +10,21 @@ keywords = ["FreeRTOS", "embedded", "demo", "examples"]
 freertos_rust = {path = "../freertos-rust"}
 
 [target.'cfg(target_arch = "arm")'.dependencies]
+cortex-m = "0.6.0"
+cortex-m-rt = {version = "0.6.12"}
+nrf9160-pac = "0.2.1"
+
+# Example: stm32-cortex-m3
 [target.thumbv7m-none-eabi.dependencies]
-cortex-m = "0.6.2"
-cortex-m-rt = "0.6.12"
 cortex-m-semihosting = "0.3.3"
 panic-halt = "0.2.0"
 stm32l1xx-hal = {version = "0.1.0", features = ["stm32l151"], default-features = false}
 
+# Example: nrf9160
+[target.thumbv8m.main-none-eabihf.dependencies]
+nrf9160-pac = "0.2.1"
 
+# Example: win
 [target.x86_64-pc-windows-gnu.dependencies]
 
 [build-dependencies]

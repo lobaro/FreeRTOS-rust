@@ -32,7 +32,14 @@ fn main() {
         b.freertos_config("examples/stm32-cortex-m3");
         copy(
             "examples/stm32-cortex-m3/memory.x",
-            PathBuf::from(out_dir).join("memory.x"),
+            PathBuf::from(out_dir.as_str()).join("memory.x"),
+        ).unwrap();
+    }
+    if target == "thumbv8m.main-none-eabihf" {
+        b.freertos_config("examples/nrf9160");
+        copy(
+            "examples/nrf9160/memory.x",
+            PathBuf::from(out_dir.as_str()).join("memory.x"),
         ).unwrap();
     }
 

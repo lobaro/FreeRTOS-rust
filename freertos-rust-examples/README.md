@@ -64,17 +64,54 @@ Build the binary:
 
     cargo build --package freertos-rust-examples --example stm32-cortex-m3 --target thumbv7m-none-eabi
     
-Create hex file to be flashed (also creates the build):
+Create hex file to be flashed:
 
     cargo objcopy --example stm32-cortex-m3 --target thumbv7m-none-eabi -- -O ihex stm32-cortex-m3.hex
 
 ### Run nRF9160 Demo
 
+Setup:
+
     rustup default nightly-x86_64-pc-windows-msvc
-    rustup target add thumbv7m-none-eabi
+    rustup target add thumbv8m.main-none-eabihf
     
+Build:
     
-    
+    cargo build --package freertos-rust-examples --example nrf9160 --target thumbv8m.main-none-eabihf
+
+Create hex file to be flashed:
+
+    cargo objcopy --example nrf9160 --target thumbv8m.main-none-eabihf -- -O ihex nrf9160.hex
+
+**CLion Embedded GDB Server Settings** (for debugging):
+
+* Go to: _File | Settings | Build, Execution, Deployment | Custom Build Targets_:
+* Click Add
+* Name: `nrf9160-example`
+* Toolchain: `MinGW`
+
+Build: 
+
+* Name: `build-nrf9160-example`
+* Programm: `cargo`
+* Arguments: `build --package freertos-rust-examples --example nrf9160 --target thumbv8m.main-none-eabihf`
+* Working directory: `$ProjectFileDir$`
+
+Clean: 
+
+* Name: `clean`
+* Programm: `cargo`
+* Arguments: `clean`
+* Working directory: `$ProjectFileDir$`
+
+Setup a Run Configuration: 
+
+* Executable: `target\thumbv8m.main-none-eabihf\debug\examples\nrf9160` (only selectable after first build!)
+* Download executable: `Always`
+* 'target remote' args: `tcp:localhost:2331`
+* GDB Server: `path/to/JLinkGDBServerCL.exe`
+* GDB Server args: `-select USB -device nRF9160 -endian little -if SWD -speed 10000 -LocalhostOnly -noir`
+
 
 ## CLion Settings
 

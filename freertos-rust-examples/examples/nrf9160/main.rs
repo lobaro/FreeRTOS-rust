@@ -107,21 +107,3 @@ fn vApplicationStackOverflowHook(pxTask: FreeRtosTaskHandle, pcTaskName: FreeRto
 
 #[no_mangle]
 fn vApplicationTickHook() {}
-
-#[no_mangle]
-fn vAssertCalled(pcFileName: FreeRtosCharPtr, ulLine: FreeRtosUBaseType)
-{
-    freerots_rs_assert_called(pcFileName, ulLine);
-}
-
-/*
-#[no_mangle]
-fn vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize ) {
-
-}
-
-#[no_mangle]
-fn vApplicationGetTimerTaskMemory( StaticTask_t **ppxTimerTaskTCBBuffer, StackType_t **ppxTimerTaskStackBuffer, uint32_t *pulTimerTaskStackSize ) {
-
-}
-*/
