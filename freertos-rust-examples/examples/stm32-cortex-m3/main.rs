@@ -38,11 +38,11 @@ static mut LED: Option<PA1<Output<PushPull>>> = None;
 fn set_led(on: bool) {
     unsafe {
         let mut led = LED.take().unwrap();
-    }
-    if on {
-        led.set_low();
-    } else {
-        led.set_high();
+        if on {
+            led.set_low();
+        } else {
+            led.set_high();
+        }
     }
 }
 

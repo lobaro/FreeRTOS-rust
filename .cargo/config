@@ -1,17 +1,4 @@
-[target.thumbv7m-none-eabi]
-# uncomment this to make `cargo run` execute programs on QEMU
-# runner = "qemu-system-arm -cpu cortex-m3 -machine lm3s6965evb -nographic -semihosting-config enable=on,target=native -kernel"
-
 [target.'cfg(all(target_arch = "arm", target_os = "none"))']
-# uncomment ONE of these three option to make `cargo run` start a GDB session
-# which option to pick depends on your system
-# runner = "arm-none-eabi-gdb -q -x openocd.gdb"
-# runner = "gdb-multiarch -q -x openocd.gdb"
-# runner = "gdb -q -x openocd.gdb"
-
-# Not working, but would be nice to build the hex file
-# runner = "cargo objcopy --example stm32-cortex-m3 --target thumbv7m-none-eabi -- -O ihex app.hex"
-
 rustflags = [
   # LLD (shipped with the Rust toolchain) is used as the default linker
   "-C", "link-arg=-Tlink.x",
@@ -30,6 +17,6 @@ rustflags = [
 
 [build]
 # Pick a target or use --target <name>
-#target = "x86_64-pc-windows-gnu" # Windows GNU Toolchain
+# target = "x86_64-pc-windows-gnu" # Windows GNU Toolchain
 # target = "x86_64-pc-windows-msvc" # Windows MSVC Toolchain (no debugging)
 # target = "thumbv7m-none-eabi"    # Cortex-M3
