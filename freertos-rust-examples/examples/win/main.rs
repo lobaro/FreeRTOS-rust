@@ -3,14 +3,10 @@ use freertos_rust::*;
 #[global_allocator]
 static GLOBAL: FreeRtosAllocator = FreeRtosAllocator;
 
+
 fn main() {
     let x = Box::new(15);
-    println!("Boxed int {}", x);
-}
-
-fn main_x() {
-    let x = Box::new(15);
-    println!("Boxed int {}", x);
+    println!("Boxed int '{}' (allocator test)", x);
 
     unsafe {
         FREERTOS_HOOKS.set_on_assert(|| { println!("Assert hook called") });

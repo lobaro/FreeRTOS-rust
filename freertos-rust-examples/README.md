@@ -68,6 +68,14 @@ Create hex file to be flashed (also creates the build):
 
     cargo objcopy --example stm32-cortex-m3 --target thumbv7m-none-eabi -- -O ihex stm32-cortex-m3.hex
 
+### Run nRF9160 Demo
+
+    rustup default nightly-x86_64-pc-windows-msvc
+    rustup target add thumbv7m-none-eabi
+    
+    
+    
+
 ## CLion Settings
 
 To get proper auto completion for macros (e.g. in HAL crates for GPIOs) you have to set
