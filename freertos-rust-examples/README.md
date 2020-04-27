@@ -66,7 +66,7 @@ Build the binary:
     
 Create hex file to be flashed (also creates the build):
 
-    cargo objcopy --package freertos-rust-examples --example stm32-cortex-m3 --target thumbv7m-none-eabi -- -O ihex stm32-cortex-m3.hex
+    cargo objcopy --example stm32-cortex-m3 --target thumbv7m-none-eabi -- -O ihex stm32-cortex-m3.hex
 
 ## CLion Settings
 
