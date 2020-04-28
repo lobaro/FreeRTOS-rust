@@ -4,7 +4,7 @@ This project is based on code from [freertos.rs](https://github.com/hashmismatch
  simplify the usage of [FreeRTOS](https://github.com/FreeRTOS/FreeRTOS-Kernel) in embedded applications written
  in Rust.
 
-But in contrast to freertos.rs this crate differs in these points:
+In contrast to freertos.rs this crate differs in these points:
 
 - The application `main()` entry point is written in Rust.
 - The FreeRTOS scheduler can be started from Rust.
