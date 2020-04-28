@@ -44,7 +44,7 @@ info provided by your apps `build.rs`:
     fn main() {
         let mut b = freertos_cargo_build::Builder::new();
     
-        b.freertos("FreeRTOS-Kernel");  // Path to copy of the FreeRTOS kernel "C" code
+        b.freertos("FreeRTOS-Kernel");  // Path to copy of the FreeRTOS kernel
         b.freertos_config("src");       // Location of `FreeRTOSConfig.h` 
         b.freertos_port("GCC/ARM_CM3"); // Port dir relativ to the 
                                         // 'FreeRTOS-Kernel/portable' dir, e.g. 'GCC/ARM_CM3'
@@ -55,9 +55,9 @@ info provided by your apps `build.rs`:
     }
     ```   
 
-## Used C compiler
+### Used C compiler
 `freertos-cargo-build` depends on the [cc crate](https://docs.rs/crate/cc). So the C compiler
-used can be set by using the `CC` enviroment variable or otherwise falling back on internal 
+used can be set by using the `CC` enviroment variable or otherwise defined by internal 
 defaults. For the ARM architecture this is the `arm-none-eabi-gcc` which can be found [here](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads).
 
 ## Examples
@@ -66,8 +66,9 @@ To get started there are examples in [freertos-rust-examples](freertos-rust-exam
 * Cortex M33 (nRF9160)
 * Cortex M3 (STM32L151CBU6A)
 * Windows
+* ...more to follow...
 
-## Crates
+## Project Crates
 * To build a project using this create see [freertos-cargo-build](freertos-cargo-build)
 * The runtime dependency for you FreeRTOS Rust application will be [freertos-rust](freertos-rust)
 

@@ -1,6 +1,5 @@
 # FreeRTOS Rust Examples
 
-
 ## Setup
 
 We need to use nightly toolchain to support all examples. 
