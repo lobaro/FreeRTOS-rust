@@ -1,6 +1,6 @@
 [package]
 name = "freertos-cargo-build"
-description = "Utility lib to help building FreeRTOS for rust projects"
+description = "Utility lib for building & using FreeRTOS in rust projects"
 version = "0.1.0"
 authors = ["Tobias Kaupat <tk@lobaro.de>"]
 edition = "2018"
