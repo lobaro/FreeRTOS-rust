@@ -1,6 +1,6 @@
 # FreeRTOS-rust
 
-This project is based on code from [freertos.rs](https://github.com/hashmismatch/freertos.rs) and own additions to
+This project is based on code from [freertos.rs](https://github.com/hashmismatch/freertos.rs) and some additions to
  simplify the usage of [FreeRTOS](https://github.com/FreeRTOS/FreeRTOS-Kernel) in embedded applications written
  in Rust.
 
