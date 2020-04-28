@@ -41,6 +41,11 @@ fn main() {
     // The `FreeRTOSConfig.h` is usually inside your main crate to match you application and target needs.
     b.freertos_config("src"); 
 
+    // set the freertos port dir relativ to the FreeRTOS/Source/portable directory
+    // "GCC/ARM_CM33_NTZ/non_secure"
+    // If not set it will be detected based on the current build target (not many targets supported yet)
+    b.freertos_port("GCC/ARM_CM33_NTZ/non_secure");
+
     // Additional "C" code may optionally compiled beside FreeRTOS using:
     // b.get_cc().file("optionalAdditionCode.c");
 
