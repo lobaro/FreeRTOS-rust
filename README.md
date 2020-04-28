@@ -42,9 +42,9 @@ fn main() {
     b.freertos_config("src"); 
 
     // set the freertos port dir relativ to the FreeRTOS/Source/portable directory
-    // "GCC/ARM_CM33_NTZ/non_secure"
+    // e.g. "GCC/ARM_CM3"
     // If not set it will be detected based on the current build target (not many targets supported yet)
-    b.freertos_port("GCC/ARM_CM33_NTZ/non_secure");
+    b.freertos_port("GCC/ARM_CM3"); // port for ARM Cortex-M3 
 
     // Additional "C" code may optionally compiled beside FreeRTOS using:
     // b.get_cc().file("optionalAdditionCode.c");
@@ -52,9 +52,12 @@ fn main() {
     // Compiles the FreeRTOS "C" Code
     b.compile().unwrap_or_else(|e| { panic!(e.to_string()) });
 }
-
 ```
-The correct port is automatically detected (WIP!).
+
+## Used C compiler
+`freertos-cargo-build` depends on the [cc crate](https://docs.rs/crate/cc). So the C compiler
+used can be set by using the `CC` enviroment variable or otherwise falling back on internal 
+defaults. For the ARM architecture this is the `arm-none-eabi-gcc` which can be found [here](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads).
 
 ## Examples
 To get started there are examples in [freertos-rust-examples](freertos-rust-examples/README.md)
