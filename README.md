@@ -11,48 +11,47 @@ In contrast to freertos.rs this crate differs in these points:
 - The FreeRTOS heap `MemMang/heap/heap_x.c`is used as global memory allocator for Rust
 - No need for a Clang skeleton project
 
-## Usage
+## How it works
 
-Add dependencies to your apps `Cargo.toml`
+The `freertos-cargo-build` build-dependency compiles the FreeRTOS code from its original "C" sources files into an 
+archive to be linked against your Rust app. Internally it uses the [cc crate](https://docs.rs/crate/cc) and some meta 
+info provided by your apps `build.rs`:
+ 
+ 1. A path to the [FreeRTOS](https://github.com/FreeRTOS/FreeRTOS-Kernel) `Sources`
+ 1. A path to the app specific `FreeRTOSConfig.h`
+ 1. A relative path to the `FreeRTOS port` to be used, e.g. for ARM Cortex-M3 cores.
+ 1. Optional: Additional C code to be compiled
+ 
+ The `freertos_rust` dependency then provides a shim to access all FreeRTOS functionality from your (embedded) 
+ Rust app.
+ 
+ ## Usage
 
-```
-[dependencies]
-freertos_rust = "*"
+1. Checkout FreeRTOS: https://github.com/FreeRTOS/FreeRTOS-Kernel   
 
-[build-dependencies]
-freertos-cargo-build = "*"
-```
+1. Add dependencies to your Rust apps `Cargo.toml`
 
-To build FreeRTOS you need to specify a path to the [FreeRTOS](https://github.com/FreeRTOS/FreeRTOS-Kernel) `Source` directory and your `FreeRTOSConfig.h`.
-The `freertos-cargo-build` build dependency takes care of compiling FreeRTOS using the
-[cc crate](https://crates.io/crates/cc). You have to specify location of the [FreeRTOS kernel](https://github.com/FreeRTOS/FreeRTOS-Kernel)
-code and your project specific `FreeRTOSConfig.h`. 
-
-Add this snippet to your apps `build.rs`:
-```
-use std::env;
-
-fn main() {
-    let mut b = freertos_cargo_build::Builder::new();
-
-    // Path to copy of the FreeRTOS kernel "C" code
-    b.freertos("FreeRTOS/Source");
-
-    // The `FreeRTOSConfig.h` is usually inside your main crate to match you application and target needs.
-    b.freertos_config("src"); 
-
-    // set the freertos port dir relativ to the FreeRTOS/Source/portable directory
-    // e.g. "GCC/ARM_CM3"
-    // If not set it will be detected based on the current build target (not many targets supported yet)
-    b.freertos_port("GCC/ARM_CM3"); // port for ARM Cortex-M3 
-
-    // Additional "C" code may optionally compiled beside FreeRTOS using:
-    // b.get_cc().file("optionalAdditionCode.c");
-
-    // Compiles the FreeRTOS "C" Code
-    b.compile().unwrap_or_else(|e| { panic!(e.to_string()) });
-}
-```
+    ```
+    [dependencies]
+    freertos_rust = "*"
+    
+    [build-dependencies]
+    freertos-cargo-build = "*"
+    ```
+    
+1. Add this snippet to your apps `build.rs`:
+    ```
+    fn main() {
+        let mut b = freertos_cargo_build::Builder::new();
+    
+        b.freertos("FreeRTOS-Kernel");  // Path to copy of the FreeRTOS kernel "C" code
+        b.freertos_config("src");       // Location of `FreeRTOSConfig.h` 
+        b.freertos_port("GCC/ARM_CM3"); // Port dir relativ to the FreeRTOS-Kernel/portable directory, e.g. "GCC/ARM_CM3"
+        // b.get_cc().file("optionalAdditionCode.c");
+    
+        b.compile().unwrap_or_else(|e| { panic!(e.to_string()) });
+    }
+    ```   
 
 ## Used C compiler
 `freertos-cargo-build` depends on the [cc crate](https://docs.rs/crate/cc). So the C compiler
@@ -62,7 +61,7 @@ defaults. For the ARM architecture this is the `arm-none-eabi-gcc` which can be 
 ## Examples
 To get started there are examples in [freertos-rust-examples](freertos-rust-examples/README.md)
 
-## Modules
+## Crates
 * To build a project using this create see [freertos-cargo-build](freertos-cargo-build/README.md)
 * The runtime dependency for you FreeRTOS Rust application will be [freertos-rust](freertos-rust/README.md)
 
