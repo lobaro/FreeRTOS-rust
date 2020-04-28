@@ -46,8 +46,9 @@ info provided by your apps `build.rs`:
     
         b.freertos("FreeRTOS-Kernel");  // Path to copy of the FreeRTOS kernel
         b.freertos_config("src");       // Location of `FreeRTOSConfig.h` 
-        b.freertos_port("GCC/ARM_CM3"); // Port dir relativ to the 
-                                        // 'FreeRTOS-Kernel/portable' dir, e.g. 'GCC/ARM_CM3'
+        b.freertos_port("GCC/ARM_CM3"); // Port dir relativ to 'FreeRTOS-Kernel/portable' 
+        b.heap("heap4.c");              // Set the heap_?.c allocator to use from 
+                                        // 'FreeRTOS-Kernel/portable/MemMang'       
    
         // b.get_cc().file("More.c");   // Optional additional C-Code to be compiled
     

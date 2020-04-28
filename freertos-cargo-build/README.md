@@ -1,7 +1,6 @@
 # freertos-cargo-build
 Create to help with building FreeRTOS applications with Cargo and Rust
 
-
 ## Usage
 
 Add dependencies to your `Cargo.toml`
@@ -24,26 +23,19 @@ Add this snippet to your apps `build.rs`:
 ```
 use std::env;
 
-fn main() {
-    let mut b = freertos_cargo_build::Builder::new();
-
-    // Path to copy of the FreeRTOS kernel "C" code
-    b.freertos("FreeRTOS/Source");
-
-    // The `FreeRTOSConfig.h` is usually inside your main crate to match you application and target needs.
-    b.freertos_config("src"); 
-
-    // set the freertos port dir relativ to the FreeRTOS/Source/portable directory
-    // e.g. "GCC/ARM_CM3"
-    // If not set it will be detected based on the current build target (not many targets supported yet)
-    b.freertos_port("GCC/ARM_CM3"); // port for ARM Cortex-M3 
-
-    // Additional "C" code may optionally compiled beside FreeRTOS using:
-    // b.get_cc().file("optionalAdditionCode.c");
-
-    // Compiles the FreeRTOS "C" Code
-    b.compile().unwrap_or_else(|e| { panic!(e.to_string()) });
-}
+    fn main() {
+        let mut b = freertos_cargo_build::Builder::new();
+    
+        b.freertos("FreeRTOS-Kernel");  // Path to copy of the FreeRTOS kernel
+        b.freertos_config("src");       // Location of `FreeRTOSConfig.h` 
+        b.freertos_port("GCC/ARM_CM3"); // Port dir relativ to 'FreeRTOS-Kernel/portable' 
+        b.heap("heap4.c");              // Set the heap_?.c allocator to use from 
+                                        // 'FreeRTOS-Kernel/portable/MemMang'       
+   
+        // b.get_cc().file("More.c");   // Optional additional C-Code to be compiled
+    
+        b.compile().unwrap_or_else(|e| { panic!(e.to_string()) });
+    }
 ```
 
 ## Used C compiler
