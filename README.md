@@ -49,13 +49,15 @@ fn main() {
 }
 
 ```
-The correct port is automatically detected.
+The correct port is automatically detected (WIP!).
 
-## Structure
+## Examples
+To get started there are examples in [freertos-rust-examples](freertos-rust-examples/README.md)
 
+## Modules
 * To build a project using this create see [freertos-cargo-build](freertos-cargo-build/README.md)
 * The runtime dependency for you FreeRTOS Rust application will be [freertos-rust](freertos-rust/README.md)
-* To get started there are examples in [freertos-rust-examples](freertos-rust-examples/README.md)
+
 
 
 
