@@ -46,8 +46,10 @@ info provided by your apps `build.rs`:
     
         b.freertos("FreeRTOS-Kernel");  // Path to copy of the FreeRTOS kernel "C" code
         b.freertos_config("src");       // Location of `FreeRTOSConfig.h` 
-        b.freertos_port("GCC/ARM_CM3"); // Port dir relativ to the FreeRTOS-Kernel/portable directory, e.g. "GCC/ARM_CM3"
-        // b.get_cc().file("optionalAdditionCode.c");
+        b.freertos_port("GCC/ARM_CM3"); // Port dir relativ to the 
+                                        // 'FreeRTOS-Kernel/portable' dir, e.g. 'GCC/ARM_CM3'
+   
+        // b.get_cc().file("More.c");   // Optional additional C-Code to be compiled
     
         b.compile().unwrap_or_else(|e| { panic!(e.to_string()) });
     }
