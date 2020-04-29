@@ -1,16 +1,16 @@
 #![feature(allocator_api)]
 //! # FreeRTOS for Rust
 //!
-//! Rust interface for the FreeRTOS embedded operating system. Requires beta Rust.
+//! Rust interface for the FreeRTOS embedded operating system. Requires nightly Rust.
 //! It is assumed that dynamic memory allocation is provided on the target system.
 //!
 //! This library interfaces with FreeRTOS using a C shim library which provides function
 //! wrappers for FreeRTOS macros. The compiled Rust application should be linked to the
-//! base C/C++ firmware binary. Check the subdirectory ``shim``. Copy the source file to
-//! your firmware's sources directory and modify it to include the appropriate headers for
-//! target your system.
+//! base C/C++ firmware binary.
 //!
-//! For a complete example, check the enclosed GCC ARM/Rust/QEMU based unit tests. The project
+//! Examples are provided inside [freertos-rust-examples](https://github.com/lobaro/FreeRTOS-rust/tree/master/freertos-rust-examples)
+//!
+//! For more examples, check the enclosed GCC ARM/Rust/QEMU based unit tests. The project
 //! ``qemu_runner`` cross-compiles this library, compiles the main firmware using GCC ARM and links
 //! in the appropriate entry points for unit tests. [GNU ARM Eclipse QEMU](http://gnuarmeclipse.github.io/qemu/)
 //! is used to run the test binaries.
@@ -29,6 +29,8 @@
 //! 		CurrentTask::delay(Duration::infinite());
 //! 	}
 //! }).unwrap();
+//!
+//! FreeRtosUtils::start_scheduler();
 //! ```
 //!
 //! Queue
