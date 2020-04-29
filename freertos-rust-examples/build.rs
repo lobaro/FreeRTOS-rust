@@ -18,7 +18,7 @@ fn main() {
     // Windows example specific stuff.
     if target_family == "windows" {
         b.freertos_config("examples/win");
-        // TODO: in future all FreeRTOS API should be implemented by the freertos_rust crate
+        // TODO: in future all FreeRTOS API should be implemented by the freertos-rust crate
         // until then, we need to compile some C code manually
         b.get_cc().file("examples/win/hooks.c");
         b.get_cc().file("examples/win/Run-time-stats-utils.c");

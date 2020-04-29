@@ -16,8 +16,8 @@ const ENV_KEY_FREERTOS_SRC: &str = "FREERTOS_SRC";
 /// When not set, you can use the Builder to specify the path
 const ENV_KEY_FREERTOS_CONFIG: &str = "DEP_FREERTOS_CONFIG";
 
-/// FreeRTOS shim.c file to enable usage of FreeRTOS with freertos_rust crate
-/// This variable is set by freertos_rust build.rs
+/// FreeRTOS shim.c file to enable usage of FreeRTOS with freertos-rust crate
+/// This variable is set by freertos-rust build.rs
 const ENV_KEY_FREERTOS_SHIM: &str = "DEP_FREERTOS_SHIM";
 
 #[derive(Clone, Debug)]
@@ -85,7 +85,7 @@ impl Builder {
         self.freertos_config_dir = path.as_ref().to_path_buf();
     }
 
-    /// Set the path to shim.c (required for freertos_rust)
+    /// Set the path to shim.c (required for freertos-rust)
     /// Default is loaded from ENV variable, see: ENV_KEY_FREERTOS_SHIM
     pub fn freertos_shim<P: AsRef<Path>>(&mut self, path: P) {
         self.freertos_shim = path.as_ref().to_path_buf();
@@ -223,10 +223,10 @@ impl Builder {
             return Err(Error::new(&format!("Directory freertos_config_dir does not exist: {}", self.freertos_config_dir.to_str().unwrap())));
         }
 
-        // Add the freertos shim.c to support freertos_rust
+        // Add the freertos shim.c to support freertos-rust
         let shim_c = self.shim_c_file();
         if !shim_c.clone().exists() || !shim_c.clone().is_file() {
-            return Err(Error::new(&format!("File freertos_shim '{}' does not exist, missing freertos_rust dependency?", shim_c.clone().to_str().unwrap())));
+            return Err(Error::new(&format!("File freertos_shim '{}' does not exist, missing freertos-rust dependency?", shim_c.clone().to_str().unwrap())));
         }
 
         Ok(())

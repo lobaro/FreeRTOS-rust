@@ -7,7 +7,7 @@ description = "Create to use FreeRTOS in rust projects. It contains binaries for
 keywords = ["FreeRTOS", "embedded", "demo", "examples"]
 
 [dependencies]
-freertos_rust = {path = "../freertos-rust"}
+freertos-rust = {path = "../freertos-rust"}
 
 [target.'cfg(target_arch = "arm")'.dependencies]
 cortex-m = "0.6.0"

@@ -1,5 +1,5 @@
 [package]
-name = "freertos_rust"
+name = "freertos-rust"
 version = "0.1.0"
 authors = ["Tobias Kaupat <tk@lobaro.de>"]
 edition = "2018"

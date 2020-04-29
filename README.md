@@ -22,7 +22,7 @@ info provided by your apps `build.rs`:
  1. A relative path to the `FreeRTOS port` to be used, e.g. for ARM Cortex-M3 cores.
  1. Optional: Additional C code to be compiled
  
- The `freertos_rust` dependency then provides a shim to access all FreeRTOS functionality from your (embedded) 
+ The `freertos-rust` dependency then provides a shim to access all FreeRTOS functionality from your (embedded) 
  Rust app.
  
  ## Usage
@@ -33,7 +33,7 @@ info provided by your apps `build.rs`:
 
     ```
     [dependencies]
-    freertos_rust = "*"
+    freertos-rust = "*"
     
     [build-dependencies]
     freertos-cargo-build = "*"
@@ -67,7 +67,7 @@ To get started there are examples in [freertos-rust-examples](freertos-rust-exam
 * Cortex M33 (nRF9160)
 * Cortex M3 (STM32L151CBU6A)
 * Windows
-* ...more to follow...
+* ...more to come...
 
 ## Project Crates
 * To build a project using this create see [freertos-cargo-build](freertos-cargo-build)
