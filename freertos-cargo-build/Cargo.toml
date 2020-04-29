@@ -4,6 +4,7 @@ description = "Utility lib for building & using FreeRTOS in rust projects"
 version = "0.1.0"
 authors = ["Tobias Kaupat <tk@lobaro.de>"]
 edition = "2018"
+license = "MIT"
 
 [lib]
 
