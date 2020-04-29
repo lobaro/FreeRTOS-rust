@@ -16,7 +16,6 @@ nrf9160-pac = "0.2.1"
 
 # Example: stm32-cortex-m3
 [target.thumbv7m-none-eabi.dependencies]
-cortex-m-semihosting = "0.3.3"
 panic-halt = "0.2.0"
 stm32l1xx-hal = {version = "0.1.0", features = ["stm32l151"], default-features = false}
 
