@@ -95,7 +95,7 @@ dependencies = [
 
 [[package]]
 name = "freertos-cargo-build"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "cc 1.0.52 (registry+https://github.com/rust-lang/crates.io-index)",
  "walkdir 2.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -103,16 +103,16 @@ dependencies = [
 
 [[package]]
 name = "freertos-rust"
-version = "0.1.0"
+version = "0.1.1"
 
 [[package]]
 name = "freertos-rust-examples"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "cortex-m 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "cortex-m-rt 0.6.12 (registry+https://github.com/rust-lang/crates.io-index)",
- "freertos-cargo-build 0.1.0",
- "freertos-rust 0.1.0",
+ "freertos-cargo-build 0.1.1",
+ "freertos-rust 0.1.1",
  "nrf9160-pac 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "panic-halt 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "stm32l1xx-hal 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
