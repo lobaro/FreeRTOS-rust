@@ -3,9 +3,14 @@ name = "freertos-rust"
 version = "0.1.0"
 authors = ["Tobias Kaupat <tk@lobaro.de>"]
 edition = "2018"
-description = "Create to use FreeRTOS in rust projects. It contains binaries for demos on some architecutres."
+description = """
+Create to use FreeRTOS in rust projects.
+The freertos-cargo-build crate can be used to build and link FreeRTOS from source inside build.rs.
+"""
 keywords = ["FreeRTOS", "embedded", "demo", "library"]
 license = "MIT"
+readme = "README.md"
+repository = "https://github.com/lobaro/FreeRTOS-rust"
 links = "freertos"
 
 [lib]

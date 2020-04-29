@@ -3,8 +3,11 @@ name = "freertos-rust-examples"
 version = "0.1.0"
 authors = ["Tobias Kaupat <tk@lobaro.de>"]
 edition = "2018"
-description = "Create to use FreeRTOS in rust projects. It contains binaries for demos on some architecutres."
+description = """
+Create to use FreeRTOS in rust projects. It contains binaries for demos on some architecutres.
+"""
 keywords = ["FreeRTOS", "embedded", "demo", "examples"]
+repository = "https://github.com/lobaro/FreeRTOS-rust"
 
 [dependencies]
 freertos-rust = {path = "../freertos-rust"}
