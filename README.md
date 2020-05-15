@@ -22,7 +22,7 @@ info provided by your apps `build.rs`:
  1. A relative path to the `FreeRTOS port` to be used, e.g. for ARM Cortex-M3 cores.
  1. Optional: Additional C code to be compiled
  
- The `freertos-rust` dependency then provides a shim to access all FreeRTOS functionality from your (embedded) 
+ The `freertos-rust` dependency provides an interface to access all FreeRTOS functionality from your (embedded) 
  Rust app.
  
  ## Usage
@@ -44,11 +44,12 @@ info provided by your apps `build.rs`:
     fn main() {
         let mut b = freertos_cargo_build::Builder::new();
     
-        b.freertos("FreeRTOS-Kernel");  // Path to copy of the FreeRTOS kernel
+        // Path to FreeRTOS kernel or set ENV "FREERTOS_SRC" instead
+        b.freertos("path/to/FreeRTOS-Kernel");
         b.freertos_config("src");       // Location of `FreeRTOSConfig.h` 
         b.freertos_port("GCC/ARM_CM3"); // Port dir relativ to 'FreeRTOS-Kernel/portable' 
         b.heap("heap4.c");              // Set the heap_?.c allocator to use from 
-                                        // 'FreeRTOS-Kernel/portable/MemMang'       
+                                        // 'FreeRTOS-Kernel/portable/MemMang' (Default: heap_4.c)       
    
         // b.get_cc().file("More.c");   // Optional additional C-Code to be compiled
     
