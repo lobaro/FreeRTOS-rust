@@ -29,7 +29,7 @@ Install required/useful tooling
 
 ### Build
 
-    cargo build -example win
+    cargo build --example win
     
 **Note:** An example for linux is very welcome :)
     
@@ -50,8 +50,20 @@ Prepare the build with:
 Run the build
 
     cargo run --package freertos-rust-examples --example win --target x86_64-pc-windows-msvc
-    
-### Run STM32 Coretex M3 Demo
+
+### Run Linux Demo
+
+
+Prepare the build with:
+
+    rustup default x86_64-unknown-linux-gnu
+    rustup target add x86_64-unknown-linux-gnu
+
+Run the build
+
+    cargo run --package freertos-rust-examples --example linux --target x86_64-unknown-linux-gnu
+
+### Run STM32 Cortex-M3 Demo
 
 we need the nightly build for some features like allocator_api:
 
