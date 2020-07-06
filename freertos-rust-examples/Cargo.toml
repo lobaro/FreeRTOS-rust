@@ -29,5 +29,8 @@ nrf9160-pac = "0.2.1"
 # Example: win
 [target.x86_64-pc-windows-gnu.dependencies]
 
+# Example: linux
+[target.x86_64-unknown-linux-gnu.dependencies]
+
 [build-dependencies]
 freertos-cargo-build = {path = "../freertos-cargo-build"}

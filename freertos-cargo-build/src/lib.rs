@@ -179,6 +179,7 @@ impl Builder {
         let target_os = env::var("CARGO_CFG_TARGET_OS").unwrap_or_default(); // none, windows, linux, macos
         let port = match (target.as_str(), target_arch.as_str(), target_os.as_str(), target_env.as_str()) {
             (_, "x86_64", "windows", _) => "MSVC-MingW",
+            (_, "x86_64", "linux", "gnu") => "GCC/Linux",
             ("thumbv7m-none-eabi", _, _, _) => "GCC/ARM_CM3",
             // TODO We should support feature "trustzone"
             ("thumbv8m.main-none-eabi", _, _, _) => "GCC/ARM_CM33_NTZ/non_secure",

@@ -28,6 +28,13 @@ fn main() {
         }
     }
 
+    if target == "x86_64-unknown-linux-gnu" {
+        b.freertos_config("examples/linux");
+
+        b.get_cc().file("examples/linux/hooks.c");
+        // b.get_cc().file("examples/linux/Run-time-stats-utils.c"); // Unimplemented yet..
+    }
+
     if target == "thumbv7m-none-eabi" {
         b.freertos_config("examples/stm32-cortex-m3");
         copy(
