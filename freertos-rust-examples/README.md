@@ -31,7 +31,6 @@ Install required/useful tooling
 
     cargo build --example win
     
-**Note:** An example for linux is very welcome :)
     
 To see all errors use:
 
