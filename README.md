@@ -78,7 +78,7 @@ To get started there are examples in [freertos-rust-examples](freertos-rust-exam
 # License
 This repository is using the MIT License. Some parts might state different licenses that need to be respected when used.
 
-* The [Linux port](https://github.com/michaelbecker/freertos-addons) is licensned under GPLv2
+* The [Linux port](https://github.com/michaelbecker/freertos-addons) is licensed under GPLv2
 
 
 
