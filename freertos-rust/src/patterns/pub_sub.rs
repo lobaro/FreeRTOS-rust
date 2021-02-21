@@ -1,9 +1,8 @@
-use crate::prelude::v1::*;
 use crate::base::*;
 use crate::mutex::*;
+use crate::prelude::v1::*;
 use crate::queue::*;
 use crate::units::*;
-
 
 /// A pub-sub queue. An item sent to the publisher is sent to every subscriber.
 pub struct QueuePublisher<T: Sized + Copy> {
@@ -23,7 +22,9 @@ impl<T: Sized + Copy> QueuePublisher<T> {
             queue_next_id: 1,
         };
 
-        Ok(QueuePublisher { inner: Arc::new(Mutex::new(inner)?) })
+        Ok(QueuePublisher {
+            inner: Arc::new(Mutex::new(inner)?),
+        })
     }
 
     /// Send an item to every subscriber. Returns the number of
@@ -43,10 +44,11 @@ impl<T: Sized + Copy> QueuePublisher<T> {
     }
 
     /// Subscribe to this publisher. Can accept a fixed amount of items.
-    pub fn subscribe<D: DurationTicks>(&self,
-                     max_size: usize,
-                     create_max_wait: D)
-                     -> Result<QueueSubscriber<T>, FreeRtosError> {
+    pub fn subscribe<D: DurationTicks>(
+        &self,
+        max_size: usize,
+        create_max_wait: D,
+    ) -> Result<QueueSubscriber<T>, FreeRtosError> {
         let mut inner = self.inner.lock(create_max_wait)?;
 
         let queue = Queue::new(max_size)?;
@@ -69,7 +71,9 @@ impl<T: Sized + Copy> QueuePublisher<T> {
 
 impl<T: Sized + Copy> Clone for QueuePublisher<T> {
     fn clone(&self) -> Self {
-        QueuePublisher { inner: self.inner.clone() }
+        QueuePublisher {
+            inner: self.inner.clone(),
+        }
     }
 }
 
@@ -80,7 +84,6 @@ impl<T: Sized + Copy> Drop for QueueSubscriber<T> {
         }
     }
 }
-
 
 impl<T: Sized + Copy> QueueSubscriber<T> {
     /// Wait for an item to be posted from the publisher.

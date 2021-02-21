@@ -1,9 +1,8 @@
-
 use std::env;
 use std::path::PathBuf;
 
 fn print_env() {
-    let env_keys =["TARGET", "OUT_DIR", "HOST"];
+    let env_keys = ["TARGET", "OUT_DIR", "HOST"];
     env::vars().for_each(|(key, val)| {
         if key.starts_with("CARGO") {
             println!("cargo:warning={}={}", key, val);
@@ -19,5 +18,11 @@ fn print_env() {
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
     let manifest_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
-    println!("cargo:SHIM={}", PathBuf::from(manifest_dir).join("src/freertos").to_str().unwrap());
+    println!(
+        "cargo:SHIM={}",
+        PathBuf::from(manifest_dir)
+            .join("src/freertos")
+            .to_str()
+            .unwrap()
+    );
 }

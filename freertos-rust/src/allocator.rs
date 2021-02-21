@@ -1,6 +1,6 @@
-use core::alloc::{Layout, GlobalAlloc};
-use crate::shim::*;
 use crate::base::*;
+use crate::shim::*;
+use core::alloc::{GlobalAlloc, Layout};
 
 /**
 Use with:
@@ -21,4 +21,3 @@ unsafe impl GlobalAlloc for FreeRtosAllocator {
         freertos_rs_vPortFree(ptr as FreeRtosVoidPtr)
     }
 }
-

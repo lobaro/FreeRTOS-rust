@@ -1,6 +1,6 @@
 use crate::base::*;
-use crate::units::*;
 use crate::shim::*;
+use crate::units::*;
 
 /// A counting or binary semaphore
 pub struct Semaphore {
@@ -32,7 +32,7 @@ impl Semaphore {
             Ok(Semaphore { semaphore: s })
         }
     }
-    
+
     /// Lock this semaphore in a RAII fashion
     pub fn lock<D: DurationTicks>(&self, max_wait: D) -> Result<SemaphoreGuard, FreeRtosError> {
         unsafe {
@@ -42,7 +42,9 @@ impl Semaphore {
                 return Err(FreeRtosError::Timeout);
             }
 
-            Ok(SemaphoreGuard { __semaphore: self.semaphore })
+            Ok(SemaphoreGuard {
+                __semaphore: self.semaphore,
+            })
         }
     }
 }

@@ -65,18 +65,18 @@ mod hooks;
 mod prelude;
 mod shim;
 
+mod allocator;
 mod base;
-mod task;
-mod timers;
+mod critical;
+mod delays;
+mod isr;
+mod mutex;
 mod queue;
 mod semaphore;
-mod mutex;
+mod task;
+mod timers;
 mod units;
 mod utils;
-mod isr;
-mod delays;
-mod critical;
-mod allocator;
 
 pub mod patterns;
 
@@ -85,17 +85,17 @@ pub use crate::base::*;
 pub use crate::shim::*;
 // ----------
 
-pub use crate::base::FreeRtosError;
-pub use crate::task::*;
-pub use crate::queue::*;
-pub use crate::units::*;
-pub use crate::mutex::*;
-pub use crate::semaphore::*;
-pub use crate::isr::*;
-pub use crate::delays::*;
-pub use crate::timers::*;
-pub use crate::critical::*;
-pub use crate::hooks::*;
 pub use crate::allocator::*;
+pub use crate::base::FreeRtosError;
+pub use crate::critical::*;
+pub use crate::delays::*;
+pub use crate::hooks::*;
+pub use crate::isr::*;
+pub use crate::mutex::*;
+pub use crate::queue::*;
+pub use crate::semaphore::*;
+pub use crate::task::*;
+pub use crate::timers::*;
+pub use crate::units::*;
 
 pub use crate::utils::shim_sanity_check;

@@ -1,6 +1,6 @@
 use crate::base::*;
-use crate::task::*;
 use crate::shim::*;
+use crate::task::*;
 use crate::units::*;
 
 /// Delay the current task by the given duration, minus the
@@ -13,15 +13,19 @@ impl TaskDelay {
     /// Create a new helper, marking the current time as the start of the
     /// next measurement.
     pub fn new() -> TaskDelay {
-        TaskDelay { last_wake_time: FreeRtosUtils::get_tick_count() }
+        TaskDelay {
+            last_wake_time: FreeRtosUtils::get_tick_count(),
+        }
     }
 
     /// Delay the execution of the current task by the given duration,
     /// minus the time spent in this task since the last delay.
     pub fn delay_until<D: DurationTicks>(&mut self, delay: D) {
         unsafe {
-            freertos_rs_vTaskDelayUntil(&mut self.last_wake_time as *mut FreeRtosTickType,
-                                        delay.to_ticks());
+            freertos_rs_vTaskDelayUntil(
+                &mut self.last_wake_time as *mut FreeRtosTickType,
+                delay.to_ticks(),
+            );
         }
     }
 }

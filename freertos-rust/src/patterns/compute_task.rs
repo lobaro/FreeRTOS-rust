@@ -1,26 +1,27 @@
-use crate::prelude::v1::*;
 use crate::base::*;
-use crate::task::*;
 use crate::mutex::*;
+use crate::prelude::v1::*;
 use crate::queue::*;
+use crate::task::*;
 use crate::units::*;
 
 pub trait ComputeTaskBuilder {
     fn compute<F, R>(&self, func: F) -> Result<ComputeTask<R>, FreeRtosError>
-        where F: FnOnce() -> R,
-              F: Send + 'static,
-              R: Sync + Send + 'static;
+    where
+        F: FnOnce() -> R,
+        F: Send + 'static,
+        R: Sync + Send + 'static;
 }
 
 impl ComputeTaskBuilder for TaskBuilder {
-    #[cfg(target_os="none")]
+    #[cfg(target_os = "none")]
     /// Spawn a task that can post a return value to the outside.
     fn compute<F, R>(&self, func: F) -> Result<ComputeTask<R>, FreeRtosError>
-        where F: FnOnce() -> R,
-              F: Send + 'static,
-              R: Sync + Send + 'static
+    where
+        F: FnOnce() -> R,
+        F: Send + 'static,
+        R: Sync + Send + 'static,
     {
-
         let (task, result, status) = {
             let result = Arc::new(Mutex::new(None)?);
             let status = Arc::new(Queue::new(1)?);
@@ -35,7 +36,9 @@ impl ComputeTaskBuilder for TaskBuilder {
                 }
                 // release our reference to the mutex, so it can be deconstructed
                 drop(task_result);
-                task_status.send(ComputeTaskStatus::Finished, Duration::infinite()).unwrap();
+                task_status
+                    .send(ComputeTaskStatus::Finished, Duration::infinite())
+                    .unwrap();
             })?;
 
             (task, result, status)
@@ -49,13 +52,13 @@ impl ComputeTaskBuilder for TaskBuilder {
         })
     }
 
-    #[cfg(not(target_os="none"))]
+    #[cfg(not(target_os = "none"))]
     fn compute<F, R>(&self, func: F) -> Result<ComputeTask<R>, FreeRtosError>
-        where F: FnOnce() -> R,
-              F: Send + 'static,
-              R: Sync + Send + 'static
+    where
+        F: FnOnce() -> R,
+        F: Send + 'static,
+        R: Sync + Send + 'static,
     {
-
         let r = func();
 
         Ok(ComputeTask {

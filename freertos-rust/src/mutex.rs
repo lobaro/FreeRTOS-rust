@@ -1,7 +1,7 @@
-use crate::prelude::v1::*;
 use crate::base::*;
-use crate::units::*;
+use crate::prelude::v1::*;
 use crate::shim::*;
+use crate::units::*;
 
 pub type Mutex<T> = MutexImpl<T, MutexNormal>;
 pub type RecursiveMutex<T> = MutexImpl<T, MutexRecursive>;
@@ -17,7 +17,10 @@ pub struct MutexImpl<T: ?Sized, M> {
     data: UnsafeCell<T>,
 }
 
-impl<T: ?Sized, M> fmt::Debug for MutexImpl<T, M> where M: MutexInnerImpl + fmt::Debug {
+impl<T: ?Sized, M> fmt::Debug for MutexImpl<T, M>
+where
+    M: MutexInnerImpl + fmt::Debug,
+{
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Mutex address: {:?}", self.mutex)
     }
@@ -43,7 +46,10 @@ impl<T> MutexImpl<T, MutexRecursive> {
     }
 }
 
-impl<T, M> MutexImpl<T, M> where M: MutexInnerImpl {
+impl<T, M> MutexImpl<T, M>
+where
+    M: MutexInnerImpl,
+{
     /// Try to obtain a lock and mutable access to our inner value
     pub fn lock<D: DurationTicks>(&self, max_wait: D) -> Result<MutexGuard<T, M>, FreeRtosError> {
         self.mutex.take(max_wait)?;
@@ -60,7 +66,10 @@ impl<T, M> MutexImpl<T, M> where M: MutexInnerImpl {
         // and we cannot move the data value out of it.
         unsafe {
             let (mutex, data) = {
-                let Self { ref mutex, ref data } = self;
+                let Self {
+                    ref mutex,
+                    ref data,
+                } = self;
                 (ptr::read(mutex), ptr::read(data))
             };
             mem::forget(self);
@@ -73,12 +82,18 @@ impl<T, M> MutexImpl<T, M> where M: MutexInnerImpl {
 }
 
 /// Holds the mutex until we are dropped
-pub struct MutexGuard<'a, T: ?Sized + 'a, M: 'a> where M: MutexInnerImpl {
+pub struct MutexGuard<'a, T: ?Sized + 'a, M: 'a>
+where
+    M: MutexInnerImpl,
+{
     __mutex: &'a M,
     __data: &'a UnsafeCell<T>,
 }
 
-impl<'mutex, T: ?Sized, M> Deref for MutexGuard<'mutex, T, M> where M: MutexInnerImpl {
+impl<'mutex, T: ?Sized, M> Deref for MutexGuard<'mutex, T, M>
+where
+    M: MutexInnerImpl,
+{
     type Target = T;
 
     fn deref<'a>(&'a self) -> &'a T {
@@ -86,20 +101,28 @@ impl<'mutex, T: ?Sized, M> Deref for MutexGuard<'mutex, T, M> where M: MutexInne
     }
 }
 
-impl<'mutex, T: ?Sized, M> DerefMut for MutexGuard<'mutex, T, M> where M: MutexInnerImpl {
+impl<'mutex, T: ?Sized, M> DerefMut for MutexGuard<'mutex, T, M>
+where
+    M: MutexInnerImpl,
+{
     fn deref_mut<'a>(&'a mut self) -> &'a mut T {
         unsafe { &mut *self.__data.get() }
     }
 }
 
-impl<'a, T: ?Sized, M> Drop for MutexGuard<'a, T, M> where M: MutexInnerImpl {
+impl<'a, T: ?Sized, M> Drop for MutexGuard<'a, T, M>
+where
+    M: MutexInnerImpl,
+{
     fn drop(&mut self) {
         self.__mutex.give();
     }
 }
 
-
-pub trait MutexInnerImpl where Self: Sized + Drop {
+pub trait MutexInnerImpl
+where
+    Self: Sized + Drop,
+{
     fn create() -> Result<Self, FreeRtosError>;
     fn take<D: DurationTicks>(&self, max_wait: D) -> Result<(), FreeRtosError>;
     fn give(&self);
@@ -127,7 +150,9 @@ impl MutexInnerImpl for MutexNormal {
     }
 
     fn give(&self) {
-        unsafe { freertos_rs_give_mutex(self.0); }
+        unsafe {
+            freertos_rs_give_mutex(self.0);
+        }
     }
 }
 
@@ -165,7 +190,9 @@ impl MutexInnerImpl for MutexRecursive {
     }
 
     fn give(&self) {
-        unsafe { freertos_rs_give_recursive_mutex(self.0); }
+        unsafe {
+            freertos_rs_give_recursive_mutex(self.0);
+        }
     }
 }
 
