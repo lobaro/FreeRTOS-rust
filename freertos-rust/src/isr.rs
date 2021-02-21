@@ -12,7 +12,9 @@ pub struct InterruptContext {
 impl InterruptContext {
     /// Instantiate a new context.
     pub fn new() -> InterruptContext {
-        InterruptContext { x_higher_priority_task_woken: 0 }
+        InterruptContext {
+            x_higher_priority_task_woken: 0,
+        }
     }
 
     pub unsafe fn get_task_field_mut(&self) -> FreeRtosBaseTypeMutPtr {
@@ -23,7 +25,9 @@ impl InterruptContext {
 impl Drop for InterruptContext {
     fn drop(&mut self) {
         if self.x_higher_priority_task_woken == 1 {
-            unsafe { freertos_rs_isr_yield(); }
+            unsafe {
+                freertos_rs_isr_yield();
+            }
         }
     }
 }

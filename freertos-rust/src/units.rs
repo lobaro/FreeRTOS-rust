@@ -1,6 +1,6 @@
+use crate::base::FreeRtosTickType;
 use crate::prelude::v1::*;
 use crate::shim::*;
-use crate::base::FreeRtosTickType;
 
 pub trait FreeRtosTimeUnits {
     fn get_tick_period_ms() -> u32;
@@ -20,7 +20,7 @@ impl FreeRtosTimeUnits for FreeRtosTimeUnitsShimmed {
     }
 }
 
-pub trait DurationTicks : Copy + Clone {
+pub trait DurationTicks: Copy + Clone {
     /// Convert to ticks, the internal time measurement unit of FreeRTOS
     fn to_ticks(&self) -> FreeRtosTickType;
 }
@@ -31,17 +31,23 @@ pub type Duration = DurationImpl<FreeRtosTimeUnitsShimmed>;
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct DurationImpl<T> {
     ticks: u32,
-    _time_units: PhantomData<T>
+    _time_units: PhantomData<T>,
 }
 
-impl<T> DurationImpl<T> where T: FreeRtosTimeUnits + Copy {
+impl<T> DurationImpl<T>
+where
+    T: FreeRtosTimeUnits + Copy,
+{
     /// Milliseconds constructor
     pub fn ms(milliseconds: u32) -> Self {
         Self::ticks(milliseconds / T::get_tick_period_ms())
     }
 
     pub fn ticks(ticks: u32) -> Self {
-        DurationImpl { ticks: ticks, _time_units: PhantomData }
+        DurationImpl {
+            ticks: ticks,
+            _time_units: PhantomData,
+        }
     }
 
     /// An infinite duration
@@ -64,7 +70,10 @@ impl<T> DurationImpl<T> where T: FreeRtosTimeUnits + Copy {
     }
 }
 
-impl<T> DurationTicks for DurationImpl<T> where T: FreeRtosTimeUnits + Copy {
+impl<T> DurationTicks for DurationImpl<T>
+where
+    T: FreeRtosTimeUnits + Copy,
+{
     fn to_ticks(&self) -> FreeRtosTickType {
         self.ticks
     }

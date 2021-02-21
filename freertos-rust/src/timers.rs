@@ -1,5 +1,5 @@
-use crate::prelude::v1::*;
 use crate::base::*;
+use crate::prelude::v1::*;
 use crate::shim::*;
 use crate::units::*;
 
@@ -13,14 +13,14 @@ unsafe impl Sync for Timer {}
 /// for that queue to get unblocked.
 pub struct Timer {
     handle: FreeRtosTimerHandle,
-    detached: bool
+    detached: bool,
 }
 
 /// Helper builder for a new software timer.
 pub struct TimerBuilder<D: DurationTicks> {
     name: String,
     period: D,
-    auto_reload: bool
+    auto_reload: bool,
 }
 
 impl<D: DurationTicks> TimerBuilder<D> {
@@ -41,19 +41,23 @@ impl<D: DurationTicks> TimerBuilder<D> {
         self.auto_reload = auto_reload;
         self
     }
-    
+
     /// Try to create the new timer.
     ///
     /// Note that the newly created timer must be started.
     pub fn create<F>(&self, callback: F) -> Result<Timer, FreeRtosError>
-        where F: Fn(Timer) -> (),
-              F: Send + 'static
+    where
+        F: Fn(Timer) -> (),
+        F: Send + 'static,
     {
-        Timer::spawn(self.name.as_str(), self.period.to_ticks(), self.auto_reload, callback)
+        Timer::spawn(
+            self.name.as_str(),
+            self.period.to_ticks(),
+            self.auto_reload,
+            callback,
+        )
     }
 }
-
-
 
 impl Timer {
     /// Create a new timer builder.
@@ -61,15 +65,16 @@ impl Timer {
         TimerBuilder {
             name: "timer".into(),
             period: period,
-            auto_reload: true
+            auto_reload: true,
         }
     }
 
-    unsafe fn spawn_inner<'a>(name: &str,
-                              period_ticks: FreeRtosTickType,
-                              auto_reload: bool,
-                              callback: Box<dyn Fn(Timer) + Send + 'a>,)
-                              -> Result<Timer, FreeRtosError> {
+    unsafe fn spawn_inner<'a>(
+        name: &str,
+        period_ticks: FreeRtosTickType,
+        auto_reload: bool,
+        callback: Box<dyn Fn(Timer) + Send + 'a>,
+    ) -> Result<Timer, FreeRtosError> {
         let f = Box::new(callback);
         let param_ptr = &*f as *const _ as *mut _;
 
@@ -78,12 +83,14 @@ impl Timer {
             let name_len = name.len();
             let mut _timer_handle = mem::zeroed::<CVoid>();
 
-            let ret = freertos_rs_timer_create(name.as_ptr(),
-                                               name_len as u8,
-                                               period_ticks,
-                                               if auto_reload { 1 } else { 0 },
-                                               param_ptr,
-                                               timer_callback);
+            let ret = freertos_rs_timer_create(
+                name.as_ptr(),
+                name_len as u8,
+                period_ticks,
+                if auto_reload { 1 } else { 0 },
+                param_ptr,
+                timer_callback,
+            );
 
             ((ret as usize) != 0, ret)
         };
@@ -95,11 +102,11 @@ impl Timer {
         }
 
         extern "C" fn timer_callback(handle: FreeRtosTimerHandle) -> () {
-            unsafe {                
+            unsafe {
                 {
                     let timer = Timer {
                         handle: handle,
-                        detached: true
+                        detached: true,
                     };
                     if let Ok(callback_ptr) = timer.get_id() {
                         let b = Box::from_raw(callback_ptr as *mut Box<dyn Fn(Timer)>);
@@ -110,24 +117,23 @@ impl Timer {
             }
         }
 
-        Ok(Timer { 
+        Ok(Timer {
             handle: timer_handle as *const _,
-            detached: false
+            detached: false,
         })
     }
 
-
-    fn spawn<F>(name: &str,
-                period_tick: FreeRtosTickType,
-                auto_reload: bool,
-                callback: F)
-                -> Result<Timer, FreeRtosError>
-        where F: Fn(Timer) -> (),
-              F: Send + 'static
+    fn spawn<F>(
+        name: &str,
+        period_tick: FreeRtosTickType,
+        auto_reload: bool,
+        callback: F,
+    ) -> Result<Timer, FreeRtosError>
+    where
+        F: Fn(Timer) -> (),
+        F: Send + 'static,
     {
-        unsafe {
-            Timer::spawn_inner(name, period_tick, auto_reload, Box::new(callback))
-        }
+        unsafe { Timer::spawn_inner(name, period_tick, auto_reload, Box::new(callback)) }
     }
 
     /// Start the timer.
@@ -153,9 +159,18 @@ impl Timer {
     }
 
     /// Change the period of the timer.
-    pub fn change_period<D: DurationTicks>(&self, block_time: D, new_period: D) -> Result<(), FreeRtosError> {
+    pub fn change_period<D: DurationTicks>(
+        &self,
+        block_time: D,
+        new_period: D,
+    ) -> Result<(), FreeRtosError> {
         unsafe {
-            if freertos_rs_timer_change_period(self.handle, block_time.to_ticks(), new_period.to_ticks()) == 0 {
+            if freertos_rs_timer_change_period(
+                self.handle,
+                block_time.to_ticks(),
+                new_period.to_ticks(),
+            ) == 0
+            {
                 Ok(())
             } else {
                 Err(FreeRtosError::Timeout)
@@ -172,24 +187,23 @@ impl Timer {
     }
 
     fn get_id(&self) -> Result<FreeRtosVoidPtr, FreeRtosError> {
-        unsafe {
-            Ok(freertos_rs_timer_get_id(self.handle))
-        }
+        unsafe { Ok(freertos_rs_timer_get_id(self.handle)) }
     }
 }
-
 
 impl Drop for Timer {
     #[allow(unused_must_use)]
     fn drop(&mut self) {
-        if self.detached == true { return; }
+        if self.detached == true {
+            return;
+        }
 
         unsafe {
             if let Ok(callback_ptr) = self.get_id() {
                 // free the memory
                 Box::from_raw(callback_ptr as *mut Box<dyn Fn(Timer)>);
             }
-            
+
             // todo: configurable timeout?
             freertos_rs_timer_delete(self.handle, Duration::ms(1000).to_ticks());
         }
