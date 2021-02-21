@@ -121,7 +121,7 @@ where
 
 pub trait MutexInnerImpl
 where
-    Self: Sized + Drop,
+    Self: Sized,
 {
     fn create() -> Result<Self, FreeRtosError>;
     fn take<D: DurationTicks>(&self, max_wait: D) -> Result<(), FreeRtosError>;
