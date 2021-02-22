@@ -8,7 +8,7 @@ use crate::utils::*;
 unsafe impl Send for Task {}
 
 /// Handle for a FreeRTOS task
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Task {
     task_handle: FreeRtosTaskHandle,
 }
@@ -83,7 +83,7 @@ impl TaskBuilder {
     /// Start a new task that can't return a value.
     pub fn start<F>(&self, func: F) -> Result<Task, FreeRtosError>
     where
-        F: FnOnce() -> (),
+        F: FnOnce(Task) -> (),
         F: Send + 'static,
     {
         Task::spawn(
@@ -106,7 +106,7 @@ impl Task {
     }
 
     unsafe fn spawn_inner<'a>(
-        f: Box<dyn FnOnce()>,
+        f: Box<dyn FnOnce(Task)>,
         name: &str,
         stack_size: u16,
         priority: TaskPriority,
@@ -141,8 +141,10 @@ impl Task {
         extern "C" fn thread_start(main: *mut CVoid) -> *mut CVoid {
             unsafe {
                 {
-                    let b = Box::from_raw(main as *mut Box<dyn FnOnce()>);
-                    b();
+                    let b = Box::from_raw(main as *mut Box<dyn FnOnce(Task)>);
+                    b(Task {
+                        task_handle: freertos_rs_get_current_task(),
+                    });
                 }
 
                 freertos_rs_delete_task(0 as *const _);
@@ -163,7 +165,7 @@ impl Task {
         f: F,
     ) -> Result<Task, FreeRtosError>
     where
-        F: FnOnce() -> (),
+        F: FnOnce(Task) -> (),
         F: Send + 'static,
     {
         unsafe {

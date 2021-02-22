@@ -28,7 +28,7 @@ impl ComputeTaskBuilder for TaskBuilder {
 
             let task_result = result.clone();
             let task_status = status.clone();
-            let task = self.start(move || {
+            let task = self.start(move |_this_task| {
                 {
                     let mut lock = task_result.lock(Duration::infinite()).unwrap();
                     let r = func();
@@ -62,7 +62,7 @@ impl ComputeTaskBuilder for TaskBuilder {
         let r = func();
 
         Ok(ComputeTask {
-            task: Task::new().start(|| {}).unwrap(),
+            task: Task::new().start(|_this_task| {}).unwrap(),
             result: Arc::new(Mutex::new(Some(r)).unwrap()),
             status: Arc::new(Queue::new(1).unwrap()),
             finished: false,
