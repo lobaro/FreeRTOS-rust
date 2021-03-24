@@ -70,7 +70,7 @@ fn do_blink() {
 fn main() -> ! {
     //asm::nop(); // To not have main optimize to abort in release mode, remove when you add code
 
-    let h = Task::new().name("hello").stack_size(512).priority(TaskPriority(1)).start(|| {
+    let h = Task::new().name("hello").stack_size(512).priority(TaskPriority(1)).start(|_this_task| {
         // Blink forever
         do_blink();
         loop {

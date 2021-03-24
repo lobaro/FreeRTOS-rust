@@ -75,7 +75,7 @@ fn main() -> ! {
 
     // TODO: What comes now does not work yet!
     // Initialize Tasks and start FreeRTOS
-    Task::new().name("hello").stack_size(128).priority(TaskPriority(1)).start(|| {
+    Task::new().name("hello").stack_size(128).priority(TaskPriority(1)).start(|_this_task| {
         // Just blink
         freertos_rust::CurrentTask::delay(Duration::ms(1000));
         set_led(true);
