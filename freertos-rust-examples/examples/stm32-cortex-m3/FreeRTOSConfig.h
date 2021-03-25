@@ -74,9 +74,9 @@
 extern void vAssertCalled( unsigned long ulLine, const char * const pcFileName );
 #define configASSERT( x ) if( ( x ) == 0 ) vAssertCalled( __LINE__, __FILE__ )
 
-#define vPortSVCHandler SVC_Handler
-#define xPortPendSVHandler PendSV_Handler
-#define xPortSysTickHandler SysTick_Handler
+#define vPortSVCHandler SVCall
+#define xPortPendSVHandler PendSV
+#define xPortSysTickHandler SysTick 
 
 /*-----------------------------------------------------------
  * Application specific definitions.
