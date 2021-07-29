@@ -58,26 +58,38 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 
-#[macro_use]
+#[cfg_attr(any(feature = "time", feature = "sync"), macro_use)]
 extern crate alloc;
 
+#[cfg(feature = "hooks")]
 mod hooks;
 mod prelude;
 mod shim;
 
+#[cfg(feature = "allocator")]
 mod allocator;
 mod base;
+#[cfg(feature = "sync")]
 mod critical;
+#[cfg(feature = "time")]
 mod delays;
+#[cfg(feature = "interrupt")]
 mod isr;
+#[cfg(feature = "sync")]
 mod mutex;
+#[cfg(feature = "sync")]
 mod queue;
+#[cfg(feature = "sync")]
 mod semaphore;
+#[cfg(any(feature = "time", feature = "sync"))]
 mod task;
+#[cfg(feature = "time")]
 mod timers;
+#[cfg(any(feature = "time", feature = "sync"))]
 mod units;
 mod utils;
 
+#[cfg(feature = "sync")]
 pub mod patterns;
 
 // Internal stuff that is only public for first Proof of Concept
@@ -85,17 +97,28 @@ pub use crate::base::*;
 pub use crate::shim::*;
 // ----------
 
+#[cfg(feature = "allocator")]
 pub use crate::allocator::*;
 pub use crate::base::FreeRtosError;
+#[cfg(feature = "sync")]
 pub use crate::critical::*;
+#[cfg(feature = "time")]
 pub use crate::delays::*;
+#[cfg(feature = "hooks")]
 pub use crate::hooks::*;
+#[cfg(feature = "interrupt")]
 pub use crate::isr::*;
+#[cfg(feature = "sync")]
 pub use crate::mutex::*;
+#[cfg(feature = "sync")]
 pub use crate::queue::*;
+#[cfg(feature = "sync")]
 pub use crate::semaphore::*;
+#[cfg(any(feature = "time", feature = "sync"))]
 pub use crate::task::*;
+#[cfg(feature = "time")]
 pub use crate::timers::*;
+#[cfg(any(feature = "time", feature = "sync"))]
 pub use crate::units::*;
 
 pub use crate::utils::shim_sanity_check;
