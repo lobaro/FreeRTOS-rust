@@ -45,6 +45,7 @@ pub fn shim_sanity_check() -> Result<(), TypeSizeError> {
     Ok(())
 }
 
+#[cfg(any(feature = "time", feature = "hooks", feature = "sync"))]
 pub unsafe fn str_from_c_string(str: *const u8) -> Result<String, FreeRtosError> {
     let mut buf = Vec::new();
 
