@@ -20,3 +20,4 @@ rustflags = [
 # target = "x86_64-pc-windows-gnu" # Windows GNU Toolchain
 # target = "x86_64-pc-windows-msvc" # Windows MSVC Toolchain (no debugging)
 # target = "thumbv7m-none-eabi"    # Cortex-M3
+# target = "thumbv7em-none-eabihf" # Cortex-M4

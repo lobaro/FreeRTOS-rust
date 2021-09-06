@@ -67,6 +67,7 @@ To get started there are examples in [freertos-rust-examples](freertos-rust-exam
 
 * Cortex M33 (nRF9160)
 * Cortex M3 (STM32L151CBU6A)
+* Cortex M4 (STM32F411CEU6)
 * Windows
 * ...more to come...
 
