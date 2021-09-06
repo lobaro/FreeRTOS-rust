@@ -42,6 +42,14 @@ fn main() {
             PathBuf::from(out_dir.as_str()).join("memory.x"),
         ).unwrap();
     }
+    if target == "thumbv7em-none-eabihf" {
+        b.freertos_config("examples/stm32-cortex-m4-blackpill");
+        copy(
+            "examples/stm32-cortex-m4-blackpill/memory.x",
+            PathBuf::from(out_dir.as_str()).join("memory.x"),
+        )
+        .unwrap();
+    }
     if target == "thumbv8m.main-none-eabihf" {
         b.freertos_config("examples/nrf9160");
         copy(

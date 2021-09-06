@@ -181,6 +181,7 @@ impl Builder {
             (_, "x86_64", "windows", _) => "MSVC-MingW",
             (_, "x86_64", "linux", "gnu") => "GCC/Linux",
             ("thumbv7m-none-eabi", _, _, _) => "GCC/ARM_CM3",
+            ("thumbv7em-none-eabihf", _, _, _) => "GCC/ARM_CM4F",
             // TODO We should support feature "trustzone"
             ("thumbv8m.main-none-eabi", _, _, _) => "GCC/ARM_CM33_NTZ/non_secure",
             ("thumbv8m.main-none-eabihf", _, _, _) => "GCC/ARM_CM33_NTZ/non_secure",

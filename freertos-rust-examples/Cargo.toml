@@ -22,6 +22,12 @@ nrf9160-pac = "0.2.1"
 panic-halt = "0.2.0"
 stm32l1xx-hal = {version = "0.1.0", features = ["stm32l151"], default-features = false}
 
+# Example: stm32-cortex-m4-blackpill
+[target.thumbv7em-none-eabihf.dependencies]
+panic-halt = "0.2.0"
+embedded-hal = "0.2.3"
+stm32f4xx-hal = {version = "0.8.3", features = ["rt", "stm32f411"]}
+
 # Example: nrf9160
 [target.thumbv8m.main-none-eabihf.dependencies]
 nrf9160-pac = "0.2.1"
