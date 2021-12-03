@@ -75,7 +75,7 @@ extern "C" {
 #define configUSE_PORT_OPTIMISED_TASK_SELECTION	0
 #define configUSE_IDLE_HOOK						0
 #define configUSE_TICK_HOOK						0
-#define configTICK_RATE_HZ						( 1000 ) 
+#define configTICK_RATE_HZ						( 1000 )
 #define configMINIMAL_STACK_SIZE				( ( unsigned short ) 50 ) /* In this simulated case, the stack only has to hold one small structure as the real stack is part of the win32 thread. */
 #define configTOTAL_HEAP_SIZE					( ( size_t ) ( 23 * 1024 ) )
 #define configMAX_TASK_NAME_LEN					( 12 )
@@ -140,8 +140,8 @@ functions anyway. */
 
 /* It is a good idea to define configASSERT() while developing.  configASSERT()
 uses the same semantics as the standard C assert() macro. */
-extern void vAssertCalled( unsigned long ulLine, const char * const pcFileName );
-#define configASSERT( x ) if( ( x ) == 0 ) vAssertCalled( __LINE__, __FILE__ )
+extern void vAssertCalled( const char * const pcFileName, unsigned long ulLine );
+#define configASSERT( x ) if( ( x ) == 0 ) vAssertCalled( __FILE__, __LINE__ )
 
 /* Include the FreeRTOS+Trace FreeRTOS trace macro definitions. */
 #define TRACE_ENTER_CRITICAL_SECTION() portENTER_CRITICAL()
