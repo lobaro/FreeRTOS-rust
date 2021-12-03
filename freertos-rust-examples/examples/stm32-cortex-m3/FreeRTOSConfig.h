@@ -71,12 +71,12 @@
 #define FREERTOS_CONFIG_H
 #include <stdbool.h>
 
-extern void vAssertCalled( unsigned long ulLine, const char * const pcFileName );
-#define configASSERT( x ) if( ( x ) == 0 ) vAssertCalled( __LINE__, __FILE__ )
+extern void vAssertCalled( const char * const pcFileName, unsigned long ulLine );
+#define configASSERT( x ) if( ( x ) == 0 ) vAssertCalled( __FILE__, __LINE__ )
 
 #define vPortSVCHandler SVCall
 #define xPortPendSVHandler PendSV
-#define xPortSysTickHandler SysTick 
+#define xPortSysTickHandler SysTick
 
 /*-----------------------------------------------------------
  * Application specific definitions.
@@ -186,4 +186,3 @@ See http://www.FreeRTOS.org/RTOS-Cortex-M3-M4.html. */
 //	}
 
 #endif /* FREERTOS_CONFIG_H */
-
