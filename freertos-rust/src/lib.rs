@@ -121,4 +121,5 @@ pub use crate::timers::*;
 #[cfg(any(feature = "time", feature = "sync"))]
 pub use crate::units::*;
 
+pub use crate::utils::cpu_clock_hz;
 pub use crate::utils::shim_sanity_check;

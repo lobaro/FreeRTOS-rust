@@ -109,6 +109,10 @@ UBaseType_t freertos_rs_get_system_state(TaskStatus_t * const pxTaskStatusArray,
 	return uxTaskGetSystemState(pxTaskStatusArray, uxArraySize, pulTotalRunTime);
 }
 
+unsigned long freertos_rs_get_configCPU_CLOCK_HZ() {
+  return configCPU_CLOCK_HZ;
+}
+
 TickType_t freertos_rs_get_portTICK_PERIOD_MS() {
 	return portTICK_PERIOD_MS;
 }
