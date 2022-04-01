@@ -15,6 +15,7 @@ extern "C" {
         xTimeIncrement: FreeRtosTickType,
     );
     pub fn freertos_rs_vTaskDelay(xTicksToDelay: FreeRtosTickType);
+    pub fn freertos_rs_get_configCPU_CLOCK_HZ() -> FreeRtosUnsignedLong;
     pub fn freertos_rs_get_portTICK_PERIOD_MS() -> FreeRtosTickType;
 
     pub fn freertos_rs_get_number_of_tasks() -> FreeRtosUBaseType;
