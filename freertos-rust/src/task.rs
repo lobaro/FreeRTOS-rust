@@ -105,6 +105,18 @@ impl Task {
         }
     }
 
+    pub fn suspend_all() {
+      unsafe {
+          freertos_rs_vTaskSuspendAll();
+      }
+    }
+
+    pub fn resume_all() {
+        unsafe {
+            freertos_rs_xTaskResumeAll();
+        }
+    }
+
     unsafe fn spawn_inner<'a>(
         f: Box<dyn FnOnce(Task)>,
         name: &str,
@@ -276,6 +288,12 @@ impl CurrentTask {
     pub fn delay<D: DurationTicks>(delay: D) {
         unsafe {
             freertos_rs_vTaskDelay(delay.to_ticks());
+        }
+    }
+
+    pub fn suspend() {
+        unsafe { 
+            freertos_rs_suspend_task(0 as FreeRtosTaskHandle)
         }
     }
 
