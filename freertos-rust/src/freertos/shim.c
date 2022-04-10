@@ -326,6 +326,14 @@ TaskHandle_t freertos_rs_get_current_task() {
 }
 #endif
 
+void freertos_rs_vTaskSuspendAll() {
+  vTaskSuspendAll();
+}
+
+BaseType_t freertos_rs_xTaskResumeAll() {
+  return xTaskResumeAll();
+}
+
 #if (configUSE_TIMERS == 1)
 
 TimerHandle_t freertos_rs_timer_create(const char * const name, uint8_t name_len, const TickType_t period,
