@@ -105,6 +105,11 @@ impl Task {
         }
     }
 
+    #[inline]
+    pub unsafe fn from_raw_handle(handle: FreeRtosTaskHandle) -> Self {
+        Self { task_handle: handle }
+    }
+
     pub fn suspend_all() {
       unsafe {
           freertos_rs_vTaskSuspendAll();
@@ -305,7 +310,7 @@ impl CurrentTask {
     }
 
     pub fn suspend() {
-        unsafe { 
+        unsafe {
             freertos_rs_suspend_task(0 as FreeRtosTaskHandle)
         }
     }
