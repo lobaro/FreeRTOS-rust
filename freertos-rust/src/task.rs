@@ -304,12 +304,12 @@ impl CurrentTask {
 }
 
 #[derive(Debug)]
-pub struct FreeRtosSchedulerState {
+pub struct FreeRtosSystemState {
     pub tasks: Vec<FreeRtosTaskStatus>,
     pub total_run_time: u32,
 }
 
-impl fmt::Display for FreeRtosSchedulerState {
+impl fmt::Display for FreeRtosSystemState {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         fmt.write_str("FreeRTOS tasks\r\n")?;
 
@@ -367,6 +367,13 @@ pub struct FreeRtosTaskStatus {
 
 pub struct FreeRtosUtils;
 
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum FreeRtosSchedulerState {
+  Suspended,
+  NotStarted,
+  Running
+}
+
 impl FreeRtosUtils {
     // Should only be used for testing purpose!
     pub fn invoke_assert() {
@@ -378,6 +385,17 @@ impl FreeRtosUtils {
         unsafe {
             freertos_rs_vTaskStartScheduler();
         }
+    }
+
+    pub fn scheduler_state() -> FreeRtosSchedulerState {
+      unsafe {
+        match freertos_rt_xTaskGetSchedulerState() {
+          0 => FreeRtosSchedulerState::Suspended,
+          1 => FreeRtosSchedulerState::NotStarted,
+          2 => FreeRtosSchedulerState::Running,
+          _ => unreachable!(),
+        }
+      }
     }
 
     pub fn get_tick_count() -> FreeRtosTickType {
@@ -392,7 +410,7 @@ impl FreeRtosUtils {
         unsafe { freertos_rs_get_number_of_tasks() as usize }
     }
 
-    pub fn get_all_tasks(tasks_len: Option<usize>) -> FreeRtosSchedulerState {
+    pub fn get_all_tasks(tasks_len: Option<usize>) -> FreeRtosSystemState {
         let tasks_len = tasks_len.unwrap_or(Self::get_number_of_tasks());
         let mut tasks = Vec::with_capacity(tasks_len as usize);
         let mut total_run_time = 0;
@@ -423,7 +441,7 @@ impl FreeRtosUtils {
             })
             .collect();
 
-        FreeRtosSchedulerState {
+        FreeRtosSystemState {
             tasks: tasks,
             total_run_time: total_run_time,
         }
