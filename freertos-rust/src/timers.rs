@@ -1,3 +1,4 @@
+use crate::InterruptContext;
 use crate::base::*;
 use crate::prelude::v1::*;
 use crate::shim::*;
@@ -67,6 +68,11 @@ impl Timer {
             period: period,
             auto_reload: true,
         }
+    }
+
+    /// Create a timer from a raw handle.
+    pub unsafe fn from_raw_handle(handle: FreeRtosTimerHandle) -> Self {
+        Self { handle, detached: false }
     }
 
     unsafe fn spawn_inner<'a>(
@@ -143,6 +149,17 @@ impl Timer {
                 Ok(())
             } else {
                 Err(FreeRtosError::Timeout)
+            }
+        }
+    }
+
+    /// Start the timer from an interrupt.
+    pub fn start_from_isr(&self, context: &InterruptContext) -> Result<(), FreeRtosError> {
+        unsafe {
+            if freertos_rs_timer_start_from_isr(self.handle, context.get_task_field_mut()) == 0 {
+                Ok(())
+            } else {
+                Err(FreeRtosError::QueueSendTimeout)
             }
         }
     }

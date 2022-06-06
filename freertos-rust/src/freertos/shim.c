@@ -364,6 +364,13 @@ BaseType_t freertos_rs_timer_start(TimerHandle_t timer, TickType_t block_time) {
 	return 0;
 }
 
+BaseType_t freertos_rs_timer_start_from_isr(TimerHandle_t timer, BaseType_t* xHigherPriorityTaskWoken) {
+	if (xTimerStartFromISR(timer, xHigherPriorityTaskWoken) != pdPASS) {
+		return 1;
+	}
+	return 0;
+}
+
 BaseType_t freertos_rs_timer_stop(TimerHandle_t timer, TickType_t block_time) {
 	if (xTimerStop(timer, block_time) != pdPASS) {
 		return 1;
