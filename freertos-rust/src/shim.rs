@@ -134,6 +134,10 @@ extern "C" {
         timer: FreeRtosTimerHandle,
         block_time: FreeRtosTickType,
     ) -> FreeRtosBaseType;
+    pub fn freertos_rs_timer_start_from_isr(
+        timer: FreeRtosTimerHandle,
+        xHigherPriorityTaskWoken: FreeRtosBaseTypeMutPtr,
+    ) -> FreeRtosBaseType;
     pub fn freertos_rs_timer_stop(
         timer: FreeRtosTimerHandle,
         block_time: FreeRtosTickType,
