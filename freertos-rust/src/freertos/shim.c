@@ -20,6 +20,10 @@ void freertos_rs_vTaskStartScheduler() {
 	vTaskStartScheduler();
 }
 
+BaseType_t freertos_rt_xTaskGetSchedulerState(void) {
+	return xTaskGetSchedulerState();
+}
+
 void *freertos_rs_pvPortMalloc(size_t xWantedSize) {
 	return pvPortMalloc(xWantedSize);
 }

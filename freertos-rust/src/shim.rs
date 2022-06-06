@@ -5,6 +5,7 @@ use crate::base::*;
 extern "C" {
     pub fn freertos_rs_invoke_configASSERT();
     pub fn freertos_rs_vTaskStartScheduler() -> !;
+    pub fn freertos_rt_xTaskGetSchedulerState() -> FreeRtosBaseType;
     pub fn freertos_rs_pvPortMalloc(xWantedSize: FreeRtosUBaseType) -> FreeRtosVoidPtr;
     pub fn freertos_rs_vPortFree(pv: FreeRtosVoidPtr);
 
