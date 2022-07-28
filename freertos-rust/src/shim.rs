@@ -59,6 +59,9 @@ extern "C" {
         item: FreeRtosMutVoidPtr,
         max_wait: FreeRtosTickType,
     ) -> FreeRtosUBaseType;
+    pub fn freertos_rs_queue_messages_waiting(
+        queue: FreeRtosQueueHandle,
+    ) -> FreeRtosUBaseType;
 
     pub fn freertos_rs_queue_send_isr(
         queue: FreeRtosQueueHandle,

@@ -260,6 +260,10 @@ UBaseType_t freertos_rs_queue_receive(QueueHandle_t queue, void* item, TickType_
 	return 0;
 }
 
+UBaseType_t freertos_rs_queue_messages_waiting(QueueHandle_t queue) {
+	return uxQueueMessagesWaiting( queue );
+}
+
 void freertos_rs_isr_yield() {
 	portYIELD();
 }
