@@ -31,6 +31,14 @@ impl<T: Sized + Copy> Queue<T> {
         })
     }
 
+    #[inline]
+    pub unsafe fn from_raw_handle(handle: FreeRtosQueueHandle) -> Self {
+        Self {
+            queue: handle,
+            item_type: PhantomData,
+        }
+    }
+
     /// Send an item to the end of the queue. Wait for the queue to have empty space for it.
     pub fn send<D: DurationTicks>(&self, item: T, max_wait: D) -> Result<(), FreeRtosError> {
         unsafe {
