@@ -245,11 +245,6 @@ impl Task {
         }
     }
 
-    /// Take the notification and either clear the notification value or decrement it by one.
-    pub fn take_notification<D: DurationTicks>(&self, clear: bool, wait_for: D) -> u32 {
-        unsafe { freertos_rs_task_notify_take(if clear { 1 } else { 0 }, wait_for.to_ticks()) }
-    }
-
     /// Wait for a notification to be posted.
     pub fn wait_for_notification<D: DurationTicks>(
         &self,
@@ -292,9 +287,14 @@ impl CurrentTask {
     }
 
     pub fn suspend() {
-        unsafe { 
+        unsafe {
             freertos_rs_suspend_task(0 as FreeRtosTaskHandle)
         }
+    }
+
+    /// Take the notification and either clear the notification value or decrement it by one.
+    pub fn take_notification<D: DurationTicks>(clear: bool, wait_for: D) -> u32 {
+        unsafe { freertos_rs_task_notify_take(if clear { 1 } else { 0 }, wait_for.to_ticks()) }
     }
 
     /// Get the minimum amount of stack that was ever left on the current task.
