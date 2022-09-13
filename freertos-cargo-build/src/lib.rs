@@ -237,10 +237,7 @@ impl Builder {
     pub fn compile(&self) -> Result<(), Error> {
         let mut b = self.cc.clone();
 
-        let path_error = self.verify_paths();
-        if path_error.is_err() {
-            return path_error;
-        }
+        self.verify_paths()?;
 
         // FreeRTOS header files
         b.include(self.freertos_include_dir());
@@ -258,10 +255,7 @@ impl Builder {
             b.file(f);
         });
 
-        let res = b.try_compile("freertos");
-        if res.is_err() {
-            return Err(Error::new(&format!("{}", res.unwrap_err())));
-        }
+        b.try_compile("freertos").map_err(|e| Error::new(&format!("{}", e)))?;
 
         Ok(())
     }
