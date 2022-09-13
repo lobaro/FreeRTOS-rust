@@ -25,9 +25,9 @@ pub struct Builder {
     freertos_dir: PathBuf,
     freertos_config_dir: PathBuf,
     freertos_shim: PathBuf,
-    freertos_port: Option<String>,
+    freertos_port: Option<PathBuf>,
     // name of the heap_?.c file
-    heap_c: String,
+    heap_c: PathBuf,
     cc: Build,
 }
 
@@ -68,7 +68,7 @@ impl Builder {
             freertos_shim: PathBuf::from(freertos_shim),
             freertos_port: None,
             cc: cc::Build::new(),
-            heap_c: String::from("heap_4.c"),
+            heap_c: PathBuf::from("heap_4.c"),
         };
         return b;
     }
@@ -92,7 +92,7 @@ impl Builder {
     }
 
     /// Returns a list of all files in the shim folder
-    fn freertos_shim_files(&self) -> Vec<String> {
+    fn freertos_shim_files(&self) -> Vec<PathBuf> {
         let files: Vec<_> = WalkDir::new(self.freertos_shim.as_path())
             .follow_links(false)
             .max_depth(1)
@@ -102,7 +102,7 @@ impl Builder {
                 let f_name = entry.path().to_str().unwrap();
 
                 if f_name.ends_with(".c") {
-                    return Some(String::from(entry.path().to_str().unwrap()));
+                    return Some(entry.path().to_owned());
                 }
                 return None;
             }).collect();
@@ -110,7 +110,7 @@ impl Builder {
     }
 
     /// Returns a list of all FreeRTOS source files
-    fn freertos_files(&self) -> Vec<String> {
+    fn freertos_files(&self) -> Vec<PathBuf> {
         let files: Vec<_> = WalkDir::new(self.freertos_dir.as_path())
             .follow_links(false)
             .max_depth(1)
@@ -120,13 +120,13 @@ impl Builder {
                 let f_name = entry.path().to_str().unwrap();
 
                 if f_name.ends_with(".c") {
-                    return Some(String::from(entry.path().to_str().unwrap()));
+                    return Some(entry.path().to_owned());
                 }
                 return None;
             }).collect();
         files
     }
-    fn freertos_port_files(&self) -> Vec<String> {
+    fn freertos_port_files(&self) -> Vec<PathBuf> {
         let files: Vec<_> = WalkDir::new(self.get_freertos_port_dir())
             .follow_links(false)
             .into_iter()
@@ -135,7 +135,7 @@ impl Builder {
                 let f_name = entry.path().to_str().unwrap();
 
                 if f_name.ends_with(".c") {
-                    return Some(String::from(entry.path().to_str().unwrap()));
+                    return Some(entry.path().to_owned());
                 }
                 return None;
             }).collect();
@@ -145,8 +145,8 @@ impl Builder {
     /// Set the heap_?.c file to use from the "/portable/MemMang/" folder.
     /// heap_1.c ... heap_5.c (Default: heap_4.c)
     /// see also: https://www.freertos.org/a00111.html
-    pub fn heap(&mut self, file_name: String) {
-        self.heap_c = file_name;
+    pub fn heap<P: AsRef<Path>>(&mut self, file_name: P) {
+        self.heap_c = file_name.as_ref().to_path_buf();
     }
 
     /// Access to the underlining cc::Build instance to further customize the build.
@@ -162,8 +162,8 @@ impl Builder {
     /// e.g. "GCC/ARM_CM33_NTZ/non_secure"
     ///
     /// If not set it will be detected based on the current build target (not many targets supported yet).
-    pub fn freertos_port(&mut self, port_dir: String) {
-        self.freertos_port = Some(port_dir);
+    pub fn freertos_port<P: AsRef<Path>>(&mut self, port_dir: P) {
+        self.freertos_port = Some(port_dir.as_ref().to_path_buf());
     }
 
     fn get_freertos_port_dir(&self) -> PathBuf {
@@ -193,7 +193,7 @@ impl Builder {
     }
 
     fn heap_c_file(&self) -> PathBuf {
-        self.freertos_dir.join("portable/MemMang").join(self.heap_c.as_str())
+        self.freertos_dir.join("portable/MemMang").join(&self.heap_c)
     }
     fn shim_c_file(&self) -> PathBuf {
         self.freertos_shim.join("shim.c")
