@@ -201,34 +201,34 @@ impl Builder {
 
     /// Check that all required files and paths exist
     fn verify_paths(&self) -> Result<(), Error> {
-        if !self.freertos_dir.clone().exists() {
+        if !self.freertos_dir.exists() {
             return Err(Error::new(&format!("Directory freertos_dir does not exist: {}", self.freertos_dir.to_str().unwrap())));
         }
         let port_dir = self.get_freertos_port_dir();
-        if !port_dir.clone().exists() {
+        if !port_dir.exists() {
             return Err(Error::new(&format!("Directory freertos_port_dir does not exist: {}", port_dir.to_str().unwrap())));
         }
 
         let include_dir = self.freertos_include_dir();
-        if !include_dir.clone().exists() {
+        if !include_dir.exists() {
             return Err(Error::new(&format!("Directory freertos_include_dir does not exist: {}", include_dir.to_str().unwrap())));
         }
 
         // The heap implementation
         let heap_c = self.heap_c_file();
-        if !heap_c.clone().exists() || !heap_c.clone().is_file() {
+        if !heap_c.exists() || !heap_c.is_file() {
             return Err(Error::new(&format!("File heap_?.c does not exist: {}", heap_c.to_str().unwrap())));
         }
 
         // Allows to find the FreeRTOSConfig.h
-        if !self.freertos_config_dir.clone().exists() {
+        if !self.freertos_config_dir.exists() {
             return Err(Error::new(&format!("Directory freertos_config_dir does not exist: {}", self.freertos_config_dir.to_str().unwrap())));
         }
 
         // Add the freertos shim.c to support freertos-rust
         let shim_c = self.shim_c_file();
-        if !shim_c.clone().exists() || !shim_c.clone().is_file() {
-            return Err(Error::new(&format!("File freertos_shim '{}' does not exist, missing freertos-rust dependency?", shim_c.clone().to_str().unwrap())));
+        if !shim_c.exists() || !shim_c.is_file() {
+            return Err(Error::new(&format!("File freertos_shim '{}' does not exist, missing freertos-rust dependency?", shim_c.to_str().unwrap())));
         }
 
         Ok(())
