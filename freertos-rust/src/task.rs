@@ -278,6 +278,19 @@ impl Task {
     pub fn get_stack_high_water_mark(&self) -> u32 {
         unsafe { freertos_rs_get_stack_high_water_mark(self.task_handle) as u32 }
     }
+
+    pub fn get_id(&self) -> Result<FreeRtosBaseType, FreeRtosError> {
+        let task_id = unsafe { freertos_rs_uxTaskGetTaskNumber(self.task_handle) };
+        if task_id == 0 {
+            Err(FreeRtosError::TaskNotFound)
+        } else {
+            Ok(task_id)
+        }
+    }
+
+    pub fn set_id(&mut self, value: FreeRtosUBaseType) {
+        unsafe { freertos_rs_vTaskSetTaskNumber(self.task_handle, value) };
+    }
 }
 
 /// Helper methods to be performed on the task that is currently executing.
