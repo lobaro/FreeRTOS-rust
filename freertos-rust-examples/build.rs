@@ -13,7 +13,7 @@ fn main() {
 
     let mut b = freertos_cargo_build::Builder::new();
 
-    b.freertos("FreeRTOS/Source");
+    b.freertos("FreeRTOS-Kernel/");
 
     // Windows example specific stuff.
     if target_family == "windows" {
