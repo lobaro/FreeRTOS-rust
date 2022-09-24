@@ -30,6 +30,7 @@ pub struct Builder {
     // name of the heap_?.c file
     heap_c: PathBuf,
     cc: Build,
+    freertos_port_base: PathBuf,
 }
 
 pub struct Error {
@@ -62,6 +63,7 @@ impl Builder {
         let freertos_path = env::var(ENV_KEY_FREERTOS_SRC).unwrap_or_default();
         let freertos_config_path = env::var(ENV_KEY_FREERTOS_CONFIG).unwrap_or_default();
         let freertos_shim = env::var(ENV_KEY_FREERTOS_SHIM).unwrap_or_default();
+        let freertos_port_base = format!("{}{}", freertos_path, "portable");
 
         let b = Builder {
             freertos_dir: PathBuf::from(freertos_path),
@@ -70,6 +72,7 @@ impl Builder {
             freertos_port: None,
             cc: cc::Build::new(),
             heap_c: PathBuf::from("heap_4.c"),
+            freertos_port_base: PathBuf::from(freertos_port_base),
         };
         return b;
     }
@@ -167,8 +170,12 @@ impl Builder {
         self.freertos_port = Some(port_dir.as_ref().to_path_buf());
     }
 
+    pub fn freertos_port_base<P: AsRef<Path>>(&mut self, base_dir: P) {
+        self.freertos_port_base = base_dir.as_ref().to_path_buf();
+    }
+
     fn get_freertos_port_dir(&self) -> PathBuf {
-        let base = self.freertos_dir.join("portable");
+        let base = &self.freertos_port_base;
         if self.freertos_port.is_some() {
             return base.join(self.freertos_port.as_ref().unwrap());
         }
