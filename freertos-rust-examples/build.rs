@@ -30,6 +30,7 @@ fn main() {
 
     if target == "x86_64-unknown-linux-gnu" {
         b.freertos_config("examples/linux");
+        b.freertos_port_base("freertos-addons/Linux/portable");
 
         b.get_cc().file("examples/linux/hooks.c");
         // b.get_cc().file("examples/linux/Run-time-stats-utils.c"); // Unimplemented yet..

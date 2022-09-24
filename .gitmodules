@@ -1,3 +1,6 @@
 [submodule "freertos-rust-examples/FreeRTOS-Kernel"]
 	path = freertos-rust-examples/FreeRTOS-Kernel
 	url = https://github.com/FreeRTOS/FreeRTOS-Kernel.git
+[submodule "freertos-rust-examples/freertos-addons"]
+	path = freertos-rust-examples/freertos-addons
+	url = https://github.com/michaelbecker/freertos-addons.git
