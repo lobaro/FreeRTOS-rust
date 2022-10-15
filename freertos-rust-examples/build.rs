@@ -62,16 +62,18 @@ fn main() {
     b.compile().unwrap_or_else(|e| { panic!(e.to_string()) });
 }
 
-/// Print relevant environment variables
+/// Print relevant environment variables.
+/// To avoid cluttering the output on each build, this is not displayed in the terminal.
+/// See the output in the corresponding target output file e.g. target/debug/build/<pkg>/output
 fn print_env() {
     let env_keys = ["TARGET", "OUT_DIR", "HOST"];
     env::vars().for_each(|(key, val)| {
         if key.starts_with("CARGO") {
-            println!("cargo:warning={}={}", key, val);
+            println!("{}={}", key, val);
         } else if env_keys.contains(&key.as_str()) {
-            println!("cargo:warning={}={}", key, val);
+            println!("{}={}", key, val);
         } else {
-            // println!("cargo:warning={}={}", key, val);
+            // println!("{}={}", key, val);
         }
     });
 }
