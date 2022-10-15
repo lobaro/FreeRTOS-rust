@@ -63,7 +63,7 @@ impl Builder {
         let freertos_path = env::var(ENV_KEY_FREERTOS_SRC).unwrap_or_default();
         let freertos_config_path = env::var(ENV_KEY_FREERTOS_CONFIG).unwrap_or_default();
         let freertos_shim = env::var(ENV_KEY_FREERTOS_SHIM).unwrap_or_default();
-        let freertos_port_base = format!("{}{}", freertos_path, "portable");
+        let freertos_port_base = PathBuf::from(&freertos_path).join("portable");
 
         let b = Builder {
             freertos_dir: PathBuf::from(freertos_path),
