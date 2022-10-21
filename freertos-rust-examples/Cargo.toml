@@ -40,6 +40,3 @@ nrf9160-pac = "0.2.1"
 
 [build-dependencies]
 freertos-cargo-build = {path = "../freertos-cargo-build"}
-
-[features]
-cpu_clock = ["freertos-rust/cpu_clock"]
