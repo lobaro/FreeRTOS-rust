@@ -59,6 +59,10 @@ impl<D1: OutputPin> MyDevice<D1>
 
 #[entry]
 fn main() -> ! {
+    //Demo availability of cpu_clock_hz API
+    #[cfg(feature = "cpu_clock")]
+    cpu_clock_hz();
+
     let dp = Peripherals::take().unwrap();
     let gpioc = dp.GPIOC.split();
     let mut device = MyDevice::from_pins(gpioc.pc13.into_push_pull_output());
