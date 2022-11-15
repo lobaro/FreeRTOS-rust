@@ -224,6 +224,10 @@ void freertos_rs_delete_task(TaskHandle_t task) {
 }
 #endif
 
+void freertos_rs_suspend_task(TaskHandle_t task) {
+	vTaskSuspend(task);
+}
+
 UBaseType_t freertos_rs_get_stack_high_water_mark(TaskHandle_t task) {
 #if (INCLUDE_uxTaskGetStackHighWaterMark == 1)
 	return uxTaskGetStackHighWaterMark(task);

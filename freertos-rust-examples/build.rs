@@ -20,8 +20,8 @@ fn main() {
         b.freertos_config("examples/win");
         // TODO: in future all FreeRTOS API should be implemented by the freertos-rust crate
         // until then, we need to compile some C code manually
-        b.get_cc().file("examples/win/hooks.c");
-        b.get_cc().file("examples/win/Run-time-stats-utils.c");
+        b.add_build_file("examples/win/hooks.c");
+        b.add_build_file("examples/win/Run-time-stats-utils.c");
 
         if target_env == "msvc" {
             println!("cargo:rustc-link-lib=static=winmm");
@@ -30,9 +30,10 @@ fn main() {
 
     if target == "x86_64-unknown-linux-gnu" {
         b.freertos_config("examples/linux");
+        b.freertos_port_base("freertos-addons/Linux/portable");
 
-        b.get_cc().file("examples/linux/hooks.c");
-        // b.get_cc().file("examples/linux/Run-time-stats-utils.c"); // Unimplemented yet..
+        b.add_build_file("examples/linux/hooks.c");
+        // b.add_build_file("examples/linux/Run-time-stats-utils.c"); // Unimplemented yet..
     }
 
     if target == "thumbv7m-none-eabi" {

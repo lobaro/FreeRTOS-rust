@@ -1,4 +1,5 @@
 use cc::Build;
+use std::ffi::OsStr;
 use std::fmt::Display;
 use std::{fmt, env};
 use std::path::{Path, PathBuf};
@@ -26,6 +27,7 @@ pub struct Builder {
     freertos_config_dir: PathBuf,
     freertos_shim: PathBuf,
     freertos_port: Option<PathBuf>,
+    freertos_port_base: Option<PathBuf>,
     // name of the heap_?.c file
     heap_c: PathBuf,
     cc: Build,
@@ -67,6 +69,7 @@ impl Builder {
             freertos_config_dir: PathBuf::from(freertos_config_path),
             freertos_shim: PathBuf::from(freertos_shim),
             freertos_port: None,
+            freertos_port_base: None,
             cc: cc::Build::new(),
             heap_c: PathBuf::from("heap_4.c"),
         };
@@ -167,7 +170,7 @@ impl Builder {
     }
 
     fn get_freertos_port_dir(&self) -> PathBuf {
-        let base = self.freertos_dir.join("portable");
+        let base = self.get_freertos_port_base();
         if self.freertos_port.is_some() {
             return base.join(self.freertos_port.as_ref().unwrap());
         }
@@ -191,6 +194,18 @@ impl Builder {
             }
         };
         return base.join(port);
+    }
+
+    pub fn freertos_port_base<P: AsRef<Path>>(&mut self, base_dir: P) {
+        self.freertos_port_base = Some(base_dir.as_ref().to_path_buf());
+    }
+
+    fn get_freertos_port_base(&self) -> PathBuf {
+        if let Some(base) = &self.freertos_port_base {
+            base.clone()
+        } else {
+            PathBuf::from(&self.freertos_dir).join("portable")
+        }
     }
 
     fn heap_c_file(&self) -> PathBuf {
@@ -240,26 +255,72 @@ impl Builder {
 
         self.verify_paths()?;
 
-        // FreeRTOS header files
-        b.include(self.freertos_include_dir());
-        // FreeRTOS port header files (e.g. portmacro.h)
-        b.include(self.get_freertos_port_dir());
-        b.include(self.freertos_config_dir.clone());
-        b.file(self.heap_c_file());
-        self.freertos_files().iter().for_each(|f| {
-            b.file(f);
-        });
-        self.freertos_port_files().iter().for_each(|f| {
-            b.file(f);
-        });
-        self.freertos_shim_files().iter().for_each(|f| {
-            b.file(f);
-        });
+        add_include_with_rerun(&mut b, self.freertos_include_dir()); // FreeRTOS header files
+        add_include_with_rerun(&mut b, self.get_freertos_port_dir()); // FreeRTOS port header files (e.g. portmacro.h)
+        add_include_with_rerun(&mut b, &self.freertos_config_dir); // User's FreeRTOSConfig.h
+
+        add_build_files_with_rerun(&mut b, self.freertos_files()); // Non-port C files
+        add_build_files_with_rerun(&mut b, self.freertos_port_files()); // Port C files
+        add_build_files_with_rerun(&mut b, self.freertos_shim_files()); // Shim C file
+        add_build_file_with_rerun(&mut b, self.heap_c_file()); // Heap C file
+
+        println!("cargo:rerun-if-env-changed={ENV_KEY_FREERTOS_SRC}");
+        println!("cargo:rerun-if-env-changed={ENV_KEY_FREERTOS_CONFIG}");
+        println!("cargo:rerun-if-env-changed={ENV_KEY_FREERTOS_SHIM}");
 
         b.try_compile("freertos").map_err(|e| Error::new(&format!("{}", e)))?;
 
         Ok(())
     }
+
+    /// Add a single file to the build. This also tags the file with cargo:rerun-if-changed so that cargo will re-run
+    /// the build script if the file changes. If you don't want this additional behavior, use get_cc().file() to
+    /// directly add a file to the build instead.
+    pub fn add_build_file<P: AsRef<Path>>(&mut self, file: P) {
+        add_build_file_with_rerun(self.get_cc(), file);
+    }
+
+    /// Add multiple files to the build. This also tags the files with cargo:rerun-if-changed so that cargo will re-run
+    /// the build script if the files change. If you don't want this additional behavior, use get_cc().files() to
+    /// directly add files to the build instead.
+    pub fn add_build_files<P>(&mut self, files: P)
+    where
+        P: IntoIterator,
+        P::Item: AsRef<Path>,
+    {
+        add_build_files_with_rerun(self.get_cc(), files);
+    }
+}
+
+fn add_build_file_with_rerun<P: AsRef<Path>>(build: &mut Build, file: P) {
+    build.file(&file);
+    println!("cargo:rerun-if-changed={}", file.as_ref().display());
+}
+
+fn add_build_files_with_rerun<P>(build: &mut Build, files: P)
+where
+    P: IntoIterator,
+    P::Item: AsRef<Path>,
+{
+    for file in files.into_iter() {
+        add_build_file_with_rerun(build, file);
+    }
+}
+
+fn add_include_with_rerun<P: AsRef<Path>>(build: &mut Build, dir: P) {
+    build.include(&dir);
+
+    WalkDir::new(&dir)
+        .follow_links(false)
+        .max_depth(1)
+        .into_iter()
+        .filter_map(|e| e.ok())
+        .for_each(|entry| {
+            let f_name = entry.path();
+            if f_name.extension() == Some(OsStr::new("h")) {
+                println!("cargo:rerun-if-changed={}", f_name.display());
+            }
+        });
 }
 
 #[test]
