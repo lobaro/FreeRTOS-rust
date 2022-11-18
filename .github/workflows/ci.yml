@@ -1,0 +1,89 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  freertos-rust:
+    name: Build freertos-rust
+    runs-on: ubuntu-latest
+    #env:
+    #  RUSTFLAGS: -D warnings # Warnings disabled only in CI
+    steps:
+    - name: Clone
+      uses: actions/checkout@v3
+    - name: Cache
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cargo/registry
+          ~/.cargo/git
+          ~/.rustup
+          target
+        key: ${{ runner.os }}-${{ runner.arch }}
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@nightly
+      with:
+        components: rustfmt, clippy
+    #- name: Format
+    # run: cargo fmt -- --check
+    - name: Build
+      run: cargo build --verbose
+    #- name: Test
+    #  run: cargo test
+    #- name: Clippy
+    #  run: cargo clippy -- -Dwarnings
+  freertos-rust-examples:
+    name: Build examples
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          #- example: win
+          #  target: x86_64-pc-windows-gnu
+          #- example: linux
+          #  target: x86_64-unknown-linux-gnu
+          #- example: stm32-cortex-m3
+          #  target: thumbv7m-none-eabi
+          - example: stm32-cortex-m4-blackpill
+            target: thumbv7em-none-eabihf
+          #- example: nrf9160
+          #  target: thumbv8m.main-none-eabihf
+    #env:
+    #  RUSTFLAGS: -D warnings # Warnings disabled only in CI
+    steps:
+    - name: Clone
+      uses: actions/checkout@v3
+      with:
+        submodules: recursive
+    - name: Cache
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cargo/registry
+          ~/.cargo/git
+          ~/.rustup
+          target
+        key: ${{ runner.os }}-${{ runner.arch }}
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@nightly
+      with:
+        targets: ${{ matrix.target }}
+    - name: Install cross deps
+      run: |
+        case ${{ matrix.target }} in
+          "x86_64-pc-windows-gnu")
+            sudo apt-get install -y gcc-mingw-w64
+            ;;
+          "thumbv7m-none-eabi" | "thumbv7em-none-eabihf" | "thumbv8m.main-none-eabihf")
+            sudo apt-get install -y gcc-arm-none-eabi
+            ;;
+        esac
+    - name: Build example
+      run: cargo build --verbose --example ${{ matrix.example }} --target ${{ matrix.target }}
