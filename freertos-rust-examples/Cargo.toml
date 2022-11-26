@@ -29,7 +29,7 @@ embedded-hal = "0.2.3"
 stm32f4xx-hal = {version = "0.8.3", features = ["rt", "stm32f411"]}
 
 # Example: nrf9160
-[target.thumbv8m.main-none-eabihf.dependencies]
+[target."thumbv8m.main-none-eabihf".dependencies]
 nrf9160-pac = "0.2.1"
 
 # Example: win

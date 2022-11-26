@@ -4,9 +4,9 @@ use crate::shim::*;
 
 #[derive(Debug, Copy, Clone)]
 pub struct TypeSizeError {
-    id: usize,
-    c_size: usize,
-    rust_size: usize,
+    pub id: usize,
+    pub c_size: usize,
+    pub rust_size: usize,
 }
 
 #[cfg(feature = "cpu_clock")]

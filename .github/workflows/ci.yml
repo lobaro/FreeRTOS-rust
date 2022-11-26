@@ -13,8 +13,8 @@ jobs:
   freertos-rust:
     name: Build freertos-rust
     runs-on: ubuntu-latest
-    #env:
-    #  RUSTFLAGS: -D warnings # Warnings disabled only in CI
+    env:
+      RUSTFLAGS: -D warnings # Warnings disabled only in CI
     steps:
     - name: Clone
       uses: actions/checkout@v3
