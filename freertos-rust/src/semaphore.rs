@@ -47,9 +47,7 @@ impl Semaphore {
                 return Err(FreeRtosError::Timeout);
             }
 
-            Ok(SemaphoreGuard {
-                __semaphore: self.semaphore,
-            })
+            Ok(SemaphoreGuard { owner: self })
         }
     }
 }
@@ -63,14 +61,14 @@ impl Drop for Semaphore {
 }
 
 /// Holds the lock to the semaphore until we are dropped
-pub struct SemaphoreGuard {
-    __semaphore: FreeRtosSemaphoreHandle,
+pub struct SemaphoreGuard<'a> {
+    owner: &'a Semaphore,
 }
 
-impl Drop for SemaphoreGuard {
+impl<'a> Drop for SemaphoreGuard<'a> {
     fn drop(&mut self) {
         unsafe {
-            freertos_rs_give_mutex(self.__semaphore);
+            freertos_rs_give_mutex(self.owner.semaphore);
         }
     }
 }
