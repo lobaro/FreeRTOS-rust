@@ -1,4 +1,4 @@
-#![feature(allocator_api)]
+#![cfg_attr(feature = "allocator", feature(allocator_api))]
 //! # FreeRTOS for Rust
 //!
 //! Rust interface for the FreeRTOS embedded operating system. Requires nightly Rust.
