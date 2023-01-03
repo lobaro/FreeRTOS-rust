@@ -40,6 +40,15 @@ impl Semaphore {
 
     /// Lock this semaphore in a RAII fashion
     pub fn lock<D: DurationTicks>(&self, max_wait: D) -> Result<SemaphoreGuard, FreeRtosError> {
+        self.take(max_wait).map(|()| SemaphoreGuard { owner: self })
+    }
+
+    /// Returns `true` on success, `false` when semaphore count already reached its limit
+    pub fn give(&self) -> bool {
+        unsafe { freertos_rs_give_mutex(self.semaphore) == 0 }
+    }
+
+    pub fn take<D: DurationTicks>(&self, max_wait: D) -> Result<(), FreeRtosError> {
         unsafe {
             let res = freertos_rs_take_mutex(self.semaphore, max_wait.to_ticks());
 
@@ -47,9 +56,7 @@ impl Semaphore {
                 return Err(FreeRtosError::Timeout);
             }
 
-            Ok(SemaphoreGuard {
-                __semaphore: self.semaphore,
-            })
+            Ok(())
         }
     }
 }
@@ -63,14 +70,12 @@ impl Drop for Semaphore {
 }
 
 /// Holds the lock to the semaphore until we are dropped
-pub struct SemaphoreGuard {
-    __semaphore: FreeRtosSemaphoreHandle,
+pub struct SemaphoreGuard<'a> {
+    owner: &'a Semaphore,
 }
 
-impl Drop for SemaphoreGuard {
+impl<'a> Drop for SemaphoreGuard<'a> {
     fn drop(&mut self) {
-        unsafe {
-            freertos_rs_give_mutex(self.__semaphore);
-        }
+        self.owner.give();
     }
 }
