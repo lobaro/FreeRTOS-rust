@@ -39,7 +39,7 @@ info provided by your apps `build.rs`:
     freertos-cargo-build = "*"
     ```
     
-1. Add this snippet to your app's `build.rs`:
+1. Add this snippet to your apps `build.rs`:
     ```
     fn main() {
         let mut b = freertos_cargo_build::Builder::new();
@@ -47,9 +47,9 @@ info provided by your apps `build.rs`:
         // Path to FreeRTOS kernel or set ENV "FREERTOS_SRC" instead
         b.freertos("path/to/FreeRTOS-Kernel");
         b.freertos_config("src");       // Location of `FreeRTOSConfig.h` 
-        b.freertos_port("GCC/ARM_CM3".to_owned()); // Port dir relativ to 'FreeRTOS-Kernel/portable' 
-        b.heap::<String>(String::from("heap_4.c"));	// Set the heap_?.c allocator to use from 
-                                        			// 'FreeRTOS-Kernel/portable/MemMang' (Default: heap_4.c)       
+        b.freertos_port("GCC/ARM_CM3"); // Port dir relativ to 'FreeRTOS-Kernel/portable' 
+        b.heap("heap_4.c");             // Set the heap_?.c allocator to use from 
+                                        // 'FreeRTOS-Kernel/portable/MemMang' (Default: heap_4.c)       
    
         // b.get_cc().file("More.c");   // Optional additional C-Code to be compiled
     
