@@ -18,10 +18,11 @@ name = "freertos_rust"
 path = "src/lib.rs"
 
 [features]
-default = ["allocator", "sync", "time", "hooks", "interrupt"]
+default = ["allocator", "sync", "time", "hooks", "interrupt", "delete_task"]
 allocator = []
 sync = ["interrupt"]
 time = ["interrupt"]
 hooks = []
 interrupt = []
 cpu_clock = []
+delete_task = []
