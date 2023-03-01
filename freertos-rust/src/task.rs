@@ -164,10 +164,14 @@ impl Task {
                     });
                 }
 
+                #[cfg(feature = "delete_task")]
                 freertos_rs_delete_task(0 as *const _);
             }
 
-            0 as *mut _
+            #[cfg(feature = "delete_task")]
+            return 0 as *mut _;
+            #[cfg(not(feature = "delete_task"))]
+            panic!("Not allowed to quit the task!");
         }
 
         Ok(Task {
