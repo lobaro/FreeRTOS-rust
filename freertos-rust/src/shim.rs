@@ -99,7 +99,7 @@ extern "C" {
         name_len: u8,
         stack_size: u16,
         priority: FreeRtosUBaseType,
-        task_handle: FreeRtosMutTaskHandle,
+        task_handle: *mut FreeRtosTaskHandle,
     ) -> FreeRtosUBaseType;
     pub fn freertos_rs_delete_task(task: FreeRtosTaskHandle);
     pub fn freertos_rs_suspend_task(task: FreeRtosTaskHandle);
