@@ -38,6 +38,10 @@ impl<T: Sized + Copy> Queue<T> {
             item_type: PhantomData,
         }
     }
+    #[inline]
+    pub fn raw_handle(&self) -> FreeRtosQueueHandle {
+        self.queue
+    }
 
     /// Send an item to the end of the queue. Wait for the queue to have empty space for it.
     pub fn send<D: DurationTicks>(&self, item: T, max_wait: D) -> Result<(), FreeRtosError> {

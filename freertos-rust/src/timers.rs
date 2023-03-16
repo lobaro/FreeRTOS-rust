@@ -74,6 +74,10 @@ impl Timer {
     pub unsafe fn from_raw_handle(handle: FreeRtosTimerHandle) -> Self {
         Self { handle, detached: false }
     }
+    #[inline]
+    pub fn raw_handle(&self) -> FreeRtosTimerHandle {
+        self.handle
+    }
 
     unsafe fn spawn_inner<'a>(
         name: &str,

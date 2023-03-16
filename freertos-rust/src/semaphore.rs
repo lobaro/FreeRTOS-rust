@@ -38,6 +38,10 @@ impl Semaphore {
     pub unsafe fn from_raw_handle(handle: FreeRtosSemaphoreHandle) -> Self {
         Self { semaphore: handle }
     }
+    #[inline]
+    pub fn raw_handle(&self) -> FreeRtosSemaphoreHandle {
+        self.semaphore
+    }
 
     /// Lock this semaphore in a RAII fashion
     pub fn lock<D: DurationTicks>(&self, max_wait: D) -> Result<SemaphoreGuard, FreeRtosError> {

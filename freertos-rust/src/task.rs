@@ -109,6 +109,10 @@ impl Task {
     pub unsafe fn from_raw_handle(handle: FreeRtosTaskHandle) -> Self {
         Self { task_handle: handle }
     }
+    #[inline]
+    pub fn raw_handle(&self) -> FreeRtosTaskHandle {
+        self.task_handle
+    }
 
     pub fn suspend_all() {
       unsafe {
