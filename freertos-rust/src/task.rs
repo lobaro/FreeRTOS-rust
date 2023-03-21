@@ -155,7 +155,8 @@ impl Task {
             return Err(FreeRtosError::OutOfMemory);
         }
 
-        extern "C" fn thread_start(main: *mut CVoid) -> *mut CVoid {
+        use core::ffi::c_void;
+        extern "C" fn thread_start(main: *mut c_void) -> *mut c_void {
             unsafe {
                 {
                     let b = Box::from_raw(main as *mut Box<dyn FnOnce(Task)>);

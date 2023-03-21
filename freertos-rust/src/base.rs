@@ -1,3 +1,5 @@
+use core::ffi::c_void;
+
 /// Basic error type for the library.
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum FreeRtosError {
@@ -13,16 +15,8 @@ pub enum FreeRtosError {
     ProcessorHasShutDown,
 }
 
-unsafe impl Send for CVoid {}
-
-#[repr(u32)]
-pub enum CVoid {
-    _Variant1,
-    _Variant2,
-}
-
-pub type FreeRtosVoidPtr = *const CVoid;
-pub type FreeRtosMutVoidPtr = *mut CVoid;
+pub type FreeRtosVoidPtr = *const c_void;
+pub type FreeRtosMutVoidPtr = *mut c_void;
 pub type FreeRtosCharPtr = *const u8;
 pub type FreeRtosChar = u8;
 
@@ -31,14 +25,14 @@ pub type FreeRtosUBaseType = u32;
 pub type FreeRtosTickType = u32;
 pub type FreeRtosBaseTypeMutPtr = *mut FreeRtosBaseType;
 
-pub type FreeRtosTaskHandle = *const CVoid;
-pub type FreeRtosQueueHandle = *const CVoid;
-pub type FreeRtosSemaphoreHandle = *const CVoid;
-pub type FreeRtosTaskFunction = *const CVoid;
-pub type FreeRtosTimerHandle = *const CVoid;
-pub type FreeRtosTimerCallback = *const CVoid;
+pub type FreeRtosTaskHandle = *const c_void;
+pub type FreeRtosQueueHandle = *const c_void;
+pub type FreeRtosSemaphoreHandle = *const c_void;
+pub type FreeRtosTaskFunction = *const c_void;
+pub type FreeRtosTimerHandle = *const c_void;
+pub type FreeRtosTimerCallback = *const c_void;
 #[allow(dead_code)]
-pub type FreeRtosStackType = *const CVoid;
+pub type FreeRtosStackType = *const c_void;
 
 pub type FreeRtosUnsignedLong = u32;
 pub type FreeRtosUnsignedShort = u16;
