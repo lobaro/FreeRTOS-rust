@@ -1,8 +1,10 @@
-#![cfg_attr(feature = "allocator", feature(allocator_api))]
 //! # FreeRTOS for Rust
 //!
-//! Rust interface for the FreeRTOS embedded operating system. Requires nightly Rust if the allocator is used (which is the default).
+//! Rust interface for the FreeRTOS embedded operating system.
 //! It is assumed that dynamic memory allocation is provided on the target system.
+//! For Rust versions 1.68 and later, the stable channel can be used.
+//! Prior to version 1.68, the nightly channel is required along with
+//! enabling the `alloc_error_handler` feature.
 //!
 //! This library interfaces with FreeRTOS using a C shim library which provides function
 //! wrappers for FreeRTOS macros. The compiled Rust application should be linked to the
