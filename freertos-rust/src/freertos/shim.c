@@ -128,19 +128,19 @@ UBaseType_t freertos_rs_get_number_of_tasks() {
 }
 
 #if (configUSE_RECURSIVE_MUTEXES == 1)
-QueueHandle_t freertos_rs_create_recursive_mutex() {
+SemaphoreHandle_t freertos_rs_create_recursive_mutex() {
 	return xSemaphoreCreateRecursiveMutex();
 }
 
-UBaseType_t freertos_rs_take_recursive_mutex(QueueHandle_t mutex, UBaseType_t max) {
-	if (xSemaphoreTakeRecursive(mutex, max) == pdTRUE) {
+UBaseType_t freertos_rs_take_recursive_semaphore(SemaphoreHandle_t semaphore, UBaseType_t max) {
+	if (xSemaphoreTakeRecursive(semaphore, max) == pdTRUE) {
 		return 0;
 	}
 
 	return 1;
 }
-UBaseType_t freertos_rs_give_recursive_mutex(QueueHandle_t mutex) {
-	if (xSemaphoreGiveRecursive(mutex) == pdTRUE) {
+UBaseType_t freertos_rs_give_recursive_semaphore(SemaphoreHandle_t semaphore) {
+	if (xSemaphoreGiveRecursive(semaphore) == pdTRUE) {
 		return 0;
 	} else {
 		return 1;
@@ -148,39 +148,39 @@ UBaseType_t freertos_rs_give_recursive_mutex(QueueHandle_t mutex) {
 }
 #endif
 
-QueueHandle_t freertos_rs_create_mutex() {
+SemaphoreHandle_t freertos_rs_create_mutex() {
 	return xSemaphoreCreateMutex();
 }
 
-QueueHandle_t freertos_rs_create_binary_semaphore() {
+SemaphoreHandle_t freertos_rs_create_binary_semaphore() {
 	return xSemaphoreCreateBinary();
 }
 
-QueueHandle_t freertos_rs_create_counting_semaphore(UBaseType_t max, UBaseType_t initial) {
+SemaphoreHandle_t freertos_rs_create_counting_semaphore(UBaseType_t max, UBaseType_t initial) {
 	return xSemaphoreCreateCounting(max, initial);
 }
 
-void freertos_rs_delete_semaphore(QueueHandle_t semaphore) {
+void freertos_rs_delete_semaphore(SemaphoreHandle_t semaphore) {
 	vSemaphoreDelete(semaphore);
 }
 
-UBaseType_t freertos_rs_take_mutex(QueueHandle_t mutex, UBaseType_t max) {
-	if (xSemaphoreTake(mutex, max) == pdTRUE) {
+UBaseType_t freertos_rs_take_semaphore(SemaphoreHandle_t semaphore, UBaseType_t max) {
+	if (xSemaphoreTake(semaphore, max) == pdTRUE) {
 		return 0;
 	}
 
 	return 1;
 }
 
-UBaseType_t freertos_rs_give_mutex(QueueHandle_t mutex) {
-	if (xSemaphoreGive(mutex) == pdTRUE) {
+UBaseType_t freertos_rs_give_semaphore(SemaphoreHandle_t semaphore) {
+	if (xSemaphoreGive(semaphore) == pdTRUE) {
 		return 0;
 	}
 
 	return 1;
 }
 
-UBaseType_t freertos_rs_take_semaphore_isr(QueueHandle_t semaphore, BaseType_t* xHigherPriorityTaskWoken) {
+UBaseType_t freertos_rs_take_semaphore_isr(SemaphoreHandle_t semaphore, BaseType_t* xHigherPriorityTaskWoken) {
 	if (xSemaphoreTakeFromISR(semaphore, xHigherPriorityTaskWoken) == pdTRUE) {
 		return 0;
 	}
@@ -188,7 +188,7 @@ UBaseType_t freertos_rs_take_semaphore_isr(QueueHandle_t semaphore, BaseType_t* 
 	return 1;
 }
 
-UBaseType_t freertos_rs_give_semaphore_isr(QueueHandle_t semaphore, BaseType_t* xHigherPriorityTaskWoken) {
+UBaseType_t freertos_rs_give_semaphore_isr(SemaphoreHandle_t semaphore, BaseType_t* xHigherPriorityTaskWoken) {
 	if (xSemaphoreGiveFromISR(semaphore, xHigherPriorityTaskWoken) == pdTRUE) {
 		return 0;
 	}
