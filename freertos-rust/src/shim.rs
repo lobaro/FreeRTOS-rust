@@ -38,6 +38,15 @@ extern "C" {
     pub fn freertos_rs_give_mutex(mutex: FreeRtosQueueHandle) -> FreeRtosBaseType;
     pub fn freertos_rs_give_recursive_mutex(mutex: FreeRtosQueueHandle) -> FreeRtosBaseType;
 
+    pub fn freertos_rs_take_semaphore_isr(
+        semaphore: FreeRtosQueueHandle,
+        xHigherPriorityTaskWoken: FreeRtosBaseTypeMutPtr,
+    ) -> FreeRtosBaseType;
+    pub fn freertos_rs_give_semaphore_isr(
+        semaphore: FreeRtosQueueHandle,
+        xHigherPriorityTaskWoken: FreeRtosBaseTypeMutPtr,
+    ) -> FreeRtosBaseType;
+
     pub fn freertos_rs_delete_semaphore(mutex: FreeRtosQueueHandle);
 
     pub fn freertos_rs_create_binary_semaphore() -> FreeRtosQueueHandle;

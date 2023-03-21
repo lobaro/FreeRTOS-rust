@@ -1,4 +1,5 @@
 use crate::base::*;
+use crate::isr::*;
 use crate::shim::*;
 use crate::units::*;
 
@@ -58,6 +59,16 @@ impl Semaphore {
 
             Ok(())
         }
+    }
+
+    /// Returns `true` on success, `false` when semaphore count already reached its limit
+    pub fn give_from_isr(&self, context: &mut InterruptContext) -> bool {
+        unsafe { freertos_rs_give_semaphore_isr(self.semaphore, context.get_task_field_mut()) == 0 }
+    }
+
+    /// Returns `true` on success, `false` if the semaphore was not successfully taken because it was not available
+    pub fn take_from_isr(&self, context: &mut InterruptContext) -> bool {
+        unsafe { freertos_rs_take_semaphore_isr(self.semaphore, context.get_task_field_mut()) == 0 }
     }
 }
 
