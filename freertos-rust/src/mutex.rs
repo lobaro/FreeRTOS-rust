@@ -62,22 +62,7 @@ where
 
     /// Consume the mutex and return its inner value
     pub fn into_inner(self) -> T {
-        // Manually deconstruct the structure, because it implements Drop
-        // and we cannot move the data value out of it.
-        unsafe {
-            let (mutex, data) = {
-                let Self {
-                    ref mutex,
-                    ref data,
-                } = self;
-                (ptr::read(mutex), ptr::read(data))
-            };
-            mem::forget(self);
-
-            drop(mutex);
-
-            data.into_inner()
-        }
+        self.data.into_inner()
     }
 }
 
