@@ -26,30 +26,15 @@ where
     }
 }
 
-impl<T> MutexImpl<T, MutexNormal> {
-    /// Create a new mutex with the given inner value
-    pub fn new(t: T) -> Result<Self, FreeRtosError> {
-        Ok(MutexImpl {
-            mutex: MutexNormal::create()?,
-            data: UnsafeCell::new(t),
-        })
-    }
-}
-
-impl<T> MutexImpl<T, MutexRecursive> {
-    /// Create a new recursive mutex with the given inner value
-    pub fn new(t: T) -> Result<Self, FreeRtosError> {
-        Ok(MutexImpl {
-            mutex: MutexRecursive::create()?,
-            data: UnsafeCell::new(t),
-        })
-    }
-}
-
 impl<T, M> MutexImpl<T, M>
 where
     M: MutexInnerImpl,
 {
+    /// Create a new mutex with the given inner value
+    pub fn new(value: T) -> Result<Self, FreeRtosError> {
+        Ok(Self::from_parts(M::create()?, value))
+    }
+
     /// Try to obtain a lock and mutable access to our inner value
     pub fn lock<D: DurationTicks>(&self, max_wait: D) -> Result<MutexGuard<T, M>, FreeRtosError> {
         self.mutex.take(max_wait)?;
@@ -62,7 +47,34 @@ where
 
     /// Consume the mutex and return its inner value
     pub fn into_inner(self) -> T {
-        self.data.into_inner()
+        self.into_parts().1
+    }
+
+    /// Get mutable reference to inner value.
+    ///
+    /// This method does not lock the mutex because mutable reference guarantees exclusive access.
+    pub fn get_mut(&mut self) -> &mut T {
+        self.data.get_mut()
+    }
+
+    /// Create owning mutex from non-owning mutex and inner value.
+    ///
+    /// It is safe to pass an already locked `mutex` although it is not recommended.
+    pub fn from_parts(mutex: M, value: T) -> Self {
+        Self {
+            mutex,
+            data: UnsafeCell::new(value),
+        }
+    }
+
+    /// Split owning mutex into non-owning mutex and inner value.
+    pub fn into_parts(self) -> (M, T) {
+        (self.mutex, self.data.into_inner())
+    }
+
+    /// Get mutable reference to inner non-owning mutex.
+    pub fn inner_mutex_mut(&mut self) -> &mut M {
+        &mut self.mutex
     }
 }
 
@@ -111,6 +123,9 @@ where
     fn create() -> Result<Self, FreeRtosError>;
     fn take<D: DurationTicks>(&self, max_wait: D) -> Result<(), FreeRtosError>;
     fn give(&self);
+
+    unsafe fn from_raw_handle(handle: FreeRtosSemaphoreHandle) -> Self;
+    fn raw_handle(&self) -> FreeRtosSemaphoreHandle;
 }
 
 pub struct MutexNormal(FreeRtosSemaphoreHandle);
@@ -138,6 +153,16 @@ impl MutexInnerImpl for MutexNormal {
         unsafe {
             freertos_rs_give_semaphore(self.0);
         }
+    }
+
+    #[inline]
+    unsafe fn from_raw_handle(handle: FreeRtosSemaphoreHandle) -> Self {
+        Self(handle)
+    }
+
+    #[inline]
+    fn raw_handle(&self) -> FreeRtosSemaphoreHandle {
+        self.0
     }
 }
 
@@ -178,6 +203,16 @@ impl MutexInnerImpl for MutexRecursive {
         unsafe {
             freertos_rs_give_recursive_semaphore(self.0);
         }
+    }
+
+    #[inline]
+    unsafe fn from_raw_handle(handle: FreeRtosSemaphoreHandle) -> Self {
+        Self(handle)
+    }
+
+    #[inline]
+    fn raw_handle(&self) -> FreeRtosSemaphoreHandle {
+        self.0
     }
 }
 
