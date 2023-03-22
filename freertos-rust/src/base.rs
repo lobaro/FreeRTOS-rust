@@ -32,7 +32,6 @@ pub type FreeRtosTickType = u32;
 pub type FreeRtosBaseTypeMutPtr = *mut FreeRtosBaseType;
 
 pub type FreeRtosTaskHandle = *const CVoid;
-pub type FreeRtosMutTaskHandle = *mut CVoid;
 pub type FreeRtosQueueHandle = *const CVoid;
 pub type FreeRtosSemaphoreHandle = *const CVoid;
 pub type FreeRtosTaskFunction = *const CVoid;

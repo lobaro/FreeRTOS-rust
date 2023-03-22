@@ -134,7 +134,7 @@ impl Task {
         let (success, task_handle) = {
             let name = name.as_bytes();
             let name_len = name.len();
-            let mut task_handle = mem::zeroed::<CVoid>();
+            let mut task_handle = core::ptr::null();
 
             let ret = freertos_rs_spawn_task(
                 thread_start,
@@ -174,9 +174,7 @@ impl Task {
             panic!("Not allowed to quit the task!");
         }
 
-        Ok(Task {
-            task_handle: task_handle as usize as *const _,
-        })
+        Ok(Task { task_handle })
     }
 
     fn spawn<F>(
