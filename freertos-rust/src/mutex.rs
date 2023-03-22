@@ -140,7 +140,7 @@ impl MutexInnerImpl for MutexNormal {
     }
 
     fn take<D: DurationTicks>(&self, max_wait: D) -> Result<(), FreeRtosError> {
-        let res = unsafe { freertos_rs_take_mutex(self.0, max_wait.to_ticks()) };
+        let res = unsafe { freertos_rs_take_semaphore(self.0, max_wait.to_ticks()) };
 
         if res != 0 {
             return Err(FreeRtosError::MutexTimeout);
@@ -151,7 +151,7 @@ impl MutexInnerImpl for MutexNormal {
 
     fn give(&self) {
         unsafe {
-            freertos_rs_give_mutex(self.0);
+            freertos_rs_give_semaphore(self.0);
         }
     }
 }
@@ -180,7 +180,7 @@ impl MutexInnerImpl for MutexRecursive {
     }
 
     fn take<D: DurationTicks>(&self, max_wait: D) -> Result<(), FreeRtosError> {
-        let res = unsafe { freertos_rs_take_recursive_mutex(self.0, max_wait.to_ticks()) };
+        let res = unsafe { freertos_rs_take_recursive_semaphore(self.0, max_wait.to_ticks()) };
 
         if res != 0 {
             return Err(FreeRtosError::MutexTimeout);
@@ -191,7 +191,7 @@ impl MutexInnerImpl for MutexRecursive {
 
     fn give(&self) {
         unsafe {
-            freertos_rs_give_recursive_mutex(self.0);
+            freertos_rs_give_recursive_semaphore(self.0);
         }
     }
 }

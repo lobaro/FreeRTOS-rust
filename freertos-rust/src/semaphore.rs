@@ -46,12 +46,12 @@ impl Semaphore {
 
     /// Returns `true` on success, `false` when semaphore count already reached its limit
     pub fn give(&self) -> bool {
-        unsafe { freertos_rs_give_mutex(self.semaphore) == 0 }
+        unsafe { freertos_rs_give_semaphore(self.semaphore) == 0 }
     }
 
     pub fn take<D: DurationTicks>(&self, max_wait: D) -> Result<(), FreeRtosError> {
         unsafe {
-            let res = freertos_rs_take_mutex(self.semaphore, max_wait.to_ticks());
+            let res = freertos_rs_take_semaphore(self.semaphore, max_wait.to_ticks());
 
             if res != 0 {
                 return Err(FreeRtosError::Timeout);

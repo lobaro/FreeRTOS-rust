@@ -24,36 +24,38 @@ extern "C" {
 
     pub fn freertos_rs_xTaskGetTickCount() -> FreeRtosTickType;
 
-    pub fn freertos_rs_create_recursive_mutex() -> FreeRtosQueueHandle;
-    pub fn freertos_rs_create_mutex() -> FreeRtosQueueHandle;
+    pub fn freertos_rs_create_recursive_mutex() -> FreeRtosSemaphoreHandle;
+    pub fn freertos_rs_create_mutex() -> FreeRtosSemaphoreHandle;
 
-    pub fn freertos_rs_take_recursive_mutex(
-        mutex: FreeRtosQueueHandle,
+    pub fn freertos_rs_take_recursive_semaphore(
+        semaphore: FreeRtosSemaphoreHandle,
         max: FreeRtosTickType,
     ) -> FreeRtosBaseType;
-    pub fn freertos_rs_take_mutex(
-        mutex: FreeRtosQueueHandle,
+    pub fn freertos_rs_take_semaphore(
+        semaphore: FreeRtosSemaphoreHandle,
         max: FreeRtosTickType,
     ) -> FreeRtosBaseType;
-    pub fn freertos_rs_give_mutex(mutex: FreeRtosQueueHandle) -> FreeRtosBaseType;
-    pub fn freertos_rs_give_recursive_mutex(mutex: FreeRtosQueueHandle) -> FreeRtosBaseType;
+    pub fn freertos_rs_give_semaphore(semaphore: FreeRtosSemaphoreHandle) -> FreeRtosBaseType;
+    pub fn freertos_rs_give_recursive_semaphore(
+        semaphore: FreeRtosSemaphoreHandle,
+    ) -> FreeRtosBaseType;
 
     pub fn freertos_rs_take_semaphore_isr(
-        semaphore: FreeRtosQueueHandle,
+        semaphore: FreeRtosSemaphoreHandle,
         xHigherPriorityTaskWoken: FreeRtosBaseTypeMutPtr,
     ) -> FreeRtosBaseType;
     pub fn freertos_rs_give_semaphore_isr(
-        semaphore: FreeRtosQueueHandle,
+        semaphore: FreeRtosSemaphoreHandle,
         xHigherPriorityTaskWoken: FreeRtosBaseTypeMutPtr,
     ) -> FreeRtosBaseType;
 
-    pub fn freertos_rs_delete_semaphore(mutex: FreeRtosQueueHandle);
+    pub fn freertos_rs_delete_semaphore(semaphore: FreeRtosSemaphoreHandle);
 
-    pub fn freertos_rs_create_binary_semaphore() -> FreeRtosQueueHandle;
+    pub fn freertos_rs_create_binary_semaphore() -> FreeRtosSemaphoreHandle;
     pub fn freertos_rs_create_counting_semaphore(
         max: FreeRtosUBaseType,
         initial: FreeRtosUBaseType,
-    ) -> FreeRtosQueueHandle;
+    ) -> FreeRtosSemaphoreHandle;
 
     pub fn freertos_rs_queue_create(
         length: FreeRtosUBaseType,
