@@ -124,6 +124,10 @@ where
     fn take<D: DurationTicks>(&self, max_wait: D) -> Result<(), FreeRtosError>;
     fn give(&self);
 
+    /// # Safety
+    ///
+    /// The type of `handle` (normal or recursive mutex) must match the type
+    /// of instance being created ([`MutexNormal`] or [`MutexRecursive`] respectively).
     unsafe fn from_raw_handle(handle: FreeRtosSemaphoreHandle) -> Self;
     fn raw_handle(&self) -> FreeRtosSemaphoreHandle;
 }
