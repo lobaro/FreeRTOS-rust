@@ -87,7 +87,6 @@ impl Timer {
         let (success, timer_handle) = {
             let name = name.as_bytes();
             let name_len = name.len();
-            let mut _timer_handle = mem::zeroed::<CVoid>();
 
             let ret = freertos_rs_timer_create(
                 name.as_ptr(),
