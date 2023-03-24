@@ -14,7 +14,6 @@ unsafe impl Sync for Timer {}
 /// for that queue to get unblocked.
 pub struct Timer {
     handle: FreeRtosTimerHandle,
-    detached: bool,
 }
 
 /// Helper builder for a new software timer.
@@ -72,7 +71,7 @@ impl Timer {
 
     /// Create a timer from a raw handle.
     pub unsafe fn from_raw_handle(handle: FreeRtosTimerHandle) -> Self {
-        Self { handle, detached: false }
+        Self { handle }
     }
     #[inline]
     pub fn raw_handle(&self) -> FreeRtosTimerHandle {
@@ -113,10 +112,7 @@ impl Timer {
         extern "C" fn timer_callback(handle: FreeRtosTimerHandle) -> () {
             unsafe {
                 {
-                    let timer = Timer {
-                        handle: handle,
-                        detached: true,
-                    };
+                    let timer = Timer { handle };
                     if let Ok(callback_ptr) = timer.get_id() {
                         let b = Box::from_raw(callback_ptr as *mut Box<dyn Fn(Timer)>);
                         b(timer);
@@ -128,7 +124,6 @@ impl Timer {
 
         Ok(Timer {
             handle: timer_handle as *const _,
-            detached: false,
         })
     }
 
@@ -202,8 +197,10 @@ impl Timer {
     /// will consume the memory.
     ///
     /// Can be used for timers that will never be changed and don't need to stay in scope.
-    pub unsafe fn detach(mut self) {
-        self.detached = true;
+    ///
+    /// This method is safe because resource leak is safe in Rust.
+    pub fn detach(self) {
+        mem::forget(self);
     }
 
     fn get_id(&self) -> Result<FreeRtosVoidPtr, FreeRtosError> {
@@ -214,10 +211,6 @@ impl Timer {
 impl Drop for Timer {
     #[allow(unused_must_use)]
     fn drop(&mut self) {
-        if self.detached == true {
-            return;
-        }
-
         unsafe {
             if let Ok(callback_ptr) = self.get_id() {
                 // free the memory
