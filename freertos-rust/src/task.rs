@@ -105,6 +105,9 @@ impl Task {
         }
     }
 
+    /// # Safety
+    ///
+    /// `handle` must be a valid FreeRTOS task handle.
     #[inline]
     pub unsafe fn from_raw_handle(handle: FreeRtosTaskHandle) -> Self {
         Self { task_handle: handle }

@@ -70,6 +70,11 @@ impl Timer {
     }
 
     /// Create a timer from a raw handle.
+    ///
+    /// # Safety
+    ///
+    /// `handle` must be a valid FreeRTOS timer handle.
+    #[inline]
     pub unsafe fn from_raw_handle(handle: FreeRtosTimerHandle) -> Self {
         Self { handle }
     }

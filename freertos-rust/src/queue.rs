@@ -31,6 +31,11 @@ impl<T: Sized + Copy> Queue<T> {
         })
     }
 
+    /// # Safety
+    ///
+    /// `handle` must be a valid FreeRTOS regular queue handle (not semaphore or mutex).
+    ///
+    /// The item size of the queue must match the size of `T`.
     #[inline]
     pub unsafe fn from_raw_handle(handle: FreeRtosQueueHandle) -> Self {
         Self {
