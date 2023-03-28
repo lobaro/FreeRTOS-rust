@@ -34,9 +34,19 @@ impl Semaphore {
         }
     }
 
+    /// # Safety
+    ///
+    /// `handle` must be a valid FreeRTOS semaphore handle.
+    ///
+    /// Only binary or counting semaphore is expected here.
+    /// To create mutex from raw handle use [`crate::mutex::MutexInnerImpl::from_raw_handle`].
     #[inline]
     pub unsafe fn from_raw_handle(handle: FreeRtosSemaphoreHandle) -> Self {
         Self { semaphore: handle }
+    }
+    #[inline]
+    pub fn raw_handle(&self) -> FreeRtosSemaphoreHandle {
+        self.semaphore
     }
 
     /// Lock this semaphore in a RAII fashion

@@ -17,7 +17,7 @@ impl InterruptContext {
         }
     }
 
-    pub unsafe fn get_task_field_mut(&self) -> FreeRtosBaseTypeMutPtr {
+    pub fn get_task_field_mut(&self) -> FreeRtosBaseTypeMutPtr {
         self.x_higher_priority_task_woken as *mut _
     }
 }

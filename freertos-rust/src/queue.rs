@@ -31,12 +31,21 @@ impl<T: Sized + Copy> Queue<T> {
         })
     }
 
+    /// # Safety
+    ///
+    /// `handle` must be a valid FreeRTOS regular queue handle (not semaphore or mutex).
+    ///
+    /// The item size of the queue must match the size of `T`.
     #[inline]
     pub unsafe fn from_raw_handle(handle: FreeRtosQueueHandle) -> Self {
         Self {
             queue: handle,
             item_type: PhantomData,
         }
+    }
+    #[inline]
+    pub fn raw_handle(&self) -> FreeRtosQueueHandle {
+        self.queue
     }
 
     /// Send an item to the end of the queue. Wait for the queue to have empty space for it.

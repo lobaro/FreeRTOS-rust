@@ -50,6 +50,9 @@ pub fn shim_sanity_check() -> Result<(), TypeSizeError> {
     Ok(())
 }
 
+/// # Safety
+///
+/// `str` must be a pointer to the beginning of nul-terminated sequence of bytes.
 #[cfg(any(feature = "time", feature = "hooks", feature = "sync"))]
 pub unsafe fn str_from_c_string(str: *const u8) -> Result<String, FreeRtosError> {
     let mut buf = Vec::new();
