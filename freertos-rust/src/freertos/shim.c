@@ -109,9 +109,11 @@ TickType_t freertos_rs_xTaskGetTickCount() {
 	return xTaskGetTickCount();
 }
 
+#if (configUSE_TRACE_FACILITY == 1)
 UBaseType_t freertos_rs_get_system_state(TaskStatus_t * const pxTaskStatusArray, const UBaseType_t uxArraySize, uint32_t * const pulTotalRunTime) {
 	return uxTaskGetSystemState(pxTaskStatusArray, uxArraySize, pulTotalRunTime);
 }
+#endif
 
 #ifdef configCPU_CLOCK_HZ
 unsigned long freertos_rs_get_configCPU_CLOCK_HZ() {
