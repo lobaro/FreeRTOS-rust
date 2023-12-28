@@ -234,6 +234,7 @@ UBaseType_t freertos_rs_get_stack_high_water_mark(TaskHandle_t task) {
 #if (INCLUDE_uxTaskGetStackHighWaterMark == 1)
 	return uxTaskGetStackHighWaterMark(task);
 #else
+	(void)task;
 	return 0;
 #endif
 }
