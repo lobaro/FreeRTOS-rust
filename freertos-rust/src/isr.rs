@@ -17,8 +17,11 @@ impl InterruptContext {
         }
     }
 
-    pub fn get_task_field_mut(&self) -> FreeRtosBaseTypeMutPtr {
-        self.x_higher_priority_task_woken as *mut _
+    pub fn get_task_field_mut(&mut self) -> FreeRtosBaseTypeMutPtr {
+        &mut self.x_higher_priority_task_woken as *mut _
+    }
+    pub fn higher_priority_task_woken(&self) -> FreeRtosBaseType {
+        self.x_higher_priority_task_woken
     }
 }
 

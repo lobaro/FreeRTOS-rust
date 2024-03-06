@@ -241,7 +241,7 @@ impl Task {
     /// Notify this task from an interrupt.
     pub fn notify_from_isr(
         &self,
-        context: &InterruptContext,
+        context: &mut InterruptContext,
         notification: TaskNotification,
     ) -> Result<(), FreeRtosError> {
         unsafe {
