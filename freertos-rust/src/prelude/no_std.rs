@@ -1,7 +1,6 @@
 pub use core::cell::UnsafeCell;
 pub use core::cmp::*;
 pub use core::fmt;
-pub use core::iter::Iterator;
 pub use core::marker::PhantomData;
 pub use core::mem;
 pub use core::ops::{Deref, DerefMut};
