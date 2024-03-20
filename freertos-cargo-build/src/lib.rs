@@ -217,33 +217,37 @@ impl Builder {
 
     /// Check that all required files and paths exist
     fn verify_paths(&self) -> Result<(), Error> {
-        if !self.freertos_dir.exists() {
+        if !self.freertos_dir.is_dir() {
             return Err(Error::new(&format!("Directory freertos_dir does not exist: {}", self.freertos_dir.to_str().unwrap())));
         }
         let port_dir = self.get_freertos_port_dir();
-        if !port_dir.exists() {
+        if !port_dir.is_dir() {
             return Err(Error::new(&format!("Directory freertos_port_dir does not exist: {}", port_dir.to_str().unwrap())));
         }
 
         let include_dir = self.freertos_include_dir();
-        if !include_dir.exists() {
+        if !include_dir.is_dir() {
             return Err(Error::new(&format!("Directory freertos_include_dir does not exist: {}", include_dir.to_str().unwrap())));
         }
 
         // The heap implementation
         let heap_c = self.heap_c_file();
-        if !heap_c.exists() || !heap_c.is_file() {
+        if !heap_c.is_file() {
             return Err(Error::new(&format!("File heap_?.c does not exist: {}", heap_c.to_str().unwrap())));
         }
 
         // Allows to find the FreeRTOSConfig.h
-        if !self.freertos_config_dir.exists() {
+        if !self.freertos_config_dir.is_dir() {
             return Err(Error::new(&format!("Directory freertos_config_dir does not exist: {}", self.freertos_config_dir.to_str().unwrap())));
+        }
+        // Make sure FreeRTOSConfig.h exists in freertos_config_dir
+        if !self.freertos_config_dir.join("FreeRTOSConfig.h").is_file() {
+            return Err(Error::new(&format!("File FreeRTOSConfig.h does not exist in the freertos_config_dir directory: {}", self.freertos_config_dir.to_str().unwrap())));
         }
 
         // Add the freertos shim.c to support freertos-rust
         let shim_c = self.shim_c_file();
-        if !shim_c.exists() || !shim_c.is_file() {
+        if !shim_c.is_file() {
             return Err(Error::new(&format!("File freertos_shim '{}' does not exist, missing freertos-rust dependency?", shim_c.to_str().unwrap())));
         }
 
