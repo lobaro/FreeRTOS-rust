@@ -157,7 +157,7 @@ impl Timer {
     }
 
     /// Start the timer from an interrupt.
-    pub fn start_from_isr(&self, context: &InterruptContext) -> Result<(), FreeRtosError> {
+    pub fn start_from_isr(&self, context: &mut InterruptContext) -> Result<(), FreeRtosError> {
         unsafe {
             if freertos_rs_timer_start_from_isr(self.handle, context.get_task_field_mut()) == 0 {
                 Ok(())
