@@ -29,6 +29,7 @@ fn main() {
     // println!("Free Memory: {}!", free);
     println!("Starting scheduler");
     FreeRtosUtils::start_scheduler();
+    #[allow(unreachable_code)]
     loop {
         println!("Loop forever!");
     }
