@@ -1,8 +1,8 @@
 use cc::Build;
 use std::ffi::OsStr;
 use std::fmt::Display;
-use std::{fmt, env};
 use std::path::{Path, PathBuf};
+use std::{env, fmt};
 use walkdir::WalkDir;
 
 /// The FREERTOS_SRC env variable must point to the FreeRTOS kernel code.
@@ -52,6 +52,23 @@ impl Display for Error {
     }
 }
 
+impl Default for Builder {
+    fn default() -> Self {
+        let freertos_path = env::var(ENV_KEY_FREERTOS_SRC).unwrap_or_default();
+        let freertos_config_path = env::var(ENV_KEY_FREERTOS_CONFIG).unwrap_or_default();
+        let freertos_shim = env::var(ENV_KEY_FREERTOS_SHIM).unwrap_or_default();
+
+        Self {
+            freertos_dir: PathBuf::from(freertos_path),
+            freertos_config_dir: PathBuf::from(freertos_config_path),
+            freertos_shim: PathBuf::from(freertos_shim),
+            freertos_port: None,
+            freertos_port_base: None,
+            cc: cc::Build::new(),
+            heap_c: PathBuf::from("heap_4.c"),
+        }
+    }
+}
 
 impl Builder {
     /// Construct a new instance of a blank set of configuration.
@@ -60,22 +77,8 @@ impl Builder {
     ///
     /// [`compile`]: struct.Build.html#method.compile
     pub fn new() -> Builder {
-        let freertos_path = env::var(ENV_KEY_FREERTOS_SRC).unwrap_or_default();
-        let freertos_config_path = env::var(ENV_KEY_FREERTOS_CONFIG).unwrap_or_default();
-        let freertos_shim = env::var(ENV_KEY_FREERTOS_SHIM).unwrap_or_default();
-
-        let b = Builder {
-            freertos_dir: PathBuf::from(freertos_path),
-            freertos_config_dir: PathBuf::from(freertos_config_path),
-            freertos_shim: PathBuf::from(freertos_shim),
-            freertos_port: None,
-            freertos_port_base: None,
-            cc: cc::Build::new(),
-            heap_c: PathBuf::from("heap_4.c"),
-        };
-        return b;
+        Self::default()
     }
-
 
     /// Set the path to freeRTOS source
     /// Default is loaded from ENV variable "FREERTOS_SRC"
@@ -107,8 +110,9 @@ impl Builder {
                 if f_name.ends_with(".c") {
                     return Some(entry.path().to_owned());
                 }
-                return None;
-            }).collect();
+                None
+            })
+            .collect();
         files
     }
 
@@ -125,8 +129,9 @@ impl Builder {
                 if f_name.ends_with(".c") {
                     return Some(entry.path().to_owned());
                 }
-                return None;
-            }).collect();
+                None
+            })
+            .collect();
         files
     }
     fn freertos_port_files(&self) -> Vec<PathBuf> {
@@ -140,8 +145,9 @@ impl Builder {
                 if f_name.ends_with(".c") {
                     return Some(entry.path().to_owned());
                 }
-                return None;
-            }).collect();
+                None
+            })
+            .collect();
         files
     }
 
@@ -177,10 +183,15 @@ impl Builder {
 
         let target = env::var("TARGET").unwrap_or_default();
         let target_env = env::var("CARGO_CFG_TARGET_ENV").unwrap_or_default(); // msvc, gnu, ...
-        //let target_family = env::var("CARGO_CFG_TARGET_FAMILY").unwrap_or_default(); // unix, windows
+                                                                               //let target_family = env::var("CARGO_CFG_TARGET_FAMILY").unwrap_or_default(); // unix, windows
         let target_arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap_or_default(); // x86_64
         let target_os = env::var("CARGO_CFG_TARGET_OS").unwrap_or_default(); // none, windows, linux, macos
-        let port = match (target.as_str(), target_arch.as_str(), target_os.as_str(), target_env.as_str()) {
+        let port = match (
+            target.as_str(),
+            target_arch.as_str(),
+            target_os.as_str(),
+            target_env.as_str(),
+        ) {
             (_, "x86_64", "windows", _) => "MSVC-MingW",
             (_, "x86_64", "linux", "gnu") => "GCC/Linux",
             ("thumbv7m-none-eabi", _, _, _) => "GCC/ARM_CM3",
@@ -190,10 +201,13 @@ impl Builder {
             ("thumbv8m.main-none-eabi", _, _, _) => "GCC/ARM_CM33_NTZ/non_secure",
             ("thumbv8m.main-none-eabihf", _, _, _) => "GCC/ARM_CM33_NTZ/non_secure",
             _ => {
-                panic!("Unknown target: '{}', from TARGET environment variable.", target);
+                panic!(
+                    "Unknown target: '{}', from TARGET environment variable.",
+                    target
+                );
             }
         };
-        return base.join(port);
+        base.join(port)
     }
 
     pub fn freertos_port_base<P: AsRef<Path>>(&mut self, base_dir: P) {
@@ -209,7 +223,9 @@ impl Builder {
     }
 
     fn heap_c_file(&self) -> PathBuf {
-        self.freertos_dir.join("portable/MemMang").join(&self.heap_c)
+        self.freertos_dir
+            .join("portable/MemMang")
+            .join(&self.heap_c)
     }
     fn shim_c_file(&self) -> PathBuf {
         self.freertos_shim.join("shim.c")
@@ -218,37 +234,58 @@ impl Builder {
     /// Check that all required files and paths exist
     fn verify_paths(&self) -> Result<(), Error> {
         if !self.freertos_dir.is_dir() {
-            return Err(Error::new(&format!("Directory freertos_dir does not exist: {}", self.freertos_dir.to_str().unwrap())));
+            return Err(Error::new(&format!(
+                "Directory freertos_dir does not exist: {}",
+                self.freertos_dir.to_str().unwrap()
+            )));
         }
         let port_dir = self.get_freertos_port_dir();
         if !port_dir.is_dir() {
-            return Err(Error::new(&format!("Directory freertos_port_dir does not exist: {}", port_dir.to_str().unwrap())));
+            return Err(Error::new(&format!(
+                "Directory freertos_port_dir does not exist: {}",
+                port_dir.to_str().unwrap()
+            )));
         }
 
         let include_dir = self.freertos_include_dir();
         if !include_dir.is_dir() {
-            return Err(Error::new(&format!("Directory freertos_include_dir does not exist: {}", include_dir.to_str().unwrap())));
+            return Err(Error::new(&format!(
+                "Directory freertos_include_dir does not exist: {}",
+                include_dir.to_str().unwrap()
+            )));
         }
 
         // The heap implementation
         let heap_c = self.heap_c_file();
         if !heap_c.is_file() {
-            return Err(Error::new(&format!("File heap_?.c does not exist: {}", heap_c.to_str().unwrap())));
+            return Err(Error::new(&format!(
+                "File heap_?.c does not exist: {}",
+                heap_c.to_str().unwrap()
+            )));
         }
 
         // Allows to find the FreeRTOSConfig.h
         if !self.freertos_config_dir.is_dir() {
-            return Err(Error::new(&format!("Directory freertos_config_dir does not exist: {}", self.freertos_config_dir.to_str().unwrap())));
+            return Err(Error::new(&format!(
+                "Directory freertos_config_dir does not exist: {}",
+                self.freertos_config_dir.to_str().unwrap()
+            )));
         }
         // Make sure FreeRTOSConfig.h exists in freertos_config_dir
         if !self.freertos_config_dir.join("FreeRTOSConfig.h").is_file() {
-            return Err(Error::new(&format!("File FreeRTOSConfig.h does not exist in the freertos_config_dir directory: {}", self.freertos_config_dir.to_str().unwrap())));
+            return Err(Error::new(&format!(
+                "File FreeRTOSConfig.h does not exist in the freertos_config_dir directory: {}",
+                self.freertos_config_dir.to_str().unwrap()
+            )));
         }
 
         // Add the freertos shim.c to support freertos-rust
         let shim_c = self.shim_c_file();
         if !shim_c.is_file() {
-            return Err(Error::new(&format!("File freertos_shim '{}' does not exist, missing freertos-rust dependency?", shim_c.to_str().unwrap())));
+            return Err(Error::new(&format!(
+                "File freertos_shim '{}' does not exist, missing freertos-rust dependency?",
+                shim_c.to_str().unwrap()
+            )));
         }
 
         Ok(())
@@ -272,7 +309,8 @@ impl Builder {
         println!("cargo:rerun-if-env-changed={ENV_KEY_FREERTOS_CONFIG}");
         println!("cargo:rerun-if-env-changed={ENV_KEY_FREERTOS_SHIM}");
 
-        b.try_compile("freertos").map_err(|e| Error::new(&format!("{}", e)))?;
+        b.try_compile("freertos")
+            .map_err(|e| Error::new(&format!("{}", e)))?;
 
         Ok(())
     }
@@ -331,7 +369,7 @@ fn add_include_with_rerun<P: AsRef<Path>>(build: &mut Build, dir: P) {
 fn test_paths() {
     env::set_var("FREERTOS_SRC", "some/path");
     env::set_var("TARGET", "thumbv8m.main-none-eabihf");
-    let mut b = Builder::new();
+    let b = Builder::new();
     assert_eq!(b.freertos_dir.to_str().unwrap(), "some/path");
 }
 /*
