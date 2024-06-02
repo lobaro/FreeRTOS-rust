@@ -41,7 +41,8 @@ fn main() {
         copy(
             "examples/stm32-cortex-m3/memory.x",
             PathBuf::from(out_dir.as_str()).join("memory.x"),
-        ).unwrap();
+        )
+        .unwrap();
     }
     if target == "thumbv7em-none-eabihf" {
         b.freertos_config("examples/stm32-cortex-m4-blackpill");
@@ -56,10 +57,11 @@ fn main() {
         copy(
             "examples/nrf9160/memory.x",
             PathBuf::from(out_dir.as_str()).join("memory.x"),
-        ).unwrap();
+        )
+        .unwrap();
     }
 
-    b.compile().unwrap_or_else(|e| { panic!(e.to_string()) });
+    b.compile().unwrap_or_else(|e| panic!("{}", e));
 }
 
 /// Print relevant environment variables
