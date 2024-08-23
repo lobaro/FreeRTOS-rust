@@ -140,12 +140,16 @@ impl Builder {
             .into_iter()
             .filter_map(|e| e.ok())
             .filter_map(|entry| {
-                let f_name = entry.path().to_str().unwrap();
-
-                if f_name.ends_with(".c") {
-                    return Some(entry.path().to_owned());
+                match entry
+                    .path()
+                    .extension()
+                    .map(|s| s.to_string_lossy())
+                    .as_ref()
+                    .map(|s| s.as_ref())
+                {
+                    Some("c" | "s" | "S") => Some(entry.path().to_owned()),
+                    _ => None,
                 }
-                None
             })
             .collect();
         files
