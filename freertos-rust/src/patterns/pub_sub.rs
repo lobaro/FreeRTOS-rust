@@ -5,16 +5,16 @@ use crate::queue::*;
 use crate::units::*;
 
 /// A pub-sub queue. An item sent to the publisher is sent to every subscriber.
-pub struct QueuePublisher<T: Sized + Copy> {
+pub struct QueuePublisher<T: Sized + Copy + Send> {
     inner: Arc<Mutex<PublisherInner<T>>>,
 }
 
 /// A subscribtion to the publisher.
-pub struct QueueSubscriber<T: Sized + Copy> {
+pub struct QueueSubscriber<T: Sized + Copy + Send> {
     inner: Arc<SubscriberInner<T>>,
 }
 
-impl<T: Sized + Copy> QueuePublisher<T> {
+impl<T: Sized + Copy + Send> QueuePublisher<T> {
     /// Create a new publisher
     pub fn new() -> Result<QueuePublisher<T>, FreeRtosError> {
         let inner = PublisherInner {
@@ -69,7 +69,7 @@ impl<T: Sized + Copy> QueuePublisher<T> {
     }
 }
 
-impl<T: Sized + Copy> Clone for QueuePublisher<T> {
+impl<T: Sized + Copy + Send> Clone for QueuePublisher<T> {
     fn clone(&self) -> Self {
         QueuePublisher {
             inner: self.inner.clone(),
@@ -77,7 +77,7 @@ impl<T: Sized + Copy> Clone for QueuePublisher<T> {
     }
 }
 
-impl<T: Sized + Copy> Drop for QueueSubscriber<T> {
+impl<T: Sized + Copy + Send> Drop for QueueSubscriber<T> {
     fn drop(&mut self) {
         if let Ok(mut l) = self.inner.publisher.lock(Duration::infinite()) {
             l.unsubscribe(&self.inner);
@@ -85,25 +85,25 @@ impl<T: Sized + Copy> Drop for QueueSubscriber<T> {
     }
 }
 
-impl<T: Sized + Copy> QueueSubscriber<T> {
+impl<T: Sized + Copy + Send> QueueSubscriber<T> {
     /// Wait for an item to be posted from the publisher.
     pub fn receive<D: DurationTicks>(&self, max_wait: D) -> Result<T, FreeRtosError> {
         self.inner.queue.receive(max_wait)
     }
 }
 
-struct PublisherInner<T: Sized + Copy> {
+struct PublisherInner<T: Sized + Copy + Send> {
     subscribers: Vec<Arc<SubscriberInner<T>>>,
     queue_next_id: usize,
 }
 
-impl<T: Sized + Copy> PublisherInner<T> {
+impl<T: Sized + Copy + Send> PublisherInner<T> {
     fn unsubscribe(&mut self, subscriber: &SubscriberInner<T>) {
         self.subscribers.retain(|ref x| x.id != subscriber.id);
     }
 }
 
-struct SubscriberInner<T: Sized + Copy> {
+struct SubscriberInner<T: Sized + Copy + Send> {
     id: usize,
     queue: Queue<T>,
     publisher: Arc<Mutex<PublisherInner<T>>>,
