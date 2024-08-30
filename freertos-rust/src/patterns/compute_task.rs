@@ -3,7 +3,7 @@ use crate::mutex::*;
 use crate::prelude::v1::*;
 use crate::queue::*;
 use crate::task::*;
-use crate::units::*;
+use crate::units::Duration;
 
 pub trait ComputeTaskBuilder {
     fn compute<F, R>(&self, func: F) -> Result<ComputeTask<R>, FreeRtosError>
@@ -79,8 +79,8 @@ impl ComputeTaskBuilder for TaskBuilder {
 /// # use freertos_rs::*;
 /// use freertos_rs::patterns::compute_task::*;
 /// let task = Task::new().compute(|| {
-/// 	CurrentTask::delay(Duration::ms(100));
-/// 	42
+///     CurrentTask::delay(Duration::ms(100));
+///     42
 /// }).unwrap();
 ///
 /// let result = task.into_result(Duration::ms(1000)).unwrap();
@@ -109,8 +109,8 @@ impl<R: Debug> ComputeTask<R> {
     }
 
     /// Wait until the task computes its result. Otherwise, returns a timeout.
-    pub fn wait_for_result<D: DurationTicks>(&mut self, max_wait: D) -> Result<(), FreeRtosError> {
-        if self.finished == true {
+    pub fn wait_for_result(&mut self, max_wait: Duration) -> Result<(), FreeRtosError> {
+        if self.finished {
             Ok(())
         } else {
             match self.status.receive(max_wait) {
@@ -124,10 +124,10 @@ impl<R: Debug> ComputeTask<R> {
     }
 
     /// Consume the task and unwrap the computed return value.
-    pub fn into_result<D: DurationTicks>(mut self, max_wait: D) -> Result<R, FreeRtosError> {
+    pub fn into_result(mut self, max_wait: Duration) -> Result<R, FreeRtosError> {
         self.wait_for_result(max_wait)?;
 
-        if self.finished != true {
+        if !self.finished {
             panic!("ComputeTask should be finished!");
         }
 

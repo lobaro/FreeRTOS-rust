@@ -2,7 +2,7 @@ use crate::base::*;
 use crate::mutex::*;
 use crate::prelude::v1::*;
 use crate::queue::*;
-use crate::units::*;
+use crate::units::Duration;
 
 pub type SharedClientWithReplyQueue<O> = Arc<ClientWithReplyQueue<O>>;
 pub type Client<I> = ProcessorClient<I, ()>;
@@ -27,14 +27,14 @@ where
 {
     pub fn request(val: I) -> Self {
         InputMessage {
-            val: val,
+            val,
             reply_to_client_id: None,
         }
     }
 
     pub fn request_with_reply(val: I, client_id: usize) -> Self {
         InputMessage {
-            val: val,
+            val,
             reply_to_client_id: Some(client_id),
         }
     }
@@ -89,10 +89,10 @@ where
         Ok(c)
     }
 
-    pub fn new_client_with_reply<D: DurationTicks>(
+    pub fn new_client_with_reply(
         &self,
         client_receive_queue_size: usize,
-        max_wait: D,
+        max_wait: Duration,
     ) -> Result<ProcessorClient<I, SharedClientWithReplyQueue<O>>, FreeRtosError> {
         if client_receive_queue_size == 0 {
             return Err(FreeRtosError::InvalidQueueSize);
@@ -117,28 +117,28 @@ where
 
         let c = ProcessorClient {
             processor_queue: Arc::downgrade(&self.queue),
-            client_reply: client_reply,
+            client_reply,
         };
 
         Ok(c)
     }
 
     pub fn get_receive_queue(&self) -> &Queue<I> {
-        &*self.queue
+        &self.queue
     }
 
-    pub fn reply<D: DurationTicks>(
+    pub fn reply(
         &self,
         received_message: I,
         reply: O,
-        max_wait: D,
+        max_wait: Duration,
     ) -> Result<bool, FreeRtosError> {
         if let Some(client_id) = received_message.reply_to_client_id() {
             let inner = self.inner.lock(max_wait)?;
             if let Some(client) = inner
                 .clients
                 .iter()
-                .flat_map(|ref x| x.1.upgrade().into_iter())
+                .flat_map(|x| x.1.upgrade().into_iter())
                 .find(|x| x.id == client_id)
             {
                 client.receive_queue.send(reply, max_wait)?;
@@ -155,11 +155,11 @@ where
     I: Copy,
     O: Copy,
 {
-    pub fn reply_val<D: DurationTicks>(
+    pub fn reply_val(
         &self,
         received_message: InputMessage<I>,
         reply: O,
-        max_wait: D,
+        max_wait: Duration,
     ) -> Result<bool, FreeRtosError> {
         self.reply(received_message, reply, max_wait)
     }
@@ -178,7 +178,7 @@ where
     O: Copy,
 {
     fn remove_client_reply(&mut self, client: &ClientWithReplyQueue<O>) {
-        self.clients.retain(|ref x| x.0 != client.id)
+        self.clients.retain(|x| x.0 != client.id)
     }
 }
 
@@ -194,7 +194,7 @@ impl<I, O> ProcessorClient<I, O>
 where
     I: ReplyableMessage + Copy,
 {
-    pub fn send<D: DurationTicks>(&self, message: I, max_wait: D) -> Result<(), FreeRtosError> {
+    pub fn send(&self, message: I, max_wait: Duration) -> Result<(), FreeRtosError> {
         let processor_queue = self
             .processor_queue
             .upgrade()
@@ -220,7 +220,7 @@ impl<I> ProcessorClient<InputMessage<I>, ()>
 where
     I: Copy,
 {
-    pub fn send_val<D: DurationTicks>(&self, val: I, max_wait: D) -> Result<(), FreeRtosError> {
+    pub fn send_val(&self, val: I, max_wait: Duration) -> Result<(), FreeRtosError> {
         self.send(InputMessage::request(val), max_wait)
     }
 
@@ -238,7 +238,7 @@ where
     I: ReplyableMessage + Copy,
     O: Copy,
 {
-    pub fn call<D: DurationTicks>(&self, message: I, max_wait: D) -> Result<O, FreeRtosError> {
+    pub fn call(&self, message: I, max_wait: Duration) -> Result<O, FreeRtosError> {
         self.send(message, max_wait)?;
         self.client_reply.receive_queue.receive(max_wait)
     }
@@ -253,11 +253,11 @@ where
     I: Copy,
     O: Copy,
 {
-    pub fn send_val<D: DurationTicks>(&self, val: I, max_wait: D) -> Result<(), FreeRtosError> {
+    pub fn send_val(&self, val: I, max_wait: Duration) -> Result<(), FreeRtosError> {
         self.send(InputMessage::request(val), max_wait)
     }
 
-    pub fn call_val<D: DurationTicks>(&self, val: I, max_wait: D) -> Result<O, FreeRtosError> {
+    pub fn call_val(&self, val: I, max_wait: Duration) -> Result<O, FreeRtosError> {
         let reply = self.call(
             InputMessage::request_with_reply(val, self.client_reply.id),
             max_wait,
@@ -293,8 +293,8 @@ where
     O: Copy,
 {
     fn drop(&mut self) {
-        if let Ok(mut p) = self.processor_inner.lock(Duration::ms(1000)) {
-            p.remove_client_reply(&self);
+        if let Ok(mut p) = self.processor_inner.lock(Duration::from_ms(1000)) {
+            p.remove_client_reply(self);
         }
     }
 }

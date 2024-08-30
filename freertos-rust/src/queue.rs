@@ -2,7 +2,7 @@ use crate::base::*;
 use crate::isr::*;
 use crate::prelude::v1::*;
 use crate::shim::*;
-use crate::units::*;
+use crate::units::Duration;
 
 unsafe impl<T: Sized + Copy> Send for Queue<T> {}
 unsafe impl<T: Sized + Copy> Sync for Queue<T> {}
@@ -21,7 +21,7 @@ impl<T: Sized + Copy> Queue<T> {
 
         let handle = unsafe { freertos_rs_queue_create(max_size as u32, item_size as u32) };
 
-        if handle == 0 as *const _ {
+        if handle.is_null() {
             return Err(FreeRtosError::OutOfMemory);
         }
 
@@ -49,12 +49,12 @@ impl<T: Sized + Copy> Queue<T> {
     }
 
     /// Send an item to the end of the queue. Wait for the queue to have empty space for it.
-    pub fn send<D: DurationTicks>(&self, item: T, max_wait: D) -> Result<(), FreeRtosError> {
+    pub fn send(&self, item: T, max_wait: Duration) -> Result<(), FreeRtosError> {
         unsafe {
             if freertos_rs_queue_send(
                 self.queue,
                 &item as *const _ as FreeRtosVoidPtr,
-                max_wait.to_ticks(),
+                max_wait.ticks(),
             ) != 0
             {
                 Err(FreeRtosError::QueueSendTimeout)
@@ -85,23 +85,24 @@ impl<T: Sized + Copy> Queue<T> {
     }
 
     /// Wait for an item to be available on the queue.
-    pub fn receive<D: DurationTicks>(&self, max_wait: D) -> Result<T, FreeRtosError> {
+    pub fn receive(&self, max_wait: Duration) -> Result<T, FreeRtosError> {
         unsafe {
             let mut buff = mem::zeroed::<T>();
             let r = freertos_rs_queue_receive(
                 self.queue,
                 &mut buff as *mut _ as FreeRtosMutVoidPtr,
-                max_wait.to_ticks(),
+                max_wait.ticks(),
             );
             if r == 0 {
-                return Ok(buff);
+                Ok(buff)
             } else {
-                return Err(FreeRtosError::QueueReceiveTimeout);
+                Err(FreeRtosError::QueueReceiveTimeout)
             }
         }
     }
 
     /// Get the number of messages in the queue.
+    #[allow(clippy::len_without_is_empty)]
     pub fn len(&self) -> u32 {
         unsafe { freertos_rs_queue_messages_waiting(self.queue) }
     }

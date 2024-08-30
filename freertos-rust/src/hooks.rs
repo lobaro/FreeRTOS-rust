@@ -21,9 +21,12 @@ impl FreeRtosHooks {
 // TODO: It's unsafe to use, we should build some safe wrapper around
 pub static mut FREERTOS_HOOKS: FreeRtosHooks = FreeRtosHooks { on_assert: || {} };
 
+/// # Safety
+///
+/// `file_name_ptr` must be a pointer to the beginning of nul-terminated sequence of bytes.
 #[allow(unused_doc_comments)]
 #[no_mangle]
-pub extern "C" fn vAssertCalled(file_name_ptr: FreeRtosCharPtr, line: FreeRtosUBaseType) {
+pub unsafe extern "C" fn vAssertCalled(file_name_ptr: FreeRtosCharPtr, line: FreeRtosUBaseType) {
     let file_name: String;
     unsafe {
         file_name = str_from_c_string(file_name_ptr).unwrap();

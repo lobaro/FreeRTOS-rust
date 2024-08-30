@@ -26,10 +26,10 @@
 //! ```rust
 //! # use freertos_rs::*;
 //! Task::new().name("hello").stack_size(128).start(|| {
-//! 	loop {
-//! 		println!("Hello world!");
-//! 		CurrentTask::delay(Duration::infinite());
-//! 	}
+//!     loop {
+//!         println!("Hello world!");
+//!         CurrentTask::delay(Duration::infinite());
+//!     }
 //! }).unwrap();
 //!
 //! FreeRtosUtils::start_scheduler();
@@ -50,8 +50,8 @@
 //! # use freertos_rs::*;
 //! let m = Mutex::new(0).unwrap();
 //! {
-//! 	let mut v = m.lock(Duration::infinite()).unwrap();
-//! 	*v += 1;
+//!     let mut v = m.lock(Duration::infinite()).unwrap();
+//!     *v += 1;
 //! }
 //! ```
 
@@ -121,7 +121,7 @@ pub use crate::task::*;
 #[cfg(feature = "time")]
 pub use crate::timers::*;
 #[cfg(any(feature = "time", feature = "sync"))]
-pub use crate::units::*;
+pub use crate::units::Duration;
 
 #[cfg(feature = "cpu_clock")]
 pub use crate::utils::cpu_clock_hz;

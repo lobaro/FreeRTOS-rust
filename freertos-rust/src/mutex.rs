@@ -1,7 +1,7 @@
 use crate::base::*;
 use crate::prelude::v1::*;
 use crate::shim::*;
-use crate::units::*;
+use crate::units::Duration;
 
 pub type Mutex<T> = MutexImpl<T, MutexNormal>;
 pub type RecursiveMutex<T> = MutexImpl<T, MutexRecursive>;
@@ -36,7 +36,7 @@ where
     }
 
     /// Try to obtain a lock and mutable access to our inner value
-    pub fn lock<D: DurationTicks>(&self, max_wait: D) -> Result<MutexGuard<T, M>, FreeRtosError> {
+    pub fn lock(&self, max_wait: Duration) -> Result<MutexGuard<T, M>, FreeRtosError> {
         self.mutex.take(max_wait)?;
 
         Ok(MutexGuard {
@@ -93,7 +93,7 @@ where
 {
     type Target = T;
 
-    fn deref<'a>(&'a self) -> &'a T {
+    fn deref(&self) -> &T {
         unsafe { &*self.__data.get() }
     }
 }
@@ -102,7 +102,7 @@ impl<'mutex, T: ?Sized, M> DerefMut for MutexGuard<'mutex, T, M>
 where
     M: MutexInnerImpl,
 {
-    fn deref_mut<'a>(&'a mut self) -> &'a mut T {
+    fn deref_mut(&mut self) -> &mut T {
         unsafe { &mut *self.__data.get() }
     }
 }
@@ -121,7 +121,7 @@ where
     Self: Sized,
 {
     fn create() -> Result<Self, FreeRtosError>;
-    fn take<D: DurationTicks>(&self, max_wait: D) -> Result<(), FreeRtosError>;
+    fn take(&self, max_wait: Duration) -> Result<(), FreeRtosError>;
     fn give(&self);
 
     /// # Safety
@@ -139,14 +139,14 @@ pub struct MutexNormal(FreeRtosSemaphoreHandle);
 impl MutexInnerImpl for MutexNormal {
     fn create() -> Result<Self, FreeRtosError> {
         let m = unsafe { freertos_rs_create_mutex() };
-        if m == 0 as *const _ {
+        if m.is_null() {
             return Err(FreeRtosError::OutOfMemory);
         }
         Ok(MutexNormal(m))
     }
 
-    fn take<D: DurationTicks>(&self, max_wait: D) -> Result<(), FreeRtosError> {
-        let res = unsafe { freertos_rs_take_semaphore(self.0, max_wait.to_ticks()) };
+    fn take(&self, max_wait: Duration) -> Result<(), FreeRtosError> {
+        let res = unsafe { freertos_rs_take_semaphore(self.0, max_wait.ticks()) };
 
         if res != 0 {
             return Err(FreeRtosError::MutexTimeout);
@@ -189,14 +189,14 @@ pub struct MutexRecursive(FreeRtosSemaphoreHandle);
 impl MutexInnerImpl for MutexRecursive {
     fn create() -> Result<Self, FreeRtosError> {
         let m = unsafe { freertos_rs_create_recursive_mutex() };
-        if m == 0 as *const _ {
+        if m.is_null() {
             return Err(FreeRtosError::OutOfMemory);
         }
         Ok(MutexRecursive(m))
     }
 
-    fn take<D: DurationTicks>(&self, max_wait: D) -> Result<(), FreeRtosError> {
-        let res = unsafe { freertos_rs_take_recursive_semaphore(self.0, max_wait.to_ticks()) };
+    fn take(&self, max_wait: Duration) -> Result<(), FreeRtosError> {
+        let res = unsafe { freertos_rs_take_recursive_semaphore(self.0, max_wait.ticks()) };
 
         if res != 0 {
             return Err(FreeRtosError::MutexTimeout);

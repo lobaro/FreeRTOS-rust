@@ -1,8 +1,8 @@
-use crate::InterruptContext;
 use crate::base::*;
 use crate::prelude::v1::*;
 use crate::shim::*;
-use crate::units::*;
+use crate::units::Duration;
+use crate::InterruptContext;
 
 unsafe impl Send for Timer {}
 unsafe impl Sync for Timer {}
@@ -17,13 +17,13 @@ pub struct Timer {
 }
 
 /// Helper builder for a new software timer.
-pub struct TimerBuilder<D: DurationTicks> {
+pub struct TimerBuilder {
     name: String,
-    period: D,
+    period: Duration,
     auto_reload: bool,
 }
 
-impl<D: DurationTicks> TimerBuilder<D> {
+impl TimerBuilder {
     /// Set the name of the timer.
     pub fn set_name(&mut self, name: &str) -> &mut Self {
         self.name = name.into();
@@ -31,7 +31,7 @@ impl<D: DurationTicks> TimerBuilder<D> {
     }
 
     /// Set the period of the timer.
-    pub fn set_period(&mut self, period: D) -> &mut Self {
+    pub fn set_period(&mut self, period: Duration) -> &mut Self {
         self.period = period;
         self
     }
@@ -47,12 +47,12 @@ impl<D: DurationTicks> TimerBuilder<D> {
     /// Note that the newly created timer must be started.
     pub fn create<F>(&self, callback: F) -> Result<Timer, FreeRtosError>
     where
-        F: Fn(Timer) -> (),
+        F: Fn(Timer),
         F: Send + 'static,
     {
         Timer::spawn(
             self.name.as_str(),
-            self.period.to_ticks(),
+            self.period.ticks(),
             self.auto_reload,
             callback,
         )
@@ -61,10 +61,11 @@ impl<D: DurationTicks> TimerBuilder<D> {
 
 impl Timer {
     /// Create a new timer builder.
-    pub fn new<D: DurationTicks>(period: D) -> TimerBuilder<D> {
+    #[allow(clippy::new_ret_no_self)]
+    pub fn new(period: Duration) -> TimerBuilder {
         TimerBuilder {
             name: "timer".into(),
-            period: period,
+            period,
             auto_reload: true,
         }
     }
@@ -78,6 +79,7 @@ impl Timer {
     pub unsafe fn from_raw_handle(handle: FreeRtosTimerHandle) -> Self {
         Self { handle }
     }
+
     #[inline]
     pub fn raw_handle(&self) -> FreeRtosTimerHandle {
         self.handle
@@ -114,13 +116,15 @@ impl Timer {
             return Err(FreeRtosError::OutOfMemory);
         }
 
-        extern "C" fn timer_callback(handle: FreeRtosTimerHandle) -> () {
+        extern "C" fn timer_callback(handle: FreeRtosTimerHandle) {
             unsafe {
                 {
                     let timer = Timer { handle };
                     if let Ok(callback_ptr) = timer.get_id() {
                         let b = Box::from_raw(callback_ptr as *mut Box<dyn Fn(Timer)>);
                         b(timer);
+                        // # TODO
+                        // Investigate what is happening here and document.
                         Box::into_raw(b);
                     }
                 }
@@ -139,16 +143,16 @@ impl Timer {
         callback: F,
     ) -> Result<Timer, FreeRtosError>
     where
-        F: Fn(Timer) -> (),
+        F: Fn(Timer),
         F: Send + 'static,
     {
         unsafe { Timer::spawn_inner(name, period_tick, auto_reload, Box::new(callback)) }
     }
 
     /// Start the timer.
-    pub fn start<D: DurationTicks>(&self, block_time: D) -> Result<(), FreeRtosError> {
+    pub fn start(&self, block_time: Duration) -> Result<(), FreeRtosError> {
         unsafe {
-            if freertos_rs_timer_start(self.handle, block_time.to_ticks()) == 0 {
+            if freertos_rs_timer_start(self.handle, block_time.ticks()) == 0 {
                 Ok(())
             } else {
                 Err(FreeRtosError::Timeout)
@@ -168,9 +172,9 @@ impl Timer {
     }
 
     /// Stop the timer.
-    pub fn stop<D: DurationTicks>(&self, block_time: D) -> Result<(), FreeRtosError> {
+    pub fn stop(&self, block_time: Duration) -> Result<(), FreeRtosError> {
         unsafe {
-            if freertos_rs_timer_stop(self.handle, block_time.to_ticks()) == 0 {
+            if freertos_rs_timer_stop(self.handle, block_time.ticks()) == 0 {
                 Ok(())
             } else {
                 Err(FreeRtosError::Timeout)
@@ -179,17 +183,14 @@ impl Timer {
     }
 
     /// Change the period of the timer.
-    pub fn change_period<D: DurationTicks>(
+    pub fn change_period(
         &self,
-        block_time: D,
-        new_period: D,
+        block_time: Duration,
+        new_period: Duration,
     ) -> Result<(), FreeRtosError> {
         unsafe {
-            if freertos_rs_timer_change_period(
-                self.handle,
-                block_time.to_ticks(),
-                new_period.to_ticks(),
-            ) == 0
+            if freertos_rs_timer_change_period(self.handle, block_time.ticks(), new_period.ticks())
+                == 0
             {
                 Ok(())
             } else {
@@ -223,7 +224,7 @@ impl Drop for Timer {
             }
 
             // todo: configurable timeout?
-            freertos_rs_timer_delete(self.handle, Duration::ms(1000).to_ticks());
+            freertos_rs_timer_delete(self.handle, Duration::from_ms(1000).ticks());
         }
     }
 }
