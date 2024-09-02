@@ -117,16 +117,14 @@ impl Timer {
         }
 
         extern "C" fn timer_callback(handle: FreeRtosTimerHandle) {
-            unsafe {
-                {
-                    let timer = Timer { handle };
-                    if let Ok(callback_ptr) = timer.get_id() {
-                        let b = Box::from_raw(callback_ptr as *mut Box<dyn Fn(Timer)>);
-                        b(timer);
-                        // # TODO
-                        // Investigate what is happening here and document.
-                        Box::into_raw(b);
-                    }
+            let timer = Timer { handle };
+            if let Ok(callback_ptr) = timer.get_id() {
+                unsafe {
+                    let b = Box::from_raw(callback_ptr as *mut Box<dyn Fn(Timer)>);
+                    b(timer);
+                    // # TODO
+                    // Investigate what is happening here and document.
+                    Box::into_raw(b);
                 }
             }
         }
@@ -151,34 +149,26 @@ impl Timer {
 
     /// Start the timer.
     pub fn start(&self, block_time: Duration) -> Result<(), FreeRtosError> {
-        unsafe {
-            if freertos_rs_timer_start(self.handle, block_time.ticks()) == 0 {
-                Ok(())
-            } else {
-                Err(FreeRtosError::Timeout)
-            }
+        match unsafe { freertos_rs_timer_start(self.handle, block_time.ticks()) } {
+            0 => Ok(()),
+            _ => Err(FreeRtosError::Timeout),
         }
     }
 
     /// Start the timer from an interrupt.
     pub fn start_from_isr(&self, context: &mut InterruptContext) -> Result<(), FreeRtosError> {
-        unsafe {
-            if freertos_rs_timer_start_from_isr(self.handle, context.get_task_field_mut()) == 0 {
-                Ok(())
-            } else {
-                Err(FreeRtosError::QueueSendTimeout)
-            }
+        match unsafe { freertos_rs_timer_start_from_isr(self.handle, context.get_task_field_mut()) }
+        {
+            0 => Ok(()),
+            _ => Err(FreeRtosError::QueueSendTimeout),
         }
     }
 
     /// Stop the timer.
     pub fn stop(&self, block_time: Duration) -> Result<(), FreeRtosError> {
-        unsafe {
-            if freertos_rs_timer_stop(self.handle, block_time.ticks()) == 0 {
-                Ok(())
-            } else {
-                Err(FreeRtosError::Timeout)
-            }
+        match unsafe { freertos_rs_timer_stop(self.handle, block_time.ticks()) } {
+            0 => Ok(()),
+            _ => Err(FreeRtosError::Timeout),
         }
     }
 
@@ -188,14 +178,11 @@ impl Timer {
         block_time: Duration,
         new_period: Duration,
     ) -> Result<(), FreeRtosError> {
-        unsafe {
-            if freertos_rs_timer_change_period(self.handle, block_time.ticks(), new_period.ticks())
-                == 0
-            {
-                Ok(())
-            } else {
-                Err(FreeRtosError::Timeout)
-            }
+        match unsafe {
+            freertos_rs_timer_change_period(self.handle, block_time.ticks(), new_period.ticks())
+        } {
+            0 => Ok(()),
+            _ => Err(FreeRtosError::Timeout),
         }
     }
 
@@ -217,13 +204,15 @@ impl Timer {
 impl Drop for Timer {
     #[allow(unused_must_use)]
     fn drop(&mut self) {
-        unsafe {
-            if let Ok(callback_ptr) = self.get_id() {
-                // free the memory
+        if let Ok(callback_ptr) = self.get_id() {
+            // free the memory
+            unsafe {
                 Box::from_raw(callback_ptr as *mut Box<dyn Fn(Timer)>);
             }
+        }
 
-            // todo: configurable timeout?
+        // todo: configurable timeout?
+        unsafe {
             freertos_rs_timer_delete(self.handle, Duration::from_ms(1000).ticks());
         }
     }

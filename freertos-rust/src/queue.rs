@@ -50,17 +50,15 @@ impl<T: Sized + Copy> Queue<T> {
 
     /// Send an item to the end of the queue. Wait for the queue to have empty space for it.
     pub fn send(&self, item: T, max_wait: Duration) -> Result<(), FreeRtosError> {
-        unsafe {
-            if freertos_rs_queue_send(
+        match unsafe {
+            freertos_rs_queue_send(
                 self.queue,
                 &item as *const _ as FreeRtosVoidPtr,
                 max_wait.ticks(),
-            ) != 0
-            {
-                Err(FreeRtosError::QueueSendTimeout)
-            } else {
-                Ok(())
-            }
+            )
+        } {
+            0 => Ok(()),
+            _ => Err(FreeRtosError::QueueSendTimeout),
         }
     }
 
@@ -70,34 +68,31 @@ impl<T: Sized + Copy> Queue<T> {
         context: &mut InterruptContext,
         item: T,
     ) -> Result<(), FreeRtosError> {
-        unsafe {
-            if freertos_rs_queue_send_isr(
+        match unsafe {
+            freertos_rs_queue_send_isr(
                 self.queue,
                 &item as *const _ as FreeRtosVoidPtr,
                 context.get_task_field_mut(),
-            ) != 0
-            {
-                Err(FreeRtosError::QueueFull)
-            } else {
-                Ok(())
-            }
+            )
+        } {
+            0 => Ok(()),
+            _ => Err(FreeRtosError::QueueFull),
         }
     }
 
     /// Wait for an item to be available on the queue.
     pub fn receive(&self, max_wait: Duration) -> Result<T, FreeRtosError> {
-        unsafe {
-            let mut buff = mem::zeroed::<T>();
-            let r = freertos_rs_queue_receive(
+        let mut buff = unsafe { mem::zeroed::<T>() };
+
+        match unsafe {
+            freertos_rs_queue_receive(
                 self.queue,
                 &mut buff as *mut _ as FreeRtosMutVoidPtr,
                 max_wait.ticks(),
-            );
-            if r == 0 {
-                Ok(buff)
-            } else {
-                Err(FreeRtosError::QueueReceiveTimeout)
-            }
+            )
+        } {
+            0 => Ok(buff),
+            _ => Err(FreeRtosError::QueueReceiveTimeout),
         }
     }
 

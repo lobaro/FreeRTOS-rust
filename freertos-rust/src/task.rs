@@ -206,27 +206,23 @@ impl Task {
     /// Get the name of the current task.
     #[allow(clippy::result_unit_err)]
     pub fn get_name(&self) -> Result<String, ()> {
-        unsafe {
+        let name = unsafe {
             let name_ptr = freertos_rs_task_get_name(self.task_handle);
-            let name = str_from_c_string(name_ptr);
-            if let Ok(name) = name {
-                return Ok(name);
-            }
+            str_from_c_string(name_ptr)
+        };
 
-            Err(())
-        }
+        name.map_err(|_| ())
     }
 
     /// Try to find the task of the current execution context.
     pub fn current() -> Result<Task, FreeRtosError> {
-        unsafe {
-            let t = freertos_rs_get_current_task();
-            if !t.is_null() {
-                Ok(Task { task_handle: t })
-            } else {
-                Err(FreeRtosError::TaskNotFound)
-            }
+        let task_handle = unsafe { freertos_rs_get_current_task() };
+
+        if task_handle.is_null() {
+            return Err(FreeRtosError::TaskNotFound);
         }
+
+        Ok(Task { task_handle })
     }
 
     /// Forcibly set the notification value for this task.
@@ -236,10 +232,8 @@ impl Task {
 
     /// Notify this task.
     pub fn notify(&self, notification: TaskNotification) {
-        unsafe {
-            let n = notification.to_freertos();
-            freertos_rs_task_notify(self.task_handle, n.0, n.1);
-        }
+        let (value, action) = notification.to_freertos();
+        unsafe { freertos_rs_task_notify(self.task_handle, value, action) };
     }
 
     /// Notify this task from an interrupt.
@@ -248,19 +242,18 @@ impl Task {
         context: &mut InterruptContext,
         notification: TaskNotification,
     ) -> Result<(), FreeRtosError> {
-        unsafe {
-            let n = notification.to_freertos();
-            let t = freertos_rs_task_notify_isr(
+        let (value, action) = notification.to_freertos();
+
+        match unsafe {
+            freertos_rs_task_notify_isr(
                 self.task_handle,
-                n.0,
-                n.1,
+                value,
+                action,
                 context.get_task_field_mut(),
-            );
-            if t != 0 {
-                Err(FreeRtosError::QueueFull)
-            } else {
-                Ok(())
-            }
+            )
+        } {
+            0 => Ok(()),
+            _ => Err(FreeRtosError::QueueFull),
         }
     }
 
@@ -272,19 +265,17 @@ impl Task {
         wait_for: Duration,
     ) -> Result<u32, FreeRtosError> {
         let mut val = 0;
-        let r = unsafe {
+
+        match unsafe {
             freertos_rs_task_notify_wait(
                 clear_bits_enter,
                 clear_bits_exit,
                 &mut val as *mut _,
                 wait_for.ticks(),
             )
-        };
-
-        if r == 0 {
-            Ok(val)
-        } else {
-            Err(FreeRtosError::Timeout)
+        } {
+            0 => Ok(val),
+            _ => Err(FreeRtosError::Timeout),
         }
     }
 
@@ -418,13 +409,11 @@ impl FreeRtosUtils {
     }
 
     pub fn scheduler_state() -> FreeRtosSchedulerState {
-        unsafe {
-            match freertos_rt_xTaskGetSchedulerState() {
-                0 => FreeRtosSchedulerState::Suspended,
-                1 => FreeRtosSchedulerState::NotStarted,
-                2 => FreeRtosSchedulerState::Running,
-                _ => unreachable!(),
-            }
+        match unsafe { freertos_rt_xTaskGetSchedulerState() } {
+            0 => FreeRtosSchedulerState::Suspended,
+            1 => FreeRtosSchedulerState::NotStarted,
+            2 => FreeRtosSchedulerState::Running,
+            _ => unreachable!(),
         }
     }
 
