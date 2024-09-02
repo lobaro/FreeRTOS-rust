@@ -90,9 +90,6 @@ mod timers;
 mod units;
 mod utils;
 
-#[cfg(feature = "sync")]
-pub mod patterns;
-
 // Internal stuff that is only public for first Proof of Concept
 pub use crate::base::*;
 pub use crate::shim::*;
