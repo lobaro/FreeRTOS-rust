@@ -9,6 +9,12 @@ pub struct InterruptContext {
     x_higher_priority_task_woken: FreeRtosBaseType,
 }
 
+impl Default for InterruptContext {
+    fn default() -> InterruptContext {
+        InterruptContext::new()
+    }
+}
+
 impl InterruptContext {
     /// Instantiate a new context.
     pub fn new() -> InterruptContext {

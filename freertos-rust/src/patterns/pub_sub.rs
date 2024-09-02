@@ -2,7 +2,7 @@ use crate::base::*;
 use crate::mutex::*;
 use crate::prelude::v1::*;
 use crate::queue::*;
-use crate::units::*;
+use crate::units::Duration;
 
 /// A pub-sub queue. An item sent to the publisher is sent to every subscriber.
 pub struct QueuePublisher<T: Sized + Copy> {
@@ -29,12 +29,12 @@ impl<T: Sized + Copy> QueuePublisher<T> {
 
     /// Send an item to every subscriber. Returns the number of
     /// subscribers that have received the item.
-    pub fn send<D: DurationTicks>(&self, item: T, max_wait: D) -> usize {
+    pub fn send(&self, item: T, max_wait: Duration) -> usize {
         let mut sent_to = 0;
 
         if let Ok(m) = self.inner.lock(max_wait) {
             for subscriber in &m.subscribers {
-                if let Ok(_) = subscriber.queue.send(item, max_wait) {
+                if subscriber.queue.send(item, max_wait).is_ok() {
                     sent_to += 1;
                 }
             }
@@ -44,10 +44,10 @@ impl<T: Sized + Copy> QueuePublisher<T> {
     }
 
     /// Subscribe to this publisher. Can accept a fixed amount of items.
-    pub fn subscribe<D: DurationTicks>(
+    pub fn subscribe(
         &self,
         max_size: usize,
-        create_max_wait: D,
+        create_max_wait: Duration,
     ) -> Result<QueueSubscriber<T>, FreeRtosError> {
         let mut inner = self.inner.lock(create_max_wait)?;
 
@@ -57,8 +57,8 @@ impl<T: Sized + Copy> QueuePublisher<T> {
         inner.queue_next_id += 1;
 
         let subscriber = SubscriberInner {
-            id: id,
-            queue: queue,
+            id,
+            queue,
             publisher: self.inner.clone(),
         };
         let subscriber = Arc::new(subscriber);
@@ -87,7 +87,7 @@ impl<T: Sized + Copy> Drop for QueueSubscriber<T> {
 
 impl<T: Sized + Copy> QueueSubscriber<T> {
     /// Wait for an item to be posted from the publisher.
-    pub fn receive<D: DurationTicks>(&self, max_wait: D) -> Result<T, FreeRtosError> {
+    pub fn receive(&self, max_wait: Duration) -> Result<T, FreeRtosError> {
         self.inner.queue.receive(max_wait)
     }
 }
@@ -99,7 +99,7 @@ struct PublisherInner<T: Sized + Copy> {
 
 impl<T: Sized + Copy> PublisherInner<T> {
     fn unsubscribe(&mut self, subscriber: &SubscriberInner<T>) {
-        self.subscribers.retain(|ref x| x.id != subscriber.id);
+        self.subscribers.retain(|x| x.id != subscriber.id);
     }
 }
 

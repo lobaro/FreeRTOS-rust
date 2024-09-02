@@ -1,7 +1,7 @@
 use crate::base::*;
 use crate::shim::*;
 use crate::task::*;
-use crate::units::*;
+use crate::units::Duration;
 
 /// Delay the current task by the given duration, minus the
 /// time that was spent processing the last wakeup loop.
@@ -12,7 +12,7 @@ pub struct TaskDelay {
 impl TaskDelay {
     /// Create a new helper, marking the current time as the start of the
     /// next measurement.
-    pub fn new() -> TaskDelay {
+    pub fn now() -> TaskDelay {
         TaskDelay {
             last_wake_time: FreeRtosUtils::get_tick_count(),
         }
@@ -20,11 +20,11 @@ impl TaskDelay {
 
     /// Delay the execution of the current task by the given duration,
     /// minus the time spent in this task since the last delay.
-    pub fn delay_until<D: DurationTicks>(&mut self, delay: D) {
+    pub fn delay_until(&mut self, delay: Duration) {
         unsafe {
             freertos_rs_vTaskDelayUntil(
                 &mut self.last_wake_time as *mut FreeRtosTickType,
-                delay.to_ticks(),
+                delay.ticks(),
             );
         }
     }
@@ -42,12 +42,12 @@ pub struct TaskDelayPeriodic {
 
 impl TaskDelayPeriodic {
     /// Create a new timer with the set period.
-    pub fn new<D: DurationTicks>(period: D) -> TaskDelayPeriodic {
+    pub fn new(period: Duration) -> TaskDelayPeriodic {
         let l = FreeRtosUtils::get_tick_count();
 
         TaskDelayPeriodic {
             last_wake_time: l,
-            period_ticks: period.to_ticks(),
+            period_ticks: period.ticks(),
         }
     }
 
@@ -63,8 +63,8 @@ impl TaskDelayPeriodic {
     }
 
     /// Set a new delay period
-    pub fn set_period<D: DurationTicks>(&mut self, period: D) {
-        self.period_ticks = period.to_ticks();
+    pub fn set_period(&mut self, period: Duration) {
+        self.period_ticks = period.ticks();
     }
 
     /// Reset the internal timer to zero.

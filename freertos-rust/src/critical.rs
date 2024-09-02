@@ -61,13 +61,13 @@ pub struct ExclusiveDataGuard<'a, T: ?Sized + 'a> {
 impl<'mutex, T: ?Sized> Deref for ExclusiveDataGuard<'mutex, T> {
     type Target = T;
 
-    fn deref<'a>(&'a self) -> &'a T {
+    fn deref(&self) -> &T {
         unsafe { &*self.__data.get() }
     }
 }
 
 impl<'mutex, T: ?Sized> DerefMut for ExclusiveDataGuard<'mutex, T> {
-    fn deref_mut<'a>(&'a mut self) -> &'a mut T {
+    fn deref_mut(&mut self) -> &mut T {
         unsafe { &mut *self.__data.get() }
     }
 }
@@ -79,13 +79,13 @@ pub struct ExclusiveDataGuardIsr<'a, T: ?Sized + 'a> {
 impl<'mutex, T: ?Sized> Deref for ExclusiveDataGuardIsr<'mutex, T> {
     type Target = T;
 
-    fn deref<'a>(&'a self) -> &'a T {
+    fn deref(&self) -> &T {
         unsafe { &*self.__data.get() }
     }
 }
 
 impl<'mutex, T: ?Sized> DerefMut for ExclusiveDataGuardIsr<'mutex, T> {
-    fn deref_mut<'a>(&'a mut self) -> &'a mut T {
+    fn deref_mut(&mut self) -> &mut T {
         unsafe { &mut *self.__data.get() }
     }
 }

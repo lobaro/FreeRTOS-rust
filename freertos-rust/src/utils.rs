@@ -11,7 +11,7 @@ pub struct TypeSizeError {
 
 #[cfg(feature = "cpu_clock")]
 pub fn cpu_clock_hz() -> u32 {
-  unsafe { freertos_rs_get_configCPU_CLOCK_HZ() }
+    unsafe { freertos_rs_get_configCPU_CLOCK_HZ() }
 }
 
 /// Perform checks whether the C FreeRTOS shim and Rust agree on the sizes of used types.

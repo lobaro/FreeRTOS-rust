@@ -1,7 +1,7 @@
 use crate::base::*;
 use crate::isr::*;
 use crate::shim::*;
-use crate::units::*;
+use crate::units::Duration;
 
 /// A counting or binary semaphore
 pub struct Semaphore {
@@ -14,24 +14,24 @@ unsafe impl Sync for Semaphore {}
 impl Semaphore {
     /// Create a new binary semaphore
     pub fn new_binary() -> Result<Semaphore, FreeRtosError> {
-        unsafe {
-            let s = freertos_rs_create_binary_semaphore();
-            if s == 0 as *const _ {
-                return Err(FreeRtosError::OutOfMemory);
-            }
-            Ok(Semaphore { semaphore: s })
+        let semaphore = unsafe { freertos_rs_create_binary_semaphore() };
+
+        if semaphore.is_null() {
+            return Err(FreeRtosError::OutOfMemory);
         }
+
+        Ok(Semaphore { semaphore })
     }
 
     /// Create a new counting semaphore
     pub fn new_counting(max: u32, initial: u32) -> Result<Semaphore, FreeRtosError> {
-        unsafe {
-            let s = freertos_rs_create_counting_semaphore(max, initial);
-            if s == 0 as *const _ {
-                return Err(FreeRtosError::OutOfMemory);
-            }
-            Ok(Semaphore { semaphore: s })
+        let semaphore = unsafe { freertos_rs_create_counting_semaphore(max, initial) };
+
+        if semaphore.is_null() {
+            return Err(FreeRtosError::OutOfMemory);
         }
+
+        Ok(Semaphore { semaphore })
     }
 
     /// # Safety
@@ -50,7 +50,7 @@ impl Semaphore {
     }
 
     /// Lock this semaphore in a RAII fashion
-    pub fn lock<D: DurationTicks>(&self, max_wait: D) -> Result<SemaphoreGuard, FreeRtosError> {
+    pub fn lock(&self, max_wait: Duration) -> Result<SemaphoreGuard, FreeRtosError> {
         self.take(max_wait).map(|()| SemaphoreGuard { owner: self })
     }
 
@@ -59,15 +59,10 @@ impl Semaphore {
         unsafe { freertos_rs_give_semaphore(self.semaphore) == 0 }
     }
 
-    pub fn take<D: DurationTicks>(&self, max_wait: D) -> Result<(), FreeRtosError> {
-        unsafe {
-            let res = freertos_rs_take_semaphore(self.semaphore, max_wait.to_ticks());
-
-            if res != 0 {
-                return Err(FreeRtosError::Timeout);
-            }
-
-            Ok(())
+    pub fn take(&self, max_wait: Duration) -> Result<(), FreeRtosError> {
+        match unsafe { freertos_rs_take_semaphore(self.semaphore, max_wait.ticks()) } {
+            0 => Ok(()),
+            _ => Err(FreeRtosError::Timeout),
         }
     }
 

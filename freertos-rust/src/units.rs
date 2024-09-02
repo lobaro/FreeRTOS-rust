@@ -1,80 +1,58 @@
+//! Expose time units type and implementation utilities.
 use crate::base::FreeRtosTickType;
-use crate::prelude::v1::*;
 use crate::shim::*;
 
-pub trait FreeRtosTimeUnits {
-    fn get_tick_period_ms() -> u32;
-    fn get_max_wait() -> u32;
+/// Internal usage: returns the tick period in milliseconds.
+#[inline]
+fn get_tick_period_ms() -> u32 {
+    unsafe { freertos_rs_get_portTICK_PERIOD_MS() }
 }
 
-#[derive(Copy, Clone, Default)]
-pub struct FreeRtosTimeUnitsShimmed;
-impl FreeRtosTimeUnits for FreeRtosTimeUnitsShimmed {
-    #[inline]
-    fn get_tick_period_ms() -> u32 {
-        unsafe { freertos_rs_get_portTICK_PERIOD_MS() }
-    }
-    #[inline]
-    fn get_max_wait() -> u32 {
-        unsafe { freertos_rs_max_wait() }
-    }
+/// Internal usage: returns the maximum wait time in ticks.
+fn get_max_wait() -> u32 {
+    unsafe { freertos_rs_max_wait() }
 }
 
-pub trait DurationTicks: Copy + Clone {
-    /// Convert to ticks, the internal time measurement unit of FreeRTOS
-    fn to_ticks(&self) -> FreeRtosTickType;
+/// A freeRTOS Duration, internally represented as ticks.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub struct Duration {
+    ticks: FreeRtosTickType,
 }
 
-pub type Duration = DurationImpl<FreeRtosTimeUnitsShimmed>;
 
-/// Time unit used by FreeRTOS, passed to the scheduler as ticks.
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub struct DurationImpl<T> {
-    ticks: u32,
-    _time_units: PhantomData<T>,
-}
-
-impl<T> DurationImpl<T>
-where
-    T: FreeRtosTimeUnits + Copy,
-{
-    /// Milliseconds constructor
-    pub fn ms(milliseconds: u32) -> Self {
-        Self::ticks(milliseconds / T::get_tick_period_ms())
+impl Duration {
+    /// A new duration from milliseconds.
+    pub fn from_ms(milliseconds: u32) -> Self {
+        Self::from_ticks(milliseconds / get_tick_period_ms())
     }
 
-    pub fn ticks(ticks: u32) -> Self {
-        DurationImpl {
-            ticks: ticks,
-            _time_units: PhantomData,
-        }
+    /// A new duration from ticks.
+    pub fn from_ticks(ticks: u32) -> Self {
+        Self { ticks }
     }
 
-    /// An infinite duration
+    /// An infinite duration.
     pub fn infinite() -> Self {
-        Self::ticks(T::get_max_wait())
+        Self::from_ticks(get_max_wait())
     }
 
-    /// A duration of zero, for non-blocking calls
+    /// A duration of zero, for non-blocking calls.
     pub fn zero() -> Self {
-        Self::ticks(0)
+        Self::from_ticks(0)
     }
 
-    /// Smallest unit of measurement, one tick
+    /// Smallest unit of measurement, one tick.
     pub fn eps() -> Self {
-        Self::ticks(1)
+        Self::from_ticks(1)
     }
 
-    pub fn to_ms(&self) -> u32 {
-        self.ticks * T::get_tick_period_ms()
+    /// Return the duration in milliseconds
+    pub fn ms(&self) -> u32 {
+        self.ticks * get_tick_period_ms()
     }
-}
 
-impl<T> DurationTicks for DurationImpl<T>
-where
-    T: FreeRtosTimeUnits + Copy,
-{
-    fn to_ticks(&self) -> FreeRtosTickType {
+    /// Return the duration in ticks.
+    pub fn ticks(&self) -> FreeRtosTickType {
         self.ticks
     }
 }
