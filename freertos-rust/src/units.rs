@@ -19,7 +19,6 @@ pub struct Duration {
     ticks: FreeRtosTickType,
 }
 
-
 impl Duration {
     /// A new duration from milliseconds.
     pub fn from_ms(milliseconds: u32) -> Self {

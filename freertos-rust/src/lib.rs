@@ -65,7 +65,6 @@ extern crate alloc;
 
 #[cfg(feature = "hooks")]
 mod hooks;
-mod prelude;
 mod shim;
 
 #[cfg(feature = "allocator")]

@@ -1,5 +1,6 @@
+use core::cell::UnsafeCell;
+
 use crate::base::*;
-use crate::prelude::v1::*;
 use crate::shim::*;
 
 pub struct CriticalRegion;
@@ -58,7 +59,7 @@ pub struct ExclusiveDataGuard<'a, T: ?Sized + 'a> {
     __lock: CriticalRegion,
 }
 
-impl<'mutex, T: ?Sized> Deref for ExclusiveDataGuard<'mutex, T> {
+impl<'mutex, T: ?Sized> core::ops::Deref for ExclusiveDataGuard<'mutex, T> {
     type Target = T;
 
     fn deref(&self) -> &T {
@@ -66,7 +67,7 @@ impl<'mutex, T: ?Sized> Deref for ExclusiveDataGuard<'mutex, T> {
     }
 }
 
-impl<'mutex, T: ?Sized> DerefMut for ExclusiveDataGuard<'mutex, T> {
+impl<'mutex, T: ?Sized> core::ops::DerefMut for ExclusiveDataGuard<'mutex, T> {
     fn deref_mut(&mut self) -> &mut T {
         unsafe { &mut *self.__data.get() }
     }
@@ -76,7 +77,7 @@ pub struct ExclusiveDataGuardIsr<'a, T: ?Sized + 'a> {
     __data: &'a UnsafeCell<T>,
 }
 
-impl<'mutex, T: ?Sized> Deref for ExclusiveDataGuardIsr<'mutex, T> {
+impl<'mutex, T: ?Sized> core::ops::Deref for ExclusiveDataGuardIsr<'mutex, T> {
     type Target = T;
 
     fn deref(&self) -> &T {
@@ -84,7 +85,7 @@ impl<'mutex, T: ?Sized> Deref for ExclusiveDataGuardIsr<'mutex, T> {
     }
 }
 
-impl<'mutex, T: ?Sized> DerefMut for ExclusiveDataGuardIsr<'mutex, T> {
+impl<'mutex, T: ?Sized> core::ops::DerefMut for ExclusiveDataGuardIsr<'mutex, T> {
     fn deref_mut(&mut self) -> &mut T {
         unsafe { &mut *self.__data.get() }
     }

@@ -1,6 +1,10 @@
+use alloc::boxed::Box;
+use alloc::string::String;
+use alloc::string::ToString;
+use alloc::vec::Vec;
+
 use crate::base::*;
 use crate::isr::*;
-use crate::prelude::v1::*;
 use crate::shim::*;
 use crate::units::Duration;
 use crate::utils::*;
@@ -162,7 +166,7 @@ impl Task {
         };
 
         if success {
-            mem::forget(f);
+            core::mem::forget(f);
         } else {
             return Err(FreeRtosError::OutOfMemory);
         }
@@ -330,8 +334,8 @@ pub struct FreeRtosSystemState {
     pub total_run_time: u32,
 }
 
-impl fmt::Display for FreeRtosSystemState {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+impl core::fmt::Display for FreeRtosSystemState {
+    fn fmt(&self, fmt: &mut core::fmt::Formatter) -> Result<(), core::fmt::Error> {
         fmt.write_str("FreeRTOS tasks\r\n")?;
 
         write!(fmt, "{id: <6} | {name: <16} | {state: <9} | {priority: <8} | {stack: >10} | {cpu_abs: >10} | {cpu_rel: >4}\r\n",

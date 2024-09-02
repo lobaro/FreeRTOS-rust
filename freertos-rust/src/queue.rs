@@ -1,6 +1,7 @@
+use core::marker::PhantomData;
+
 use crate::base::*;
 use crate::isr::*;
-use crate::prelude::v1::*;
 use crate::shim::*;
 use crate::units::Duration;
 
@@ -17,7 +18,7 @@ pub struct Queue<T: Sized + Copy> {
 
 impl<T: Sized + Copy> Queue<T> {
     pub fn new(max_size: usize) -> Result<Queue<T>, FreeRtosError> {
-        let item_size = mem::size_of::<T>();
+        let item_size = core::mem::size_of::<T>();
 
         let handle = unsafe { freertos_rs_queue_create(max_size as u32, item_size as u32) };
 
@@ -82,7 +83,7 @@ impl<T: Sized + Copy> Queue<T> {
 
     /// Wait for an item to be available on the queue.
     pub fn receive(&self, max_wait: Duration) -> Result<T, FreeRtosError> {
-        let mut buff = unsafe { mem::zeroed::<T>() };
+        let mut buff = unsafe { core::mem::zeroed::<T>() };
 
         match unsafe {
             freertos_rs_queue_receive(

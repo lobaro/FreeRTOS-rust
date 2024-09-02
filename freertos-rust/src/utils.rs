@@ -1,6 +1,9 @@
 use crate::base::*;
-use crate::prelude::v1::*;
 use crate::shim::*;
+
+use alloc::string::String;
+use alloc::vec::Vec;
+use core::mem;
 
 #[derive(Debug, Copy, Clone)]
 pub struct TypeSizeError {

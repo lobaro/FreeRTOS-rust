@@ -1,6 +1,7 @@
+use alloc::sync::Arc;
+
 use crate::base::*;
 use crate::mutex::*;
-use crate::prelude::v1::*;
 use crate::queue::*;
 use crate::task::*;
 use crate::units::Duration;

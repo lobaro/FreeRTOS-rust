@@ -1,5 +1,7 @@
+use alloc::boxed::Box;
+use alloc::string::String;
+
 use crate::base::*;
-use crate::prelude::v1::*;
 use crate::shim::*;
 use crate::units::Duration;
 use crate::InterruptContext;
@@ -111,7 +113,7 @@ impl Timer {
         };
 
         if success {
-            mem::forget(f);
+            core::mem::forget(f);
         } else {
             return Err(FreeRtosError::OutOfMemory);
         }
@@ -193,7 +195,7 @@ impl Timer {
     ///
     /// This method is safe because resource leak is safe in Rust.
     pub fn detach(self) {
-        mem::forget(self);
+        core::mem::forget(self);
     }
 
     fn get_id(&self) -> Result<FreeRtosVoidPtr, FreeRtosError> {

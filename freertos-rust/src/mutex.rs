@@ -1,5 +1,7 @@
+use core::cell::UnsafeCell;
+use core::fmt;
+
 use crate::base::*;
-use crate::prelude::v1::*;
 use crate::shim::*;
 use crate::units::Duration;
 
@@ -87,7 +89,7 @@ where
     __data: &'a UnsafeCell<T>,
 }
 
-impl<'mutex, T: ?Sized, M> Deref for MutexGuard<'mutex, T, M>
+impl<'mutex, T: ?Sized, M> core::ops::Deref for MutexGuard<'mutex, T, M>
 where
     M: MutexInnerImpl,
 {
@@ -98,7 +100,7 @@ where
     }
 }
 
-impl<'mutex, T: ?Sized, M> DerefMut for MutexGuard<'mutex, T, M>
+impl<'mutex, T: ?Sized, M> core::ops::DerefMut for MutexGuard<'mutex, T, M>
 where
     M: MutexInnerImpl,
 {

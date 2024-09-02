@@ -1,6 +1,7 @@
 use crate::base::*;
-use crate::prelude::v1::String;
 use crate::utils::*;
+
+use alloc::string::String;
 
 type Callback = fn();
 
