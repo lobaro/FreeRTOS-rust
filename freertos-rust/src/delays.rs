@@ -9,16 +9,10 @@ pub struct TaskDelay {
     last_wake_time: FreeRtosTickType,
 }
 
-impl Default for TaskDelay {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl TaskDelay {
     /// Create a new helper, marking the current time as the start of the
     /// next measurement.
-    pub fn new() -> TaskDelay {
+    pub fn now() -> TaskDelay {
         TaskDelay {
             last_wake_time: FreeRtosUtils::get_tick_count(),
         }
