@@ -1,5 +1,4 @@
-use crate::base::*;
-use crate::shim::*;
+use crate::base::{freertos_rs_pvPortMalloc, freertos_rs_vPortFree, FreeRtosVoidPtr};
 use core::alloc::{GlobalAlloc, Layout};
 
 /**

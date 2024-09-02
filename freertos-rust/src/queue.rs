@@ -1,9 +1,13 @@
 use core::marker::PhantomData;
 
-use crate::base::*;
-use crate::isr::*;
-use crate::shim::*;
+use crate::base::{
+    freertos_rs_queue_create, freertos_rs_queue_delete, freertos_rs_queue_messages_waiting,
+    freertos_rs_queue_receive, freertos_rs_queue_send, freertos_rs_queue_send_isr,
+    FreeRtosMutVoidPtr, FreeRtosQueueHandle, FreeRtosVoidPtr,
+};
+use crate::isr::InterruptContext;
 use crate::units::Duration;
+use crate::FreeRtosError;
 
 unsafe impl<T: Sized + Copy> Send for Queue<T> {}
 unsafe impl<T: Sized + Copy> Sync for Queue<T> {}

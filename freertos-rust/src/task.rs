@@ -3,11 +3,38 @@ use alloc::string::String;
 use alloc::string::ToString;
 use alloc::vec::Vec;
 
-use crate::base::*;
-use crate::isr::*;
-use crate::shim::*;
+use crate::base::freertos_rs_delete_task;
+use crate::base::freertos_rs_get_current_task;
+use crate::base::freertos_rs_get_number_of_tasks;
+use crate::base::freertos_rs_get_stack_high_water_mark;
+use crate::base::freertos_rs_get_system_state;
+use crate::base::freertos_rs_invoke_configASSERT;
+use crate::base::freertos_rs_spawn_task;
+use crate::base::freertos_rs_suspend_task;
+use crate::base::freertos_rs_task_get_name;
+use crate::base::freertos_rs_task_notify;
+use crate::base::freertos_rs_task_notify_isr;
+use crate::base::freertos_rs_task_notify_take;
+use crate::base::freertos_rs_task_notify_wait;
+use crate::base::freertos_rs_uxTaskGetTaskNumber;
+use crate::base::freertos_rs_vTaskDelay;
+use crate::base::freertos_rs_vTaskSetTaskNumber;
+use crate::base::freertos_rs_vTaskStartScheduler;
+use crate::base::freertos_rs_vTaskSuspendAll;
+use crate::base::freertos_rs_xTaskGetTickCount;
+use crate::base::freertos_rs_xTaskResumeAll;
+use crate::base::freertos_rt_xTaskGetSchedulerState;
+use crate::base::FreeRtosBaseType;
+use crate::base::FreeRtosTaskHandle;
+use crate::base::FreeRtosTaskState;
+use crate::base::FreeRtosTickType;
+use crate::base::FreeRtosUBaseType;
+use crate::base::FreeRtosUnsignedLong;
+use crate::base::FreeRtosUnsignedShort;
 use crate::units::Duration;
-use crate::utils::*;
+use crate::utils::str_from_c_string;
+use crate::FreeRtosError;
+use crate::InterruptContext;
 
 unsafe impl Send for Task {}
 

@@ -1,5 +1,7 @@
-use crate::base::*;
-use crate::utils::*;
+use crate::{
+    base::{FreeRtosCharPtr, FreeRtosUBaseType},
+    utils::*,
+};
 
 use alloc::string::String;
 

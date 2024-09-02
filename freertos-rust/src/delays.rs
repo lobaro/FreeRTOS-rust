@@ -1,7 +1,7 @@
-use crate::base::*;
-use crate::shim::*;
 use crate::task::*;
 use crate::units::Duration;
+
+use crate::base::{freertos_rs_vTaskDelayUntil, FreeRtosTickType};
 
 /// Delay the current task by the given duration, minus the
 /// time that was spent processing the last wakeup loop.

@@ -1,6 +1,5 @@
 //! Expose time units type and implementation utilities.
-use crate::base::FreeRtosTickType;
-use crate::shim::*;
+use crate::base::{freertos_rs_get_portTICK_PERIOD_MS, freertos_rs_max_wait, FreeRtosTickType};
 
 /// Internal usage: returns the tick period in milliseconds.
 #[inline]

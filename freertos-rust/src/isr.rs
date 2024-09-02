@@ -1,5 +1,4 @@
-use crate::base::*;
-use crate::shim::*;
+use crate::base::{freertos_rs_isr_yield, FreeRtosBaseType, FreeRtosBaseTypeMutPtr};
 
 /// Keep track of whether we need to yield the execution to a different
 /// task at the end of the interrupt.

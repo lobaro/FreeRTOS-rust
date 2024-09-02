@@ -1,7 +1,5 @@
+use crate::base::{freertos_rs_enter_critical, freertos_rs_exit_critical, FreeRtosError};
 use core::cell::UnsafeCell;
-
-use crate::base::*;
-use crate::shim::*;
 
 pub struct CriticalRegion;
 impl CriticalRegion {

@@ -65,7 +65,6 @@ extern crate alloc;
 
 #[cfg(feature = "hooks")]
 mod hooks;
-mod shim;
 
 #[cfg(feature = "allocator")]
 mod allocator;
@@ -89,11 +88,6 @@ mod timers;
 #[cfg(any(feature = "time", feature = "sync"))]
 mod units;
 mod utils;
-
-// Internal stuff that is only public for first Proof of Concept
-pub use crate::base::*;
-pub use crate::shim::*;
-// ----------
 
 #[cfg(feature = "allocator")]
 pub use crate::allocator::*;

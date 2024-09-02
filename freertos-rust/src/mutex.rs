@@ -1,9 +1,13 @@
 use core::cell::UnsafeCell;
 use core::fmt;
 
-use crate::base::*;
-use crate::shim::*;
+use crate::base::{
+    freertos_rs_create_mutex, freertos_rs_create_recursive_mutex, freertos_rs_delete_semaphore,
+    freertos_rs_give_recursive_semaphore, freertos_rs_give_semaphore,
+    freertos_rs_take_recursive_semaphore, freertos_rs_take_semaphore, FreeRtosSemaphoreHandle,
+};
 use crate::units::Duration;
+use crate::FreeRtosError;
 
 pub type Mutex<T> = MutexImpl<T, MutexNormal>;
 pub type RecursiveMutex<T> = MutexImpl<T, MutexRecursive>;

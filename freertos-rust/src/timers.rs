@@ -1,10 +1,13 @@
 use alloc::boxed::Box;
 use alloc::string::String;
 
-use crate::base::*;
-use crate::shim::*;
+use crate::base::{
+    freertos_rs_timer_change_period, freertos_rs_timer_create, freertos_rs_timer_delete,
+    freertos_rs_timer_get_id, freertos_rs_timer_start, freertos_rs_timer_start_from_isr,
+    freertos_rs_timer_stop, FreeRtosTickType, FreeRtosTimerHandle, FreeRtosVoidPtr,
+};
 use crate::units::Duration;
-use crate::InterruptContext;
+use crate::{FreeRtosError, InterruptContext};
 
 unsafe impl Send for Timer {}
 unsafe impl Sync for Timer {}

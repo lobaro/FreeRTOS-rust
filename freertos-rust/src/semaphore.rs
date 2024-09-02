@@ -1,7 +1,12 @@
-use crate::base::*;
-use crate::isr::*;
-use crate::shim::*;
-use crate::units::Duration;
+use crate::{
+    base::{
+        freertos_rs_create_binary_semaphore, freertos_rs_create_counting_semaphore,
+        freertos_rs_delete_semaphore, freertos_rs_give_semaphore, freertos_rs_give_semaphore_isr,
+        freertos_rs_take_semaphore, freertos_rs_take_semaphore_isr, FreeRtosSemaphoreHandle,
+    },
+    units::Duration,
+    FreeRtosError, InterruptContext,
+};
 
 /// A counting or binary semaphore
 pub struct Semaphore {
