@@ -36,6 +36,14 @@ fn main() {
         // b.add_build_file("examples/linux/Run-time-stats-utils.c"); // Unimplemented yet..
     }
 
+    if target == "aarch64-unknown-linux-gnu" {
+        b.freertos_config("examples/linux");
+        b.freertos_port_base("freertos-addons/Linux/portable");
+
+        b.add_build_file("examples/linux/hooks.c");
+        // b.add_build_file("examples/linux/Run-time-stats-utils.c"); // Unimplemented yet..
+    }
+
     if target == "thumbv7m-none-eabi" {
         b.freertos_config("examples/stm32-cortex-m3");
         copy(
