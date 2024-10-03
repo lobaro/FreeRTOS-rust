@@ -81,7 +81,7 @@ extern "C" {
         item: FreeRtosVoidPtr,
         xHigherPriorityTaskWoken: FreeRtosBaseTypeMutPtr,
     ) -> FreeRtosUBaseType;
-    pub fn freertos_rs_isr_yield();
+    pub fn freertos_rs_isr_yield(xHigherPriorityTaskWoken: FreeRtosBaseType);
 
     pub fn freertos_rs_task_notify_take(clear_count: u8, wait: FreeRtosTickType) -> u32;
     pub fn freertos_rs_task_notify_wait(

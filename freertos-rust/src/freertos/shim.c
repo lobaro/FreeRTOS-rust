@@ -277,8 +277,8 @@ UBaseType_t freertos_rs_queue_messages_waiting(QueueHandle_t queue) {
 	return uxQueueMessagesWaiting( queue );
 }
 
-void freertos_rs_isr_yield() {
-	portYIELD();
+void freertos_rs_isr_yield(BaseType_t xHigherPriorityTaskWoken) {
+	portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 TickType_t freertos_rs_max_wait() {
