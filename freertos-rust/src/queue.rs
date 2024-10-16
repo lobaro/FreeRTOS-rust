@@ -1,21 +1,39 @@
+use mem::ManuallyDrop;
+use mem::MaybeUninit;
+
 use crate::base::*;
 use crate::isr::*;
 use crate::prelude::v1::*;
 use crate::shim::*;
 use crate::units::*;
 
-unsafe impl<T: Sized + Copy> Send for Queue<T> {}
-unsafe impl<T: Sized + Copy> Sync for Queue<T> {}
+unsafe impl<T: Sized + Send> Send for Queue<T> {}
+unsafe impl<T: Sized + Send> Sync for Queue<T> {}
 
-/// A queue with a finite size. The items are owned by the queue and are
-/// copied.
 #[derive(Debug)]
-pub struct Queue<T: Sized + Copy> {
+pub struct SendError<T> {
+    err: FreeRtosError,
+    item: T,
+}
+
+impl<T> SendError<T> {
+    pub fn error(&self) -> FreeRtosError {
+        self.err
+    }
+
+    pub fn into_item(self) -> T {
+        self.item
+    }
+}
+
+/// A queue with a finite size.
+#[derive(Debug)]
+pub struct Queue<T: Sized + Send> {
     queue: FreeRtosQueueHandle,
     item_type: PhantomData<T>,
 }
 
-impl<T: Sized + Copy> Queue<T> {
+impl<T: Sized + Send> Queue<T> {
     pub fn new(max_size: usize) -> Result<Queue<T>, FreeRtosError> {
         let item_size = mem::size_of::<T>();
 
@@ -49,15 +67,16 @@ impl<T: Sized + Copy> Queue<T> {
     }
 
     /// Send an item to the end of the queue. Wait for the queue to have empty space for it.
-    pub fn send<D: DurationTicks>(&self, item: T, max_wait: D) -> Result<(), FreeRtosError> {
+    pub fn send<D: DurationTicks>(&self, item: T, max_wait: D) -> Result<(), SendError<T>> {
+        let item = ManuallyDrop::new(item);
+        let ptr = &item as *const _ as FreeRtosVoidPtr;
+
         unsafe {
-            if freertos_rs_queue_send(
-                self.queue,
-                &item as *const _ as FreeRtosVoidPtr,
-                max_wait.to_ticks(),
-            ) != 0
-            {
-                Err(FreeRtosError::QueueSendTimeout)
+            if freertos_rs_queue_send(self.queue, ptr, max_wait.to_ticks()) != 0 {
+                Err(SendError {
+                    err: FreeRtosError::QueueSendTimeout,
+                    item: ManuallyDrop::into_inner(item),
+                })
             } else {
                 Ok(())
             }
@@ -69,15 +88,16 @@ impl<T: Sized + Copy> Queue<T> {
         &self,
         context: &mut InterruptContext,
         item: T,
-    ) -> Result<(), FreeRtosError> {
+    ) -> Result<(), SendError<T>> {
+        let item = ManuallyDrop::new(item);
+        let ptr = &item as *const _ as FreeRtosVoidPtr;
+
         unsafe {
-            if freertos_rs_queue_send_isr(
-                self.queue,
-                &item as *const _ as FreeRtosVoidPtr,
-                context.get_task_field_mut(),
-            ) != 0
-            {
-                Err(FreeRtosError::QueueFull)
+            if freertos_rs_queue_send_isr(self.queue, ptr, context.get_task_field_mut()) != 0 {
+                Err(SendError {
+                    err: FreeRtosError::QueueFull,
+                    item: ManuallyDrop::into_inner(item),
+                })
             } else {
                 Ok(())
             }
@@ -87,14 +107,16 @@ impl<T: Sized + Copy> Queue<T> {
     /// Wait for an item to be available on the queue.
     pub fn receive<D: DurationTicks>(&self, max_wait: D) -> Result<T, FreeRtosError> {
         unsafe {
-            let mut buff = mem::zeroed::<T>();
+            // Use `MaybeUninit` to avoid calling drop on
+            // uninitialized struct in case of timeout
+            let mut buff = MaybeUninit::uninit();
             let r = freertos_rs_queue_receive(
                 self.queue,
                 &mut buff as *mut _ as FreeRtosMutVoidPtr,
                 max_wait.to_ticks(),
             );
             if r == 0 {
-                return Ok(buff);
+                return Ok(buff.assume_init());
             } else {
                 return Err(FreeRtosError::QueueReceiveTimeout);
             }
@@ -107,7 +129,7 @@ impl<T: Sized + Copy> Queue<T> {
     }
 }
 
-impl<T: Sized + Copy> Drop for Queue<T> {
+impl<T: Sized + Send> Drop for Queue<T> {
     fn drop(&mut self) {
         unsafe {
             freertos_rs_queue_delete(self.queue);
