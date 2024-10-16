@@ -121,7 +121,7 @@ impl Timer {
                     if let Ok(callback_ptr) = timer.get_id() {
                         let b = Box::from_raw(callback_ptr as *mut Box<dyn Fn(Timer)>);
                         b(timer);
-                        Box::into_raw(b);
+                        let _ = Box::into_raw(b);
                     }
                 }
             }
