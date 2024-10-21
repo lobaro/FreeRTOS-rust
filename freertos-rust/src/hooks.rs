@@ -2,24 +2,31 @@ use crate::base::*;
 use crate::prelude::v1::String;
 use crate::utils::*;
 
+use core::cell::OnceCell;
+
 type Callback = fn();
 
 pub struct FreeRtosHooks {
-    on_assert: Callback,
+    on_assert: OnceCell<Callback>,
 }
 
 impl FreeRtosHooks {
-    pub fn set_on_assert(&mut self, c: Callback) {
-        self.on_assert = c;
+    pub fn set_on_assert(&mut self, c: Callback) -> Result<(), Callback> {
+        self.on_assert.set(c)
     }
 
     fn do_on_assert(&self) {
-        (self.on_assert)();
+        if let Some (cb) = self.on_assert.get() {
+            cb()
+        }
     }
 }
 
-// TODO: It's unsafe to use, we should build some safe wrapper around
-pub static mut FREERTOS_HOOKS: FreeRtosHooks = FreeRtosHooks { on_assert: || {} };
+// SAFETY: must only be set before the scheduler starts and accessed after the
+// kernel has asserted, both being single threaded situations.
+unsafe impl Sync for FreeRtosHooks {}
+
+pub static FREERTOS_HOOKS: FreeRtosHooks = FreeRtosHooks { on_assert: OnceCell::new() };
 
 #[allow(unused_doc_comments)]
 #[no_mangle]
@@ -29,9 +36,7 @@ pub extern "C" fn vAssertCalled(file_name_ptr: FreeRtosCharPtr, line: FreeRtosUB
         file_name = str_from_c_string(file_name_ptr).unwrap();
     }
 
-    unsafe {
-        FREERTOS_HOOKS.do_on_assert();
-    }
+    FREERTOS_HOOKS.do_on_assert();
 
     // we can't print without std yet.
     // TODO: make the macro work for debug UART? Or use Panic here?
