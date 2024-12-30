@@ -168,4 +168,12 @@ extern "C" {
 
     pub fn freertos_rs_enter_critical();
     pub fn freertos_rs_exit_critical();
+
+    pub fn freertos_rs_event_group_create() -> FreeRtosEventGroupHandle;
+    pub fn freertos_rs_event_group_delete(event_group: FreeRtosEventGroupHandle);
+    pub fn freertos_rs_event_group_set_bits(event_group: FreeRtosEventGroupHandle, bits_to_set: FreeRtosEventBitsType) -> FreeRtosEventBitsType;
+    pub fn freertos_rs_event_group_get_bits(event_group: FreeRtosEventGroupHandle) -> FreeRtosEventBitsType;
+    pub fn freertos_rs_event_group_clear_bits(event_group: FreeRtosEventGroupHandle, bits_to_clear: FreeRtosEventBitsType) -> FreeRtosEventBitsType;
+    pub fn freertos_rs_event_group_wait_bits(event_group: FreeRtosEventGroupHandle, bits_to_wait_for: FreeRtosEventBitsType, clear_on_exit: FreeRtosBaseType, wait_for_all_bits: FreeRtosBaseType, ticks_to_wait: FreeRtosTickType) -> FreeRtosEventBitsType;
+    pub fn freertos_rs_event_group_sync(event_group: FreeRtosEventGroupHandle, bits_to_set: FreeRtosEventBitsType, bits_to_wait_for: FreeRtosEventBitsType, ticks_to_wait: FreeRtosTickType) -> FreeRtosEventBitsType;
 }
