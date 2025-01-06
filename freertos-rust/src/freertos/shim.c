@@ -10,6 +10,7 @@ STM32 example:
 #include "timers.h"
 #include "queue.h"
 #include "semphr.h"
+#include "event_groups.h"
 
 // Just for testing
 void freertos_rs_invoke_configASSERT() {
@@ -431,4 +432,32 @@ void freertos_rs_enter_critical() {
 
 void freertos_rs_exit_critical() {
 	taskEXIT_CRITICAL();
+}
+
+EventGroupHandle_t freertos_rs_event_group_create() {
+	return xEventGroupCreate();
+}
+
+void freertos_rs_event_group_delete(EventGroupHandle_t event_group) {
+	vEventGroupDelete(event_group);
+}
+
+EventBits_t freertos_rs_event_group_set_bits(EventGroupHandle_t event_group, const EventBits_t bits_to_set) {
+	return xEventGroupSetBits(event_group, bits_to_set);
+}
+
+EventBits_t freertos_rs_event_group_get_bits(EventGroupHandle_t event_group) {
+	return xEventGroupGetBits(event_group);
+}
+
+EventBits_t freertos_rs_event_group_clear_bits(EventGroupHandle_t event_group, const EventBits_t bits_to_clear) {
+	return xEventGroupClearBits(event_group, bits_to_clear);
+}
+
+EventBits_t freertos_rs_event_group_wait_bits(const EventGroupHandle_t event_group, const EventBits_t bits_to_wait_for, const BaseType_t clear_on_exit, const BaseType_t wait_for_all_bits, TickType_t ticks_to_wait) {
+	return xEventGroupWaitBits(event_group, bits_to_wait_for, clear_on_exit, wait_for_all_bits, ticks_to_wait);
+}
+
+EventBits_t freertos_rs_event_group_sync(EventGroupHandle_t event_group, const EventBits_t bits_to_set, const EventBits_t bits_to_wait_for, TickType_t ticks_to_wait) {
+	return xEventGroupSync(event_group, bits_to_set, bits_to_wait_for, ticks_to_wait);
 }

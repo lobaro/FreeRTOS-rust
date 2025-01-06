@@ -23,11 +23,13 @@ pub type FreeRtosChar = u8;
 pub type FreeRtosBaseType = i32;
 pub type FreeRtosUBaseType = u32;
 pub type FreeRtosTickType = u32;
+pub type FreeRtosEventBitsType = u32;
 pub type FreeRtosBaseTypeMutPtr = *mut FreeRtosBaseType;
 
 pub type FreeRtosTaskHandle = *const c_void;
 pub type FreeRtosQueueHandle = *const c_void;
 pub type FreeRtosSemaphoreHandle = *const c_void;
+pub type FreeRtosEventGroupHandle = *const c_void;
 pub type FreeRtosTaskFunction = *const c_void;
 pub type FreeRtosTimerHandle = *const c_void;
 pub type FreeRtosTimerCallback = *const c_void;
