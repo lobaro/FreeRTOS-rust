@@ -2,7 +2,7 @@
 
 ## Setup
 
-We need to use nightly toolchain to support all examples. 
+We need to use nightly toolchain to support all examples.
 Even if some might run with the stable toolchain as well.
 
 **GNU Toolchain** is required for debugging some examples (e.g. windows):
@@ -46,7 +46,7 @@ To see all errors use:
 
 ### Run Windows Demo
 
-You need to build with nightly GNU to allow debugging. 
+You need to build with nightly GNU to allow debugging.
 The target must be `x86_64-pc-windows-msvc` for the FreeRTOS `MSVC-MingW` port.
 
 Prepare the build with:
@@ -60,13 +60,21 @@ Run the build
 
 ### Run Linux Demo
 
-
 Prepare the build with:
 
-    rustup default x86_64-unknown-linux-gnu
+    rustup default nightly
+    rustup toolchain install nightly
     rustup target add x86_64-unknown-linux-gnu
-
+    rustup component add llvm-tools-preview
+    cargo install cargo-binutils
+    
+    sudo apt install gcc g++ make
+    
 Run the build
+
+    cargo build --package freertos-rust-examples --example linux --target x86_64-unknown-linux-gnu
+
+Run the example
 
     cargo run --package freertos-rust-examples --example linux --target x86_64-unknown-linux-gnu
 
@@ -126,21 +134,21 @@ Create the Toolchain under: `File | Settings | Build, Execution, Deployment | To
 * Name: `arm-none-eabi`
 * Debugger: `/path/to/arm-none-eabi-gdb.exe`
 
-Build: 
+Build:
 
 * Name: `build-nrf9160-example`
 * Programm: `cargo`
 * Arguments: `build --package freertos-rust-examples --example nrf9160 --target thumbv8m.main-none-eabihf`
 * Working directory: `$ProjectFileDir$`
 
-Clean: 
+Clean:
 
 * Name: `clean`
 * Programm: `cargo`
 * Arguments: `clean`
 * Working directory: `$ProjectFileDir$`
 
-Setup a Run Configuration: 
+Setup a Run Configuration:
 
 * Executable: `target\thumbv8m.main-none-eabihf\debug\examples\nrf9160` (only selectable after first build!)
 * Download executable: `Always`

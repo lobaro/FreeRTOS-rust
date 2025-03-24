@@ -11,11 +11,11 @@ pub struct FreeRtosHooks {
 }
 
 impl FreeRtosHooks {
-    pub fn set_on_assert(&mut self, c: Callback) -> Result<(), Callback> {
+    pub fn set_on_assert(&self, c: Callback) -> Result<(), Callback> {
         self.on_assert.set(c)
     }
 
-    fn do_on_assert(&self) {
+    pub fn do_on_assert(&self) {
         if let Some (cb) = self.on_assert.get() {
             cb()
         }
