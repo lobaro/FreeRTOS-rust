@@ -47,7 +47,7 @@ impl<D: DurationTicks> TimerBuilder<D> {
     /// Note that the newly created timer must be started.
     pub fn create<F>(&self, callback: F) -> Result<Timer, FreeRtosError>
     where
-        F: Fn(Timer) -> (),
+        F: Fn(&Timer) -> (),
         F: Send + 'static,
     {
         Timer::spawn(
@@ -87,7 +87,7 @@ impl Timer {
         name: &str,
         period_ticks: FreeRtosTickType,
         auto_reload: bool,
-        callback: Box<dyn Fn(Timer) + Send + 'a>,
+        callback: Box<dyn Fn(&Timer) + Send + 'a>,
     ) -> Result<Timer, FreeRtosError> {
         let f = Box::new(callback);
         let param_ptr = &*f as *const _ as *mut _;
@@ -119,10 +119,11 @@ impl Timer {
                 {
                     let timer = Timer { handle };
                     if let Ok(callback_ptr) = timer.get_id() {
-                        let b = Box::from_raw(callback_ptr as *mut Box<dyn Fn(Timer)>);
-                        b(timer);
+                        let b = Box::from_raw(callback_ptr as *mut Box<dyn Fn(&Timer)>);
+                        b(&timer);
                         let _ = Box::into_raw(b);
                     }
+                    mem::forget(timer);
                 }
             }
         }
@@ -139,7 +140,7 @@ impl Timer {
         callback: F,
     ) -> Result<Timer, FreeRtosError>
     where
-        F: Fn(Timer) -> (),
+        F: Fn(&Timer) -> (),
         F: Send + 'static,
     {
         unsafe { Timer::spawn_inner(name, period_tick, auto_reload, Box::new(callback)) }
