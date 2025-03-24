@@ -21,8 +21,8 @@ impl Drop for CriticalRegion {
     }
 }
 
-unsafe impl<T: Sync + Send> Send for ExclusiveData<T> {}
-unsafe impl<T: Sync + Send> Sync for ExclusiveData<T> {}
+unsafe impl<T: Send> Send for ExclusiveData<T> {}
+unsafe impl<T: Send> Sync for ExclusiveData<T> {}
 
 /// Data protected with a critical region. Lightweight version of a mutex,
 /// intended for simple data structures.
