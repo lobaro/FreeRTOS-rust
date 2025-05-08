@@ -123,7 +123,11 @@ impl Task {
       }
     }
 
-    pub fn resume_all() {
+    /// # Safety
+    ///
+    /// For every call to this method there must be a matching previous call to
+    /// `Task::suspend_all`.
+    pub unsafe fn resume_all() {
         unsafe {
             freertos_rs_xTaskResumeAll();
         }
