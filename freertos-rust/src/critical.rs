@@ -89,3 +89,61 @@ impl<'mutex, T: ?Sized> DerefMut for ExclusiveDataGuardIsr<'mutex, T> {
         unsafe { &mut *self.__data.get() }
     }
 }
+
+unsafe impl<T: Send> Send for SuspendScheduler<T> {}
+unsafe impl<T: Send> Sync for SuspendScheduler<T> {}
+
+/// Data protected with a critical region, implemented by suspending the
+/// FreeRTOS scheduler.
+pub struct SuspendScheduler<T: ?Sized> {
+    data: UnsafeCell<T>,
+}
+
+impl<T> SuspendScheduler<T> {
+    pub const fn new(data: T) -> Self {
+        SuspendScheduler {
+            data: UnsafeCell::new(data),
+        }
+    }
+
+    pub fn lock(&self) -> SuspendSchedulerGuard<T> {
+        unsafe {
+            freertos_rs_vTaskSuspendAll();
+        }
+        SuspendSchedulerGuard { data: &self.data }
+    }
+
+    pub fn get_mut(&mut self) -> &mut T {
+        self.data.get_mut()
+    }
+
+    pub fn into_inner(self) -> T {
+        self.data.into_inner()
+    }
+}
+
+pub struct SuspendSchedulerGuard<'a, T: ?Sized + 'a> {
+    data: &'a UnsafeCell<T>,
+}
+
+impl<'mutex, T: ?Sized> Deref for SuspendSchedulerGuard<'mutex, T> {
+    type Target = T;
+
+    fn deref<'a>(&'a self) -> &'a T {
+        unsafe { &*self.data.get() }
+    }
+}
+
+impl<'mutex, T: ?Sized> DerefMut for SuspendSchedulerGuard<'mutex, T> {
+    fn deref_mut<'a>(&'a mut self) -> &'a mut T {
+        unsafe { &mut *self.data.get() }
+    }
+}
+
+impl<'mutex, T: ?Sized> Drop for SuspendSchedulerGuard<'mutex, T> {
+    fn drop(&mut self) {
+        unsafe {
+            freertos_rs_xTaskResumeAll();
+        }
+    }
+}
