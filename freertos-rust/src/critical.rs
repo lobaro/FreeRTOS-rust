@@ -37,7 +37,7 @@ impl<T> ExclusiveData<T> {
         }
     }
 
-    pub fn lock(&self) -> Result<ExclusiveDataGuard<T>, FreeRtosError> {
+    pub fn lock(&self) -> Result<ExclusiveDataGuard<'_, T>, FreeRtosError> {
         Ok(ExclusiveDataGuard {
             __data: &self.data,
             __lock: CriticalRegion::enter(),
@@ -47,7 +47,7 @@ impl<T> ExclusiveData<T> {
     pub fn lock_from_isr(
         &self,
         _context: &mut crate::isr::InterruptContext,
-    ) -> Result<ExclusiveDataGuardIsr<T>, FreeRtosError> {
+    ) -> Result<ExclusiveDataGuardIsr<'_, T>, FreeRtosError> {
         Ok(ExclusiveDataGuardIsr { __data: &self.data })
     }
 }
@@ -106,7 +106,7 @@ impl<T> SuspendScheduler<T> {
         }
     }
 
-    pub fn lock(&self) -> SuspendSchedulerGuard<T> {
+    pub fn lock(&self) -> SuspendSchedulerGuard<'_,T> {
         unsafe {
             freertos_rs_vTaskSuspendAll();
         }

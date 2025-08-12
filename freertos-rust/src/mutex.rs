@@ -36,7 +36,7 @@ where
     }
 
     /// Try to obtain a lock and mutable access to our inner value
-    pub fn lock<D: DurationTicks>(&self, max_wait: D) -> Result<MutexGuard<T, M>, FreeRtosError> {
+    pub fn lock<D: DurationTicks>(&self, max_wait: D) -> Result<MutexGuard<'_, T, M>, FreeRtosError> {
         self.mutex.take(max_wait)?;
 
         Ok(MutexGuard {
