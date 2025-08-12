@@ -93,7 +93,7 @@ jobs:
           target
         key: ${{ runner.os }}-${{ runner.arch }}
     - name: Install Rust
-      uses: dtolnay/rust-toolchain@nightly
+      uses: dtolnay/rust-toolchain@stable
       with:
         targets: ${{ matrix.target }}
     - name: Install cross deps

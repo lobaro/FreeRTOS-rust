@@ -71,8 +71,8 @@
 #define FREERTOS_CONFIG_H
 #include <stdbool.h>
 
-extern void vAssertCalled( unsigned long ulLine, const char * const pcFileName );
-#define configASSERT( x ) if( ( x ) == 0 ) vAssertCalled( __LINE__, __FILE__ )
+extern void vAssertCalled( const char * const pcFileName, unsigned long ulLine );
+#define configASSERT( x ) if( ( x ) == 0 ) vAssertCalled( __FILE__, __LINE__ )
 
 #define vPortSVCHandler SVCall
 #define xPortPendSVHandler PendSV
@@ -93,7 +93,7 @@ extern void vAssertCalled( unsigned long ulLine, const char * const pcFileName )
 #define configUSE_PREEMPTION			1
 #define configUSE_IDLE_HOOK				0
 #define configUSE_TICK_HOOK				0
-#define configCPU_CLOCK_HZ				( 4200000UL ) //also systick runs at this frequency
+#define configCPU_CLOCK_HZ				( 100000000UL ) //also systick runs at this frequency
 #define configTICK_RATE_HZ				( ( TickType_t ) 1000 ) //1000=1ms per tick, 100=10ms per tick
 #define configMAX_PRIORITIES			( 5 )
 #define configMINIMAL_STACK_SIZE		( ( unsigned short ) 80 )
@@ -186,4 +186,3 @@ See http://www.FreeRTOS.org/RTOS-Cortex-M3-M4.html. */
 //	}
 
 #endif /* FREERTOS_CONFIG_H */
-

@@ -1,39 +1,55 @@
 #![no_std]
 #![no_main]
-// For allocator
-#![feature(lang_items)]
-#![feature(alloc_error_handler)]
 
+use core::panic::PanicInfo;
 use cortex_m::asm;
 use cortex_m_rt::exception;
 use cortex_m_rt::{entry, ExceptionFrame};
-use embedded_hal::digital::v2::OutputPin;
+use embedded_hal::digital::OutputPin;
 use freertos_rust::*;
-use core::alloc::Layout;
 use stm32f4xx_hal::gpio::*;
 
-use cortex_m;
 use stm32f4xx_hal as hal;
 
-use crate::hal::{
-    stm32::{Peripherals},
-};
-
-extern crate panic_halt; // panic handler
+use crate::hal::{pac, prelude::*};
 
 #[global_allocator]
 static GLOBAL: FreeRtosAllocator = FreeRtosAllocator;
 
-fn delay() {
-    let mut _i = 0;
-    for _ in 0..2_00 {
-        _i += 1;
-    }
+#[entry]
+fn main() -> ! {
+    Task::new()
+        .name("default")
+        .stack_size(1000)
+        .start(move |_| {
+            app_main();
+        })
+        .unwrap();
+    FreeRtosUtils::start_scheduler();
 }
 
-fn delay_n(n: i32) {
-    for _ in 0..n {
-        delay();
+fn app_main() -> ! {
+    let dp = pac::Peripherals::take().unwrap();
+    let rcc = dp.RCC.constrain();
+    let _clocks = rcc.cfgr.use_hse(25.MHz()).sysclk(100.MHz()).freeze();
+
+    let gpioc = dp.GPIOC.split();
+    let mut device = MyDevice::from_pins(gpioc.pc13.into_open_drain_output());
+    device.set_led(false);
+    Task::new()
+        .name("hello")
+        .stack_size(128)
+        .priority(TaskPriority(2))
+        .start(move |_| loop {
+            CurrentTask::delay(Duration::ms(1000));
+            device.set_led(true);
+            CurrentTask::delay(Duration::ms(1000));
+            device.set_led(false);
+        })
+        .unwrap();
+
+    loop {
+        CurrentTask::delay(Duration::ms(1000));
     }
 }
 
@@ -41,70 +57,49 @@ pub struct MyDevice<D1: OutputPin> {
     d1: D1,
 }
 
-impl<D1: OutputPin> MyDevice<D1>
-{
+impl<D1: OutputPin> MyDevice<D1> {
     pub fn from_pins(d1: D1) -> MyDevice<D1> {
-        MyDevice {
-            d1
-        }
+        MyDevice { d1 }
     }
-    pub fn set_led(&mut self,on:bool){
+
+    pub fn set_led(&mut self, on: bool) {
         if on {
-            self.d1.set_high();
+            self.d1.set_low().ok();
         } else {
-            self.d1.set_low();
+            self.d1.set_high().ok();
         }
     }
 }
 
-#[entry]
-fn main() -> ! {
-    let dp = Peripherals::take().unwrap();
-    let gpioc = dp.GPIOC.split();
-    let mut device = MyDevice::from_pins(gpioc.pc13.into_push_pull_output());
-    device.set_led(false);
-    Task::new().name("hello").stack_size(128).priority(TaskPriority(2)).start(move |_| {
-        loop{
-            freertos_rust::CurrentTask::delay(Duration::ms(1000));
-            device.set_led(true);
-            freertos_rust::CurrentTask::delay(Duration::ms(1000));
-            device.set_led(false);
-        }
-    }).unwrap();
-    FreeRtosUtils::start_scheduler();
-}
-
+#[allow(non_snake_case)]
 #[exception]
-fn DefaultHandler(_irqn: i16) {
-// custom default handler
-// irqn is negative for Cortex-M exceptions
-// irqn is positive for device specific (line IRQ)
-// set_led(true);(true);
-// panic!("Exception: {}", irqn);
-}
-
-#[exception]
-fn HardFault(_ef: &ExceptionFrame) -> ! {
-// Blink 3 times long when exception occures
-    delay_n(10);
-    for _ in 0..3 {
-        // set_led(true);
-        // delay_n(1000);
-        // set_led(false);
-        // delay_n(555);
-    }
-    loop {}
-}
-
-// define what happens in an Out Of Memory (OOM) condition
-#[alloc_error_handler]
-fn alloc_error(_layout: Layout) -> ! {
-    //set_led(true);
+unsafe fn DefaultHandler(_irqn: i16) {
+    // custom default handler
+    // irqn is negative for Cortex-M exceptions
+    // irqn is positive for device specific (line IRQ)
+    // set_led(true);(true);
+    // panic!("Exception: {}", irqn);
     asm::bkpt();
     loop {}
 }
 
+#[allow(non_snake_case)]
+#[exception]
+unsafe fn HardFault(_ef: &ExceptionFrame) -> ! {
+    asm::bkpt();
+    loop {}
+}
+
+// We no longer need to use #[alloc_error_handler] since v1.68.
+// It will automatically call the panic handler.
+#[panic_handler]
+fn panic(_info: &PanicInfo) -> ! {
+    asm::bkpt();
+    loop {}
+}
+
+#[allow(non_snake_case)]
 #[no_mangle]
-fn vApplicationStackOverflowHook(pxTask: FreeRtosTaskHandle, pcTaskName: FreeRtosCharPtr) {
+fn vApplicationStackOverflowHook(_pxTask: FreeRtosTaskHandle, _pcTaskName: FreeRtosCharPtr) {
     asm::bkpt();
 }

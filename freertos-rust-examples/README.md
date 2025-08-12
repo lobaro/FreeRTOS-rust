@@ -96,13 +96,14 @@ Create hex file to be flashed:
 
 ### Run STM32 Cortex-M4 Demo
 
-As the previous example, we need nightly toolchain and the target is thumbv7em-none-eabihf:
+We use stable toolchain and the target is thumbv7em-none-eabihf:
+
     rustup target add thumbv7em-none-eabihf
 
 Build the binary:
 
     cargo build --package freertos-rust-examples --example stm32-cortex-m4-blackpill --target thumbv7em-none-eabihf
-    
+
 Create hex file to be flashed:
 
     cargo objcopy --example stm32-cortex-m4-blackpill --target thumbv7em-none-eabihf -- -O ihex stm32-cortex-m4-blackpill.hex
