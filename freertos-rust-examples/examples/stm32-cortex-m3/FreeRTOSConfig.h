@@ -93,7 +93,7 @@ extern void vAssertCalled( const char * const pcFileName, unsigned long ulLine )
 #define configUSE_PREEMPTION			1
 #define configUSE_IDLE_HOOK				0
 #define configUSE_TICK_HOOK				0
-#define configCPU_CLOCK_HZ				( 4200000UL ) //also systick runs at this frequency
+#define configCPU_CLOCK_HZ				( 72000000UL ) //also systick runs at this frequency
 #define configTICK_RATE_HZ				( ( TickType_t ) 1000 ) //1000=1ms per tick, 100=10ms per tick
 #define configMAX_PRIORITIES			( 5 )
 #define configMINIMAL_STACK_SIZE		( ( unsigned short ) 80 )
@@ -104,7 +104,7 @@ extern void vAssertCalled( const char * const pcFileName, unsigned long ulLine )
 #define configIDLE_SHOULD_YIELD			1
 #define configUSE_MUTEXES				1
 #define configQUEUE_REGISTRY_SIZE		5
-#define configCHECK_FOR_STACK_OVERFLOW	2
+#define configCHECK_FOR_STACK_OVERFLOW	0
 #define configUSE_RECURSIVE_MUTEXES		0
 #define configUSE_MALLOC_FAILED_HOOK	0 //TR
 #define configUSE_APPLICATION_TASK_TAG	0

@@ -18,8 +18,7 @@ cortex-m-rt = "0.7"
 
 # Example: stm32-cortex-m3
 [target.thumbv7m-none-eabi.dependencies]
-panic-halt = "0.2.0"
-stm32l1xx-hal = {version = "0.1.0", features = ["stm32l151"], default-features = false}
+stm32f1xx-hal = {version = "0.10", features = ["rt", "stm32f103", "medium"]}
 
 # Example: stm32-cortex-m4-blackpill
 [target.thumbv7em-none-eabihf.dependencies]

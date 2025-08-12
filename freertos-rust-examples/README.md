@@ -80,16 +80,14 @@ Run the example
 
 ### Run STM32 Cortex-M3 Demo
 
-we need the nightly build for some features like allocator_api:
+We use stable toolchain and the target is thumbv7m-none-eabi:
 
-    rustup default nightly-x86_64-pc-windows-gnu // TODO: Build does not finish with GNU Toolchain
-    rustup default nightly-x86_64-pc-windows-msvc
     rustup target add thumbv7m-none-eabi
-    
+
 Build the binary:
 
     cargo build --package freertos-rust-examples --example stm32-cortex-m3 --target thumbv7m-none-eabi
-    
+
 Create hex file to be flashed:
 
     cargo objcopy --example stm32-cortex-m3 --target thumbv7m-none-eabi -- -O ihex stm32-cortex-m3.hex
