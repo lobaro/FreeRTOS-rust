@@ -68,8 +68,8 @@ jobs:
         include:
           #- example: win
           #  target: x86_64-pc-windows-gnu
-          #- example: linux
-          #  target: x86_64-unknown-linux-gnu
+          - example: linux
+            target: x86_64-unknown-linux-gnu
           - example: stm32-cortex-m3
             target: thumbv7m-none-eabi
           - example: stm32-cortex-m4-blackpill

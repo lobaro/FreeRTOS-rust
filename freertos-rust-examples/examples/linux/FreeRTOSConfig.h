@@ -148,6 +148,8 @@ extern void vAssertCalled( const char * const pcFileName, unsigned long ulLine )
 #define TRACE_EXIT_CRITICAL_SECTION() portEXIT_CRITICAL()
 /*#include "trcKernelPort.h" */
 
+#define portYIELD_FROM_ISR( x ) ( void ) x
+
 #ifdef __cplusplus
 }
 #endif

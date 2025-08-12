@@ -8,9 +8,7 @@ fn main() {
     let x = Box::new(15);
     println!("Boxed int '{}' (allocator test)", x);
 
-    unsafe {
-        FREERTOS_HOOKS.set_on_assert(|| { println!("Assert hook called") });
-    }
+    FREERTOS_HOOKS.set_on_assert(|| { println!("Assert hook called") }).unwrap();
 
     //println!("Calling assert ...");
     //FreeRtosUtils::invoke_assert();
