@@ -210,7 +210,7 @@ impl Task {
             let name_ptr = freertos_rs_task_get_name(self.task_handle);
             let name = str_from_c_string(name_ptr);
             if let Ok(name) = name {
-                return Ok(name);
+                return Ok(name.to_string());
             }
 
             Err(())
@@ -463,7 +463,7 @@ impl FreeRtosUtils {
                     task_handle: t.handle,
                 },
                 name: unsafe { str_from_c_string(t.task_name) }
-                    .unwrap_or_else(|_| String::from("?")),
+                    .unwrap_or_else(|_| "?").to_string(),
                 task_number: t.task_number,
                 task_state: t.task_state,
                 current_priority: TaskPriority(t.current_priority as u8),

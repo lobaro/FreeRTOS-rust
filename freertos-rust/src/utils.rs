@@ -2,6 +2,8 @@ use crate::base::*;
 use crate::prelude::v1::*;
 use crate::shim::*;
 
+use core::ffi::CStr;
+
 #[derive(Debug, Copy, Clone)]
 pub struct TypeSizeError {
     pub id: usize,
@@ -54,19 +56,8 @@ pub fn shim_sanity_check() -> Result<(), TypeSizeError> {
 ///
 /// `str` must be a pointer to the beginning of nul-terminated sequence of bytes.
 #[cfg(any(feature = "time", feature = "hooks", feature = "sync"))]
-pub unsafe fn str_from_c_string(str: *const u8) -> Result<String, FreeRtosError> {
-    let mut buf = Vec::new();
-
-    let mut p = str;
-    loop {
-        if *p == 0 {
-            break;
-        }
-        buf.push(*p);
-        p = p.offset(1);
-    }
-
-    match String::from_utf8(buf) {
+pub unsafe fn str_from_c_string<'a>(str: *const u8) -> Result<&'a str, FreeRtosError> {
+    match CStr::from_ptr(str as *const _).to_str() {
         Ok(s) => Ok(s),
         Err(_) => Err(FreeRtosError::StringConversionError),
     }
