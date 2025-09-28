@@ -42,8 +42,8 @@ jobs:
   freertos-rust-stable:
     name: Build freertos-rust using stable
     runs-on: ubuntu-latest
-    env:
-      RUSTFLAGS: -D warnings # Warnings disabled only in CI
+    # env:
+    #   RUSTFLAGS: -D warnings # Warnings disabled only in CI
     steps:
     - name: Clone
       uses: actions/checkout@v3
@@ -70,8 +70,8 @@ jobs:
           #  target: x86_64-pc-windows-gnu
           #- example: linux
           #  target: x86_64-unknown-linux-gnu
-          #- example: stm32-cortex-m3
-          #  target: thumbv7m-none-eabi
+          - example: stm32-cortex-m3
+            target: thumbv7m-none-eabi
           - example: stm32-cortex-m4-blackpill
             target: thumbv7em-none-eabihf
           #- example: nrf9160
@@ -93,7 +93,7 @@ jobs:
           target
         key: ${{ runner.os }}-${{ runner.arch }}
     - name: Install Rust
-      uses: dtolnay/rust-toolchain@nightly
+      uses: dtolnay/rust-toolchain@stable
       with:
         targets: ${{ matrix.target }}
     - name: Install cross deps

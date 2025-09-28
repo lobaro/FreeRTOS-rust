@@ -50,7 +50,7 @@ impl Semaphore {
     }
 
     /// Lock this semaphore in a RAII fashion
-    pub fn lock<D: DurationTicks>(&self, max_wait: D) -> Result<SemaphoreGuard, FreeRtosError> {
+    pub fn lock<D: DurationTicks>(&self, max_wait: D) -> Result<SemaphoreGuard<'_>, FreeRtosError> {
         self.take(max_wait).map(|()| SemaphoreGuard { owner: self })
     }
 
