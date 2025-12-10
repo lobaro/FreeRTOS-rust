@@ -17,9 +17,9 @@ jobs:
       RUSTFLAGS: -D warnings # Warnings disabled only in CI
     steps:
     - name: Clone
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
     - name: Cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cargo/registry
@@ -39,6 +39,7 @@ jobs:
     #  run: cargo test
     #- name: Clippy
     #  run: cargo clippy -- -Dwarnings
+
   freertos-rust-stable:
     name: Build freertos-rust using stable
     runs-on: ubuntu-latest
@@ -46,9 +47,9 @@ jobs:
     #   RUSTFLAGS: -D warnings # Warnings disabled only in CI
     steps:
     - name: Clone
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
     - name: Cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cargo/registry
@@ -60,31 +61,37 @@ jobs:
       uses: dtolnay/rust-toolchain@stable
     - name: Build
       run: cargo build --verbose --no-default-features --features=sync,time,hooks,interrupt --package freertos-rust # Don't build the whole workspace because the examples use nightly features which will fail the build
+
   freertos-rust-examples:
     name: Build examples
-    runs-on: ubuntu-latest
     strategy:
       matrix:
         include:
-          #- example: win
-          #  target: x86_64-pc-windows-gnu
+          - example: win
+            target: x86_64-pc-windows-msvc
+            os: windows-latest
           - example: linux
             target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
           - example: stm32-cortex-m3
             target: thumbv7m-none-eabi
+            os: ubuntu-latest
           - example: stm32-cortex-m4-blackpill
             target: thumbv7em-none-eabihf
+            os: ubuntu-latest
           - example: nrf9160
             target: thumbv8m.main-none-eabihf
+            os: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     #env:
     #  RUSTFLAGS: -D warnings # Warnings disabled only in CI
     steps:
     - name: Clone
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
       with:
         submodules: recursive
     - name: Cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cargo/registry
@@ -97,6 +104,7 @@ jobs:
       with:
         targets: ${{ matrix.target }}
     - name: Install cross deps
+      if: matrix.os == 'ubuntu-latest'
       run: |
         case ${{ matrix.target }} in
           "x86_64-pc-windows-gnu")
