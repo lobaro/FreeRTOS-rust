@@ -74,8 +74,8 @@ jobs:
             target: thumbv7m-none-eabi
           - example: stm32-cortex-m4-blackpill
             target: thumbv7em-none-eabihf
-          #- example: nrf9160
-          #  target: thumbv8m.main-none-eabihf
+          - example: nrf9160
+            target: thumbv8m.main-none-eabihf
     #env:
     #  RUSTFLAGS: -D warnings # Warnings disabled only in CI
     steps:
