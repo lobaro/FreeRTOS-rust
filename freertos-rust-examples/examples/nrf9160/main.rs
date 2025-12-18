@@ -1,8 +1,7 @@
 #![no_std]
 #![no_main]
-// For allocator
-#![feature(lang_items)]
-#![feature(alloc_error_handler)]
+#![allow(dead_code)]
+#![allow(unused)]
 
 
 use cortex_m_rt::{entry, exception, ExceptionFrame};
@@ -11,17 +10,9 @@ use cortex_m::asm;
 
 use core::panic::PanicInfo;
 use freertos_rust::*;
-use core::alloc::Layout;
 
 #[global_allocator]
 static GLOBAL: FreeRtosAllocator = FreeRtosAllocator;
-
-// define what happens in an Out Of Memory (OOM) condition
-#[alloc_error_handler]
-fn alloc_error(_layout: Layout) -> ! {
-    asm::bkpt();
-    loop {}
-}
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
@@ -30,7 +21,7 @@ fn panic(_info: &PanicInfo) -> ! {
 
 
 #[exception]
-unsafe fn DefaultHandler(irqn: i16) {
+unsafe fn DefaultHandler(_irqn: i16) {
     do_blink();
     // custom default handler
     // irqn is negative for Cortex-M exceptions
@@ -41,7 +32,8 @@ unsafe fn DefaultHandler(irqn: i16) {
 
 
 #[exception]
-fn HardFault(_ef: &ExceptionFrame) -> ! {
+unsafe fn HardFault(_ef: &ExceptionFrame) -> ! {
+    asm::bkpt();
     do_blink();
     loop {}
 }
@@ -95,14 +87,18 @@ fn test_function(arg: i32) -> i32 {
 
 // FreeRTOS handler
 
+#[allow(non_snake_case)]
 #[no_mangle]
 fn vApplicationMallocFailedHook() {}
 
+#[allow(non_snake_case)]
 #[no_mangle]
 fn vApplicationIdleHook() {}
 
+#[allow(non_snake_case)]
 #[no_mangle]
 fn vApplicationStackOverflowHook(pxTask: FreeRtosTaskHandle, pcTaskName: FreeRtosCharPtr) {}
 
+#[allow(non_snake_case)]
 #[no_mangle]
 fn vApplicationTickHook() {}

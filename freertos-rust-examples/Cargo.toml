@@ -12,22 +12,24 @@ repository = "https://github.com/lobaro/FreeRTOS-rust"
 [dependencies]
 freertos-rust = {path = "../freertos-rust"}
 
-[target.'cfg(target_arch = "arm")'.dependencies]
-cortex-m = "0.7"
-cortex-m-rt = "0.7"
-
 # Example: stm32-cortex-m3
 [target.thumbv7m-none-eabi.dependencies]
+cortex-m = "0.7"
+cortex-m-rt = "0.7"
 stm32f1xx-hal = {version = "0.10", features = ["rt", "stm32f103", "medium"]}
 
 # Example: stm32-cortex-m4-blackpill
 [target.thumbv7em-none-eabihf.dependencies]
+cortex-m = "0.7"
+cortex-m-rt = "0.7"
 embedded-hal = "1.0"
 stm32f4xx-hal = {version = "0.22", features = ["stm32f411"]}
 
 # Example: nrf9160
 [target."thumbv8m.main-none-eabihf".dependencies]
-nrf9160-pac = "0.2.1"
+cortex-m = "0.7"
+cortex-m-rt = "0.7"
+nrf9160-pac = {version = "0.12", features = ["rt"]}
 
 # Example: win
 [target.x86_64-pc-windows-gnu.dependencies]

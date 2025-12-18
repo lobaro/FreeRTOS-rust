@@ -1,5 +1,4 @@
 use crate::base::*;
-use crate::prelude::v1::String;
 use crate::utils::*;
 
 use core::cell::OnceCell;
@@ -11,12 +10,12 @@ pub struct FreeRtosHooks {
 }
 
 impl FreeRtosHooks {
-    pub fn set_on_assert(&mut self, c: Callback) -> Result<(), Callback> {
+    pub fn set_on_assert(&self, c: Callback) -> Result<(), Callback> {
         self.on_assert.set(c)
     }
 
     fn do_on_assert(&self) {
-        if let Some (cb) = self.on_assert.get() {
+        if let Some(cb) = self.on_assert.get() {
             cb()
         }
     }
@@ -26,15 +25,14 @@ impl FreeRtosHooks {
 // kernel has asserted, both being single threaded situations.
 unsafe impl Sync for FreeRtosHooks {}
 
-pub static FREERTOS_HOOKS: FreeRtosHooks = FreeRtosHooks { on_assert: OnceCell::new() };
+pub static FREERTOS_HOOKS: FreeRtosHooks = FreeRtosHooks {
+    on_assert: OnceCell::new(),
+};
 
 #[allow(unused_doc_comments)]
 #[no_mangle]
 pub extern "C" fn vAssertCalled(file_name_ptr: FreeRtosCharPtr, line: FreeRtosUBaseType) {
-    let file_name: String;
-    unsafe {
-        file_name = str_from_c_string(file_name_ptr).unwrap();
-    }
+    let file_name = unsafe { str_from_c_string(file_name_ptr).unwrap() };
 
     FREERTOS_HOOKS.do_on_assert();
 
