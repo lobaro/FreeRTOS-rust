@@ -3,7 +3,7 @@ name = "freertos-cargo-build"
 description = """
 Utility lib for building & using FreeRTOS in rust projects inside the build.rs.
 """
-version = "0.1.1"
+version = "0.2.0"
 authors = ["Tobias Kaupat <tk@lobaro.de>"]
 edition = "2018"
 license = "MIT"
