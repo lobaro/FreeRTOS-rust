@@ -151,17 +151,24 @@ UBaseType_t freertos_rs_give_recursive_semaphore(SemaphoreHandle_t semaphore) {
 }
 #endif
 
+#if (configSUPPORT_DYNAMIC_ALLOCATION == 1)
+#if (configUSE_MUTEXES == 1)
 SemaphoreHandle_t freertos_rs_create_mutex() {
 	return xSemaphoreCreateMutex();
 }
+#endif // configUSE_MUTEXES
 
 SemaphoreHandle_t freertos_rs_create_binary_semaphore() {
 	return xSemaphoreCreateBinary();
 }
 
+
+#if (configUSE_COUNTING_SEMAPHORES == 1)
 SemaphoreHandle_t freertos_rs_create_counting_semaphore(UBaseType_t max, UBaseType_t initial) {
 	return xSemaphoreCreateCounting(max, initial);
 }
+#endif //configUSE_COUNTING_SEMAPHORES
+#endif // configSUPPORT_DYNAMIC_ALLOCATION
 
 void freertos_rs_delete_semaphore(SemaphoreHandle_t semaphore) {
 	vSemaphoreDelete(semaphore);
@@ -200,6 +207,7 @@ UBaseType_t freertos_rs_give_semaphore_isr(SemaphoreHandle_t semaphore, BaseType
 }
 
 
+#if (configSUPPORT_DYNAMIC_ALLOCATION == 1)
 UBaseType_t freertos_rs_spawn_task(TaskFunction_t entry_point, void* pvParameters, const char * const name, uint8_t name_len, uint16_t stack_size, UBaseType_t priority, TaskHandle_t* task_handle) {
 	char c_name[configMAX_TASK_NAME_LEN] = {0};
 	for (int i = 0; i < name_len; i++) {
@@ -220,6 +228,7 @@ UBaseType_t freertos_rs_spawn_task(TaskFunction_t entry_point, void* pvParameter
 
 	return 0;
 }
+#endif
 
 #if (INCLUDE_vTaskDelete == 1)
 void freertos_rs_delete_task(TaskHandle_t task) {
@@ -241,9 +250,11 @@ UBaseType_t freertos_rs_get_stack_high_water_mark(TaskHandle_t task) {
 }
 
 
+#if (configSUPPORT_DYNAMIC_ALLOCATION == 1)
 QueueHandle_t freertos_rs_queue_create(UBaseType_t queue_length, UBaseType_t item_size) {
 	return xQueueCreate(queue_length, item_size);
 }
+#endif
 
 void freertos_rs_queue_delete(QueueHandle_t queue) {
 	vQueueDelete(queue);
@@ -434,9 +445,12 @@ void freertos_rs_exit_critical() {
 	taskEXIT_CRITICAL();
 }
 
+
+#if (configSUPPORT_DYNAMIC_ALLOCATION == 1)
 EventGroupHandle_t freertos_rs_event_group_create() {
 	return xEventGroupCreate();
 }
+#endif
 
 void freertos_rs_event_group_delete(EventGroupHandle_t event_group) {
 	vEventGroupDelete(event_group);
