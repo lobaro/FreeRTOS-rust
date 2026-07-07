@@ -231,6 +231,16 @@ void freertos_rs_suspend_task(TaskHandle_t task) {
 	vTaskSuspend(task);
 }
 
+void freertos_rs_resume_task(TaskHandle_t task) {
+	vTaskResume(task);
+}
+
+void freertos_rs_resume_task_from_isr(TaskHandle_t task, BaseType_t* xHigherPriorityTaskWoken) {
+	if (xTaskResumeFromISR(task) != pdFALSE) {
+		*xHigherPriorityTaskWoken = pdTRUE;
+	}
+}
+
 UBaseType_t freertos_rs_get_stack_high_water_mark(TaskHandle_t task) {
 #if (INCLUDE_uxTaskGetStackHighWaterMark == 1)
 	return uxTaskGetStackHighWaterMark(task);

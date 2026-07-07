@@ -114,6 +114,11 @@ extern "C" {
     ) -> FreeRtosUBaseType;
     pub fn freertos_rs_delete_task(task: FreeRtosTaskHandle);
     pub fn freertos_rs_suspend_task(task: FreeRtosTaskHandle);
+    pub fn freertos_rs_resume_task(task: FreeRtosTaskHandle);
+    pub fn freertos_rs_resume_task_from_isr(
+        task: FreeRtosTaskHandle,
+        xHigherPriorityTaskWoken: FreeRtosBaseTypeMutPtr,
+    );
     pub fn freertos_rs_vTaskSuspendAll();
     pub fn freertos_rs_xTaskResumeAll() -> FreeRtosBaseType;
 

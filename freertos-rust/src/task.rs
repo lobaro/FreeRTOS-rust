@@ -133,6 +133,20 @@ impl Task {
         }
     }
 
+    /// Resume a suspended task.
+    pub fn resume(&self) {
+        unsafe {
+            freertos_rs_resume_task(self.task_handle);
+        }
+    }
+
+    /// Resume a suspended task from an interrupt.
+    pub fn resume_from_isr(&self, context: &mut InterruptContext) {
+        unsafe {
+            freertos_rs_resume_task_from_isr(self.task_handle, context.get_task_field_mut());
+        }
+    }
+
     unsafe fn spawn_inner<'a>(
         f: Box<dyn FnOnce(Task)>,
         name: &str,
